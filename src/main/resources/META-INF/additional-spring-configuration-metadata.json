@@ -1,0 +1,47 @@
+{"properties": [
+  {
+    "name": "francetravail.auth",
+    "type": "fr.sirene.jobtracker.infrastructure.francetravail.config.FranceTravailAuthProperties",
+    "description": "A description for 'francetravail.auth'"
+  },
+  {
+    "name": "francetravail.api",
+    "type": "fr.sirene.jobtracker.infrastructure.francetravail.config.FranceTravailApiProperties",
+    "description": "A description for 'francetravail.api'"
+  },
+  {
+    "name": "jobtracker.sync.cron",
+    "type": "java.lang.String",
+    "description": "A description for 'jobtracker.sync.cron'"
+  },
+  {
+    "name": "jobtracker.recherche",
+    "type": "fr.sirene.jobtracker.application.usecase.RechercheOffresProperties",
+    "description": "A description for 'jobtracker.recherche'"
+  },
+  {
+    "name": "ban.api",
+    "type": "fr.sirene.jobtracker.infrastructure.ban.config.BanApiProperties",
+    "description": "A description for 'ban.api'"
+  },
+  {
+    "name": "geo.api",
+    "type": "fr.sirene.jobtracker.infrastructure.geo.config.GeoApiProperties",
+    "description": "A description for 'geo.api'"
+  },
+  {
+    "name": "scraping",
+    "type": "fr.sirene.jobtracker.infrastructure.scraping.config.ScrapingProperties",
+    "description": "A description for 'scraping'"
+  },
+  {
+    "name": "mistral.api",
+    "type": "fr.sirene.jobtracker.infrastructure.mistral.config.MistralApiProperties",
+    "description": "A description for 'mistral.api'"
+  },
+  {
+    "name": "jobtracker.cors",
+    "type": "fr.sirene.jobtracker.infrastructure.config.CorsProperties",
+    "description": "A description for 'jobtracker.cors'"
+  }
+]}

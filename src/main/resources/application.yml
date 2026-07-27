@@ -1,0 +1,87 @@
+server:
+  port: 8081
+
+francetravail:
+  auth:
+    token-url: https://entreprise.francetravail.fr/connexion/oauth2/access_token?realm=/partenaire
+    client-id: ${FRANCETRAVAIL_CLIENT_ID:placeholder}
+    client-secret: ${FRANCETRAVAIL_CLIENT_SECRET:placeholder}
+    scope: api_offresdemploiv2 o2dsoffre
+    connect-timeout: 5s
+    read-timeout: 10s
+  api:
+    base-url: https://api.francetravail.io/partenaire/offresdemploi/v2
+    connect-timeout: 5s
+    read-timeout: 10s
+
+ban:
+  api:
+    base-url: https://api-adresse.data.gouv.fr
+    connect-timeout: 5s
+    read-timeout: 10s
+
+geo:
+  api:
+    base-url: https://geo.api.gouv.fr
+    connect-timeout: 5s
+    read-timeout: 5s
+
+scraping:
+  connect-timeout: 5s
+  read-timeout: 10s
+
+mistral:
+  api:
+    base-url: https://api.mistral.ai
+    api-key: ${MISTRAL_API_KEY:placeholder}
+    model: mistral-small-latest
+    connect-timeout: 5s
+    read-timeout: 30s
+
+jobtracker:
+  cors:
+    allowed-origins:
+      - http://localhost:5173
+  sync:
+    cron: "0 0 */6 * * *"
+  recherche:
+    mots-cles:
+      - "Java, Back-end"
+      - "Java,développeur"
+      - "Java, lead dev"
+      - "lead tech"
+    type-contrat: CDI
+    code-commune: "44109,44020,85191,85047,85194"
+
+spring:
+  application:
+    name: job-offres-tracker
+  jackson:
+    default-property-inclusion: non_null
+    deserialization:
+      fail-on-unknown-properties: false
+  datasource:
+    url: jdbc:postgresql://localhost:5432/jobtracker
+    username: jobtracker
+    password: ${DB_PASSWORD:jobtracker}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    root: INFO
+    "[fr.sirene.jobtracker]": DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%logger{36}] - %msg%n"
