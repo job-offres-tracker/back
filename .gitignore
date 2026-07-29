@@ -2,3 +2,4 @@ target/
 .env
 compose.ps1
 .vscode/
+data/*

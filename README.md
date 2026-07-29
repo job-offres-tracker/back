@@ -57,7 +57,7 @@ Première installation : copier `.env.example` vers `.env` et compléter les val
 Autres points de configuration notables dans `application.yml` (tous surchargeables) :
 
 - `jobtracker.sync.cron` : fréquence de la synchronisation planifiée (par défaut toutes les 6h)
-- `jobtracker.recherche.mots-cles` / `type-contrat` / `code-commune` : critères de recherche France Travail
+- Les critères de recherche (mots-clés, communes, type de contrat) ne sont plus configurés dans `application.yml` : ils sont gérés via `GET`/`PUT /api/v1/parametres/recherche`
 - `jobtracker.cors.allowed-origins` : origines autorisées pour le front (par défaut `http://localhost:5173`)
 - `mistral.api.model` : modèle Mistral utilisé pour l'extraction (par défaut `mistral-small-latest`)
 - `*.connect-timeout` / `*.read-timeout` : timeouts HTTP par intégration externe (France Travail, BAN, API Géo, scraping, Mistral)

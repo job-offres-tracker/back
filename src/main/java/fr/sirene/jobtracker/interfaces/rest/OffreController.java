@@ -152,6 +152,9 @@ public class OffreController {
                     + "(la même synchronisation que celle exécutée automatiquement par le planificateur).")
     @ApiResponses({
             @ApiResponse(responseCode = "202", description = "Synchronisation exécutée et traitée"),
+            @ApiResponse(responseCode = "400", description = "Aucun mot-clé ou aucune commune n'est configuré(e)",
+                    content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
+                            schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "502", description = "Erreur lors de l'appel à l'API France Travail",
                     content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
                             schema = @Schema(implementation = ProblemDetail.class)))
