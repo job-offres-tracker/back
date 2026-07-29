@@ -44,14 +44,9 @@ jobtracker:
       - http://localhost:5173
   sync:
     cron: "0 0 */6 * * *"
-  recherche:
-    mots-cles:
-      - "Java, Back-end"
-      - "Java,développeur"
-      - "Java, lead dev"
-      - "lead tech"
-    type-contrat: CDI
-    code-commune: "44109,44020,85191,85047,85194"
+  cv:
+    stockage:
+      repertoire: ${CV_STOCKAGE_REPERTOIRE:./data/cv}
 
 spring:
   application:
@@ -70,6 +65,10 @@ spring:
     open-in-view: false
   flyway:
     enabled: true
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
 
 springdoc:
   swagger-ui:

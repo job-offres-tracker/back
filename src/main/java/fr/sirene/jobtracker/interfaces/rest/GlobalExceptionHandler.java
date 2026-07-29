@@ -1,27 +1,38 @@
 package fr.sirene.jobtracker.interfaces.rest;
 
+import fr.sirene.jobtracker.domain.exception.CvNonTrouveException;
 import fr.sirene.jobtracker.domain.exception.ExtractionOffreIAException;
 import fr.sirene.jobtracker.domain.exception.GeocodageAdresseException;
 import fr.sirene.jobtracker.domain.exception.OffreDejaExistanteException;
 import fr.sirene.jobtracker.domain.exception.OffreEmploiApiException;
 import fr.sirene.jobtracker.domain.exception.OffreNonTrouveeException;
+import fr.sirene.jobtracker.domain.exception.ParametresRechercheNonConfiguresException;
 import fr.sirene.jobtracker.domain.exception.RechercheCommuneException;
 import fr.sirene.jobtracker.domain.exception.RecuperationPageException;
+import fr.sirene.jobtracker.domain.exception.StockageFichierException;
+import fr.sirene.jobtracker.domain.exception.TailleFichierDepasseeException;
+import fr.sirene.jobtracker.domain.exception.TypeFichierNonAutoriseException;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
 
@@ -144,6 +155,14 @@ public class GlobalExceptionHandler {
         return detail;
     }
 
+    @ExceptionHandler(ParametresRechercheNonConfiguresException.class)
+    public ProblemDetail handleParametresRechercheNonConfigures(ParametresRechercheNonConfiguresException ex) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        detail.setTitle("Synchronisation impossible");
+        detail.setProperty("timestamp", Instant.now());
+        return detail;
+    }
+
     @ExceptionHandler(ExtractionOffreIAException.class)
     public ProblemDetail handleExtractionOffreIAException(ExtractionOffreIAException ex) {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_GATEWAY, ex.getMessage());
@@ -152,8 +171,58 @@ public class GlobalExceptionHandler {
         return detail;
     }
 
+    @ExceptionHandler(CvNonTrouveException.class)
+    public ProblemDetail handleCvNonTrouve(CvNonTrouveException ex) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        detail.setTitle("CV introuvable");
+        detail.setProperty("timestamp", Instant.now());
+        return detail;
+    }
+
+    @ExceptionHandler(TypeFichierNonAutoriseException.class)
+    public ProblemDetail handleTypeFichierNonAutorise(TypeFichierNonAutoriseException ex) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        detail.setTitle("Type de fichier non autorisé");
+        detail.setProperty("timestamp", Instant.now());
+        return detail;
+    }
+
+    @ExceptionHandler(TailleFichierDepasseeException.class)
+    public ProblemDetail handleTailleFichierDepassee(TailleFichierDepasseeException ex) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        detail.setTitle("Fichier trop volumineux");
+        detail.setProperty("timestamp", Instant.now());
+        return detail;
+    }
+
+    @ExceptionHandler({MissingServletRequestPartException.class, MissingServletRequestParameterException.class})
+    public ProblemDetail handleRequeteIncomplete(Exception ex) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        detail.setTitle("Requête incomplète");
+        detail.setProperty("timestamp", Instant.now());
+        return detail;
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ProblemDetail handleMaxUploadSizeExceeded(MaxUploadSizeExceededException ex) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST, "Le fichier envoyé dépasse la taille maximale autorisée par le serveur");
+        detail.setTitle("Fichier trop volumineux");
+        detail.setProperty("timestamp", Instant.now());
+        return detail;
+    }
+
+    @ExceptionHandler(StockageFichierException.class)
+    public ProblemDetail handleStockageFichier(StockageFichierException ex) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        detail.setTitle("Erreur de stockage");
+        detail.setProperty("timestamp", Instant.now());
+        return detail;
+    }
+
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleUnexpected(Exception ex) {
+        log.debug("Exception inattendue : {}", ex.getMessage(), ex);
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Une erreur inattendue est survenue");
         detail.setTitle("Erreur interne");
         detail.setProperty("timestamp", Instant.now());

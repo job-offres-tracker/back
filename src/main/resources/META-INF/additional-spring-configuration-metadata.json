@@ -15,11 +15,6 @@
     "description": "A description for 'jobtracker.sync.cron'"
   },
   {
-    "name": "jobtracker.recherche",
-    "type": "fr.sirene.jobtracker.application.usecase.RechercheOffresProperties",
-    "description": "A description for 'jobtracker.recherche'"
-  },
-  {
     "name": "ban.api",
     "type": "fr.sirene.jobtracker.infrastructure.ban.config.BanApiProperties",
     "description": "A description for 'ban.api'"
@@ -43,5 +38,10 @@
     "name": "jobtracker.cors",
     "type": "fr.sirene.jobtracker.infrastructure.config.CorsProperties",
     "description": "A description for 'jobtracker.cors'"
+  },
+  {
+    "name": "jobtracker.cv.stockage",
+    "type": "fr.sirene.jobtracker.infrastructure.cv.config.CvStockageProperties",
+    "description": "A description for 'jobtracker.cv.stockage'"
   }
 ]}
