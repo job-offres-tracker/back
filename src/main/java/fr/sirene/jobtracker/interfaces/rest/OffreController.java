@@ -3,6 +3,7 @@ package fr.sirene.jobtracker.interfaces.rest;
 import fr.sirene.jobtracker.application.usecase.ConsulterOffreUseCase;
 import fr.sirene.jobtracker.application.usecase.ConsulterOffresUseCase;
 import fr.sirene.jobtracker.application.usecase.CreerOffreManuelleUseCase;
+import fr.sirene.jobtracker.application.usecase.GenererLettreMotivationUseCase;
 import fr.sirene.jobtracker.application.usecase.ImporterOffreDepuisUrlUseCase;
 import fr.sirene.jobtracker.application.usecase.MettreAJourEtatOffresUseCase;
 import fr.sirene.jobtracker.application.usecase.SynchroniserOffresUseCase;
@@ -11,7 +12,9 @@ import fr.sirene.jobtracker.domain.model.EtatOffre;
 import fr.sirene.jobtracker.domain.model.Offre;
 import fr.sirene.jobtracker.domain.model.ResultatPagine;
 import fr.sirene.jobtracker.interfaces.rest.dto.CreerOffreRequest;
+import fr.sirene.jobtracker.interfaces.rest.dto.GenererLettreMotivationRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.ImporterOffreRequest;
+import fr.sirene.jobtracker.interfaces.rest.dto.LettreMotivationResponse;
 import fr.sirene.jobtracker.interfaces.rest.dto.MettreAJourEtatRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.OffreExtraiteResponse;
 import fr.sirene.jobtracker.interfaces.rest.dto.OffreResponse;
@@ -62,6 +65,7 @@ public class OffreController {
     private final SynchroniserOffresUseCase synchroniserOffresUseCase;
     private final MettreAJourEtatOffresUseCase mettreAJourEtatOffresUseCase;
     private final ImporterOffreDepuisUrlUseCase importerOffreDepuisUrlUseCase;
+    private final GenererLettreMotivationUseCase genererLettreMotivationUseCase;
 
     public OffreController(
             ConsulterOffresUseCase consulterOffresUseCase,
@@ -69,13 +73,15 @@ public class OffreController {
             CreerOffreManuelleUseCase creerOffreManuelleUseCase,
             SynchroniserOffresUseCase synchroniserOffresUseCase,
             MettreAJourEtatOffresUseCase mettreAJourEtatOffresUseCase,
-            ImporterOffreDepuisUrlUseCase importerOffreDepuisUrlUseCase) {
+            ImporterOffreDepuisUrlUseCase importerOffreDepuisUrlUseCase,
+            GenererLettreMotivationUseCase genererLettreMotivationUseCase) {
         this.consulterOffresUseCase = consulterOffresUseCase;
         this.consulterOffreUseCase = consulterOffreUseCase;
         this.creerOffreManuelleUseCase = creerOffreManuelleUseCase;
         this.synchroniserOffresUseCase = synchroniserOffresUseCase;
         this.mettreAJourEtatOffresUseCase = mettreAJourEtatOffresUseCase;
         this.importerOffreDepuisUrlUseCase = importerOffreDepuisUrlUseCase;
+        this.genererLettreMotivationUseCase = genererLettreMotivationUseCase;
     }
 
     @Operation(
@@ -200,5 +206,30 @@ public class OffreController {
         log.debug("requete: {}", requete);
         BrouillonOffre brouillon = importerOffreDepuisUrlUseCase.executer(requete.url());
         return ResponseEntity.ok(OffreExtraiteResponse.fromDomain(brouillon, PROVENANCE_HELLOWORK));
+    }
+
+    @Operation(
+            summary = "Générer une lettre de motivation",
+            description = "Génère, via une IA, une lettre de motivation type pour l'offre et le CV donnés. "
+                    + "La lettre n'est pas sauvegardée : elle est renvoyée pour être relue et complétée par l'utilisateur.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lettre de motivation générée avec succès"),
+            @ApiResponse(responseCode = "400", description = "Nom unique du CV manquant",
+                    content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
+                            schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "404", description = "Offre ou CV introuvable",
+                    content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
+                            schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "502", description = "Échec de l'appel à l'IA de génération",
+                    content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
+                            schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    @PostMapping("/{idExterne}/generer-lettre-motivation")
+    public ResponseEntity<LettreMotivationResponse> genererLettreMotivation(
+            @Parameter(description = "Identifiant externe de l'offre", required = true)
+            @PathVariable String idExterne,
+            @Valid @RequestBody GenererLettreMotivationRequest requete) {
+        String lettre = genererLettreMotivationUseCase.executer(idExterne, requete.cvNomUnique());
+        return ResponseEntity.ok(new LettreMotivationResponse(lettre));
     }
 }

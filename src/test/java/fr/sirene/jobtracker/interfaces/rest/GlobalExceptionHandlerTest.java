@@ -13,10 +13,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ProblemDetail;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -111,6 +114,23 @@ class GlobalExceptionHandlerTest {
 
         assertThat(detail.getStatus()).isEqualTo(400);
         assertThat(detail.getDetail()).contains("nom");
+    }
+
+    @Test
+    void renvoie_404_quand_aucune_ressource_ne_correspond_a_l_url() {
+        ProblemDetail detail = handler.handleNoResourceFound(
+                new NoResourceFoundException(HttpMethod.GET, "/api/v1/inconnu", "inconnu"));
+
+        assertThat(detail.getStatus()).isEqualTo(404);
+    }
+
+    @Test
+    void renvoie_405_quand_la_methode_http_n_est_pas_supportee() {
+        ProblemDetail detail = handler.handleMethodNotSupported(
+                new HttpRequestMethodNotSupportedException("DELETE"));
+
+        assertThat(detail.getStatus()).isEqualTo(405);
+        assertThat(detail.getDetail()).contains("DELETE");
     }
 
     @Test
