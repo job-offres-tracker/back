@@ -30,11 +30,6 @@
     "description": "A description for 'scraping'"
   },
   {
-    "name": "mistral.api",
-    "type": "fr.sirene.jobtracker.infrastructure.mistral.config.MistralApiProperties",
-    "description": "A description for 'mistral.api'"
-  },
-  {
     "name": "jobtracker.cors",
     "type": "fr.sirene.jobtracker.infrastructure.config.CorsProperties",
     "description": "A description for 'jobtracker.cors'"

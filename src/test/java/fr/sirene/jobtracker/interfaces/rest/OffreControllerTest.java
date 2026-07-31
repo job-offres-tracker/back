@@ -3,9 +3,11 @@ package fr.sirene.jobtracker.interfaces.rest;
 import fr.sirene.jobtracker.application.usecase.ConsulterOffreUseCase;
 import fr.sirene.jobtracker.application.usecase.ConsulterOffresUseCase;
 import fr.sirene.jobtracker.application.usecase.CreerOffreManuelleUseCase;
+import fr.sirene.jobtracker.application.usecase.GenererLettreMotivationUseCase;
 import fr.sirene.jobtracker.application.usecase.ImporterOffreDepuisUrlUseCase;
 import fr.sirene.jobtracker.application.usecase.MettreAJourEtatOffresUseCase;
 import fr.sirene.jobtracker.application.usecase.SynchroniserOffresUseCase;
+import fr.sirene.jobtracker.domain.exception.CvNonTrouveException;
 import fr.sirene.jobtracker.domain.exception.OffreDejaExistanteException;
 import fr.sirene.jobtracker.domain.exception.OffreNonTrouveeException;
 import fr.sirene.jobtracker.domain.model.EtatOffre;
@@ -13,6 +15,7 @@ import fr.sirene.jobtracker.domain.model.Offre;
 import fr.sirene.jobtracker.domain.model.ResultatPagine;
 import fr.sirene.jobtracker.infrastructure.config.CorsConfig;
 import fr.sirene.jobtracker.interfaces.rest.dto.CreerOffreRequest;
+import fr.sirene.jobtracker.interfaces.rest.dto.GenererLettreMotivationRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.MettreAJourEtatRequest;
 import jakarta.inject.Inject;
 import tools.jackson.databind.ObjectMapper;
@@ -63,6 +66,8 @@ class OffreControllerTest {
     private MettreAJourEtatOffresUseCase mettreAJourEtatOffresUseCase;
     @MockitoBean
     private ImporterOffreDepuisUrlUseCase importerOffreDepuisUrlUseCase;
+    @MockitoBean
+    private GenererLettreMotivationUseCase genererLettreMotivationUseCase;
 
     @Nested
     class ConsulterLesOffres {
@@ -192,6 +197,57 @@ class OffreControllerTest {
                             .contentType("application/json")
                             .content("{\"etat\":\"POSTULE\"}"))
                     .andExpect(status().isBadRequest());
+        }
+    }
+
+    @Nested
+    class GenererLettreMotivation {
+
+        @Test
+        void renvoie_200_avec_la_lettre_generee() throws Exception {
+            when(genererLettreMotivationUseCase.executer("123", "cv-1")).thenReturn("Madame, Monsieur, ...");
+
+            GenererLettreMotivationRequest requete = new GenererLettreMotivationRequest("cv-1");
+
+            mockMvc.perform(post("/api/v1/offres/123/generer-lettre-motivation")
+                            .contentType("application/json")
+                            .content(objectMapper.writeValueAsString(requete)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.contenu").value("Madame, Monsieur, ..."));
+        }
+
+        @Test
+        void renvoie_400_quand_le_nom_du_cv_est_absent() throws Exception {
+            mockMvc.perform(post("/api/v1/offres/123/generer-lettre-motivation")
+                            .contentType("application/json")
+                            .content("{}"))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void renvoie_404_quand_l_offre_est_introuvable() throws Exception {
+            when(genererLettreMotivationUseCase.executer("inconnu", "cv-1"))
+                    .thenThrow(new OffreNonTrouveeException("inconnu"));
+
+            GenererLettreMotivationRequest requete = new GenererLettreMotivationRequest("cv-1");
+
+            mockMvc.perform(post("/api/v1/offres/inconnu/generer-lettre-motivation")
+                            .contentType("application/json")
+                            .content(objectMapper.writeValueAsString(requete)))
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void renvoie_404_quand_le_cv_est_introuvable() throws Exception {
+            when(genererLettreMotivationUseCase.executer("123", "inconnu"))
+                    .thenThrow(new CvNonTrouveException("inconnu"));
+
+            GenererLettreMotivationRequest requete = new GenererLettreMotivationRequest("inconnu");
+
+            mockMvc.perform(post("/api/v1/offres/123/generer-lettre-motivation")
+                            .contentType("application/json")
+                            .content(objectMapper.writeValueAsString(requete)))
+                    .andExpect(status().isNotFound());
         }
     }
 }
