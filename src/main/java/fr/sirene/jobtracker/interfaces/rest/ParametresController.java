@@ -1,13 +1,18 @@
 package fr.sirene.jobtracker.interfaces.rest;
 
 import fr.sirene.jobtracker.application.usecase.ConsulterParametresCvUseCase;
+import fr.sirene.jobtracker.application.usecase.ConsulterParametresDocumentCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.ConsulterParametresRechercheUseCase;
 import fr.sirene.jobtracker.application.usecase.ModifierParametresCvUseCase;
+import fr.sirene.jobtracker.application.usecase.ModifierParametresDocumentCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.ModifierParametresRechercheUseCase;
 import fr.sirene.jobtracker.domain.model.ParametresCv;
+import fr.sirene.jobtracker.domain.model.ParametresDocumentCandidature;
 import fr.sirene.jobtracker.domain.model.ParametresRecherche;
 import fr.sirene.jobtracker.interfaces.rest.dto.ParametresCvRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.ParametresCvResponse;
+import fr.sirene.jobtracker.interfaces.rest.dto.ParametresDocumentCandidatureRequest;
+import fr.sirene.jobtracker.interfaces.rest.dto.ParametresDocumentCandidatureResponse;
 import fr.sirene.jobtracker.interfaces.rest.dto.ParametresRechercheRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.ParametresRechercheResponse;
 
@@ -40,16 +45,22 @@ public class ParametresController {
     private final ModifierParametresRechercheUseCase modifierParametresRechercheUseCase;
     private final ConsulterParametresCvUseCase consulterParametresCvUseCase;
     private final ModifierParametresCvUseCase modifierParametresCvUseCase;
+    private final ConsulterParametresDocumentCandidatureUseCase consulterParametresDocumentCandidatureUseCase;
+    private final ModifierParametresDocumentCandidatureUseCase modifierParametresDocumentCandidatureUseCase;
 
     public ParametresController(
             ConsulterParametresRechercheUseCase consulterParametresRechercheUseCase,
             ModifierParametresRechercheUseCase modifierParametresRechercheUseCase,
             ConsulterParametresCvUseCase consulterParametresCvUseCase,
-            ModifierParametresCvUseCase modifierParametresCvUseCase) {
+            ModifierParametresCvUseCase modifierParametresCvUseCase,
+            ConsulterParametresDocumentCandidatureUseCase consulterParametresDocumentCandidatureUseCase,
+            ModifierParametresDocumentCandidatureUseCase modifierParametresDocumentCandidatureUseCase) {
         this.consulterParametresRechercheUseCase = consulterParametresRechercheUseCase;
         this.modifierParametresRechercheUseCase = modifierParametresRechercheUseCase;
         this.consulterParametresCvUseCase = consulterParametresCvUseCase;
         this.modifierParametresCvUseCase = modifierParametresCvUseCase;
+        this.consulterParametresDocumentCandidatureUseCase = consulterParametresDocumentCandidatureUseCase;
+        this.modifierParametresDocumentCandidatureUseCase = modifierParametresDocumentCandidatureUseCase;
     }
 
     @Operation(
@@ -106,5 +117,34 @@ public class ParametresController {
     public ResponseEntity<ParametresCvResponse> modifierCv(@Valid @RequestBody ParametresCvRequest requete) {
         ParametresCv parametres = modifierParametresCvUseCase.executer(requete.tailleMaxOctets());
         return ResponseEntity.ok(ParametresCvResponse.fromDomain(parametres));
+    }
+
+    @Operation(
+            summary = "Consulter les paramètres des documents de candidature",
+            description = "Retourne la taille maximale actuellement autorisée pour l'upload d'un document de candidature.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Paramètres renvoyés avec succès")
+    })
+    @GetMapping("/document-candidature")
+    public ResponseEntity<ParametresDocumentCandidatureResponse> consulterDocumentCandidature() {
+        ParametresDocumentCandidature parametres = consulterParametresDocumentCandidatureUseCase.executer();
+        return ResponseEntity.ok(ParametresDocumentCandidatureResponse.fromDomain(parametres));
+    }
+
+    @Operation(
+            summary = "Modifier les paramètres des documents de candidature",
+            description = "Met à jour la taille maximale autorisée pour l'upload d'un document de candidature.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Paramètres mis à jour"),
+            @ApiResponse(responseCode = "400", description = "Taille maximale invalide (doit être positive)",
+                    content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
+                            schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    @PutMapping("/document-candidature")
+    public ResponseEntity<ParametresDocumentCandidatureResponse> modifierDocumentCandidature(
+            @Valid @RequestBody ParametresDocumentCandidatureRequest requete) {
+        ParametresDocumentCandidature parametres =
+                modifierParametresDocumentCandidatureUseCase.executer(requete.tailleMaxOctets());
+        return ResponseEntity.ok(ParametresDocumentCandidatureResponse.fromDomain(parametres));
     }
 }

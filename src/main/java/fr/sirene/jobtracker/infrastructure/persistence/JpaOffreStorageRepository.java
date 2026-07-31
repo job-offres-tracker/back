@@ -64,6 +64,11 @@ public class JpaOffreStorageRepository implements OffreStorageRepository {
         return offreJpaRepository.findByIdExterne(idExterne).map(this::toDomain);
     }
 
+    @Override
+    public List<Offre> trouverParIdsExternes(List<String> idsExternes) {
+        return offreJpaRepository.findByIdExterneIn(idsExternes).stream().map(this::toDomain).toList();
+    }
+
     private OffreEntity toEntity(Offre offre) {
         OffreEntity entity = offreJpaRepository.findByIdExterne(offre.getIdExterne())
                 .orElseGet(() -> {

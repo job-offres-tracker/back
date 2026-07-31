@@ -17,6 +17,8 @@ public interface OffreJpaRepository extends JpaRepository<OffreEntity, Long> {
 
     Optional<OffreEntity> findByIdExterne(String idExterne);
 
+    List<OffreEntity> findByIdExterneIn(List<String> idsExternes);
+
     Page<OffreEntity> findByEtatIn(List<EtatOffre> etats, Pageable pageable);
 
     long countByEtatIn(List<EtatOffre> etats);

@@ -1,14 +1,18 @@
 package fr.sirene.jobtracker.interfaces.rest;
 
 import fr.sirene.jobtracker.application.usecase.ConsulterParametresCvUseCase;
+import fr.sirene.jobtracker.application.usecase.ConsulterParametresDocumentCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.ConsulterParametresRechercheUseCase;
 import fr.sirene.jobtracker.application.usecase.ModifierParametresCvUseCase;
+import fr.sirene.jobtracker.application.usecase.ModifierParametresDocumentCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.ModifierParametresRechercheUseCase;
 import fr.sirene.jobtracker.domain.model.CommuneRecherche;
 import fr.sirene.jobtracker.domain.model.ParametresCv;
+import fr.sirene.jobtracker.domain.model.ParametresDocumentCandidature;
 import fr.sirene.jobtracker.domain.model.ParametresRecherche;
 import fr.sirene.jobtracker.infrastructure.config.CorsConfig;
 import fr.sirene.jobtracker.interfaces.rest.dto.ParametresCvRequest;
+import fr.sirene.jobtracker.interfaces.rest.dto.ParametresDocumentCandidatureRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.ParametresRechercheRequest;
 import jakarta.inject.Inject;
 import tools.jackson.databind.ObjectMapper;
@@ -53,6 +57,12 @@ class ParametresControllerTest {
 
     @MockitoBean
     private ModifierParametresCvUseCase modifierParametresCvUseCase;
+
+    @MockitoBean
+    private ConsulterParametresDocumentCandidatureUseCase consulterParametresDocumentCandidatureUseCase;
+
+    @MockitoBean
+    private ModifierParametresDocumentCandidatureUseCase modifierParametresDocumentCandidatureUseCase;
 
     @Nested
     class ConsulterRecherche {
@@ -146,6 +156,50 @@ class ParametresControllerTest {
             ParametresCvRequest requete = new ParametresCvRequest(0L);
 
             mockMvc.perform(put("/api/v1/parametres/cv")
+                            .contentType("application/json")
+                            .content(objectMapper.writeValueAsString(requete)))
+                    .andExpect(status().isBadRequest());
+        }
+    }
+
+    @Nested
+    class ConsulterDocumentCandidature {
+
+        @Test
+        void renvoie_200_avec_la_taille_max_configuree() throws Exception {
+            when(consulterParametresDocumentCandidatureUseCase.executer())
+                    .thenReturn(new ParametresDocumentCandidature(10_485_760L));
+
+            mockMvc.perform(get("/api/v1/parametres/document-candidature"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.tailleMaxOctets").value(10_485_760L));
+        }
+    }
+
+    @Nested
+    class ModifierDocumentCandidature {
+
+        @Test
+        void renvoie_200_avec_la_taille_max_mise_a_jour() throws Exception {
+            when(modifierParametresDocumentCandidatureUseCase.executer(1_000_000L))
+                    .thenReturn(new ParametresDocumentCandidature(1_000_000L));
+
+            ParametresDocumentCandidatureRequest requete = new ParametresDocumentCandidatureRequest(1_000_000L);
+
+            mockMvc.perform(put("/api/v1/parametres/document-candidature")
+                            .contentType("application/json")
+                            .content(objectMapper.writeValueAsString(requete)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.tailleMaxOctets").value(1_000_000L));
+
+            verify(modifierParametresDocumentCandidatureUseCase).executer(1_000_000L);
+        }
+
+        @Test
+        void renvoie_400_quand_la_taille_max_n_est_pas_positive() throws Exception {
+            ParametresDocumentCandidatureRequest requete = new ParametresDocumentCandidatureRequest(0L);
+
+            mockMvc.perform(put("/api/v1/parametres/document-candidature")
                             .contentType("application/json")
                             .content(objectMapper.writeValueAsString(requete)))
                     .andExpect(status().isBadRequest());
