@@ -220,6 +220,9 @@ public class OffreController {
             @ApiResponse(responseCode = "404", description = "Offre ou CV introuvable",
                     content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
                             schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "422", description = "Impossible d'extraire le texte du CV",
+                    content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
+                            schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "502", description = "Échec de l'appel à l'IA de génération",
                     content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
                             schema = @Schema(implementation = ProblemDetail.class)))

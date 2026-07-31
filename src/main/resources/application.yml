@@ -49,6 +49,11 @@ spring:
       chat:
         model: mistral-small-latest
         temperature: 0.7
+    # Par défaut Spring AI avale les exceptions levées par un @Tool et les transforme en
+    # simple message texte renvoyé au modèle ; on veut qu'elles remontent comme de vraies
+    # exceptions Java pour que GenererLettreMotivationUseCase puisse les traiter.
+    tools:
+      throw-exception-on-error: true
   jackson:
     default-property-inclusion: non_null
     deserialization:

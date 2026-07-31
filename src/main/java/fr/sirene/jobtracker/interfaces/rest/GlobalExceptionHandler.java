@@ -2,6 +2,7 @@ package fr.sirene.jobtracker.interfaces.rest;
 
 import fr.sirene.jobtracker.domain.exception.CvNonTrouveException;
 import fr.sirene.jobtracker.domain.exception.ExtractionOffreIAException;
+import fr.sirene.jobtracker.domain.exception.ExtractionTexteCvException;
 import fr.sirene.jobtracker.domain.exception.GenerationLettreMotivationException;
 import fr.sirene.jobtracker.domain.exception.GeocodageAdresseException;
 import fr.sirene.jobtracker.domain.exception.OffreDejaExistanteException;
@@ -186,6 +187,14 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleCvNonTrouve(CvNonTrouveException ex) {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
         detail.setTitle("CV introuvable");
+        detail.setProperty("timestamp", Instant.now());
+        return detail;
+    }
+
+    @ExceptionHandler(ExtractionTexteCvException.class)
+    public ProblemDetail handleExtractionTexteCvException(ExtractionTexteCvException ex) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_CONTENT, ex.getMessage());
+        detail.setTitle("Impossible d'extraire le texte du CV");
         detail.setProperty("timestamp", Instant.now());
         return detail;
     }

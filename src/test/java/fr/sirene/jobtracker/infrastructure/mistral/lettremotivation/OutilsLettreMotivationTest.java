@@ -4,7 +4,7 @@ import fr.sirene.jobtracker.application.port.CvRepository;
 import fr.sirene.jobtracker.application.port.CvStockagePort;
 import fr.sirene.jobtracker.application.port.OffreStorageRepository;
 import fr.sirene.jobtracker.domain.exception.CvNonTrouveException;
-import fr.sirene.jobtracker.domain.exception.GenerationLettreMotivationException;
+import fr.sirene.jobtracker.domain.exception.ExtractionTexteCvException;
 import fr.sirene.jobtracker.domain.exception.OffreNonTrouveeException;
 import fr.sirene.jobtracker.domain.model.Cv;
 import fr.sirene.jobtracker.domain.model.Lieu;
@@ -101,7 +101,7 @@ class OutilsLettreMotivationTest {
         when(cvStockagePort.lire("cv-1")).thenReturn("pas un pdf".getBytes());
 
         assertThatThrownBy(() -> outils.recupererCv("cv-1"))
-                .isInstanceOf(GenerationLettreMotivationException.class);
+                .isInstanceOf(ExtractionTexteCvException.class);
     }
 
     private byte[] genererPdf(String texte) throws IOException {

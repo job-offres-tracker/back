@@ -1,10 +1,14 @@
 package fr.sirene.jobtracker.infrastructure.mistral.lettremotivation;
 
 import fr.sirene.jobtracker.application.port.GenerationLettreMotivationPort;
+import fr.sirene.jobtracker.domain.exception.CvNonTrouveException;
+import fr.sirene.jobtracker.domain.exception.ExtractionTexteCvException;
 import fr.sirene.jobtracker.domain.exception.GenerationLettreMotivationException;
+import fr.sirene.jobtracker.domain.exception.OffreNonTrouveeException;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.tool.execution.ToolExecutionException;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -38,6 +42,15 @@ public class MistralLettreMotivationAdapter implements GenerationLettreMotivatio
                     .user(user)
                     .call()
                     .content();
+        } catch (ToolExecutionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof OffreNonTrouveeException
+                    || cause instanceof CvNonTrouveException
+                    || cause instanceof ExtractionTexteCvException) {
+                throw (RuntimeException) cause;
+            }
+            log.debug("Échec de la génération de la lettre de motivation", e);
+            throw new GenerationLettreMotivationException("Échec de la génération de la lettre de motivation", e);
         } catch (RuntimeException e) {
             log.debug("Échec de la génération de la lettre de motivation", e);
             throw new GenerationLettreMotivationException("Échec de la génération de la lettre de motivation", e);

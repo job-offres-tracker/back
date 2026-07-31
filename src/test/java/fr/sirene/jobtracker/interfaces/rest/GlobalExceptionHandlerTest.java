@@ -1,6 +1,8 @@
 package fr.sirene.jobtracker.interfaces.rest;
 
 import fr.sirene.jobtracker.domain.exception.CvNonTrouveException;
+import fr.sirene.jobtracker.domain.exception.ExtractionTexteCvException;
+import fr.sirene.jobtracker.domain.exception.GenerationLettreMotivationException;
 import fr.sirene.jobtracker.domain.exception.GeocodageAdresseException;
 import fr.sirene.jobtracker.domain.exception.OffreDejaExistanteException;
 import fr.sirene.jobtracker.domain.exception.OffreNonTrouveeException;
@@ -70,6 +72,24 @@ class GlobalExceptionHandlerTest {
 
         assertThat(detail.getStatus()).isEqualTo(404);
         assertThat(detail.getDetail()).contains("inconnu.pdf");
+    }
+
+    @Test
+    void renvoie_502_quand_la_generation_de_la_lettre_de_motivation_echoue() {
+        ProblemDetail detail = handler.handleGenerationLettreMotivationException(
+                new GenerationLettreMotivationException("Échec de la génération de la lettre de motivation"));
+
+        assertThat(detail.getStatus()).isEqualTo(502);
+        assertThat(detail.getDetail()).contains("lettre de motivation");
+    }
+
+    @Test
+    void renvoie_422_quand_le_texte_du_cv_ne_peut_pas_etre_extrait() {
+        ProblemDetail detail = handler.handleExtractionTexteCvException(
+                new ExtractionTexteCvException("Impossible d'extraire le texte du CV"));
+
+        assertThat(detail.getStatus()).isEqualTo(422);
+        assertThat(detail.getDetail()).contains("texte du CV");
     }
 
     @Test

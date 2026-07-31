@@ -4,7 +4,7 @@ import fr.sirene.jobtracker.application.port.CvRepository;
 import fr.sirene.jobtracker.application.port.CvStockagePort;
 import fr.sirene.jobtracker.application.port.OffreStorageRepository;
 import fr.sirene.jobtracker.domain.exception.CvNonTrouveException;
-import fr.sirene.jobtracker.domain.exception.GenerationLettreMotivationException;
+import fr.sirene.jobtracker.domain.exception.ExtractionTexteCvException;
 import fr.sirene.jobtracker.domain.exception.OffreNonTrouveeException;
 import fr.sirene.jobtracker.domain.model.Offre;
 import lombok.extern.slf4j.Slf4j;
@@ -55,7 +55,7 @@ public class OutilsLettreMotivation {
     }
 
     private String formatterOffre(Offre offre) {
-        String formatted =  """
+        String formatted = """
                 Intitulé : %s
                 Entreprise : %s
                 Lieu : %s
@@ -77,7 +77,7 @@ public class OutilsLettreMotivation {
         try (PDDocument document = Loader.loadPDF(contenuPdf)) {
             return new PDFTextStripper().getText(document);
         } catch (IOException e) {
-            throw new GenerationLettreMotivationException("Impossible d'extraire le texte du CV", e);
+            throw new ExtractionTexteCvException("Impossible d'extraire le texte du CV", e);
         }
     }
 }
