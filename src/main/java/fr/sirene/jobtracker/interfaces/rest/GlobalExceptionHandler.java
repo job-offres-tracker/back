@@ -4,6 +4,8 @@ import fr.sirene.jobtracker.domain.exception.CandidatureNonTrouveeException;
 import fr.sirene.jobtracker.domain.exception.CvNonTrouveException;
 import fr.sirene.jobtracker.domain.exception.EvenementNonTrouveException;
 import fr.sirene.jobtracker.domain.exception.ExtractionOffreIAException;
+import fr.sirene.jobtracker.domain.exception.ExtractionTexteCvException;
+import fr.sirene.jobtracker.domain.exception.GenerationLettreMotivationException;
 import fr.sirene.jobtracker.domain.exception.GeocodageAdresseException;
 import fr.sirene.jobtracker.domain.exception.OffreDejaExistanteException;
 import fr.sirene.jobtracker.domain.exception.OffreEmploiApiException;
@@ -22,6 +24,7 @@ import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -29,6 +32,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -174,6 +178,14 @@ public class GlobalExceptionHandler {
         return detail;
     }
 
+    @ExceptionHandler(GenerationLettreMotivationException.class)
+    public ProblemDetail handleGenerationLettreMotivationException(GenerationLettreMotivationException ex) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_GATEWAY, ex.getMessage());
+        detail.setTitle("Erreur de génération de la lettre de motivation");
+        detail.setProperty("timestamp", Instant.now());
+        return detail;
+    }
+
     @ExceptionHandler(CvNonTrouveException.class)
     public ProblemDetail handleCvNonTrouve(CvNonTrouveException ex) {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
@@ -202,6 +214,14 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleTransitionEtatInvalide(TransitionEtatInvalideException ex) {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
         detail.setTitle("Transition d'état invalide");
+        detail.setProperty("timestamp", Instant.now());
+        return detail;
+    }
+  
+    @ExceptionHandler(ExtractionTexteCvException.class)
+    public ProblemDetail handleExtractionTexteCvException(ExtractionTexteCvException ex) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_CONTENT, ex.getMessage());
+        detail.setTitle("Impossible d'extraire le texte du CV");
         detail.setProperty("timestamp", Instant.now());
         return detail;
     }
@@ -243,6 +263,23 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleStockageFichier(StockageFichierException ex) {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         detail.setTitle("Erreur de stockage");
+        detail.setProperty("timestamp", Instant.now());
+        return detail;
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ProblemDetail handleNoResourceFound(NoResourceFoundException ex) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND, "Aucune ressource ne correspond à cette URL");
+        detail.setTitle("Ressource introuvable");
+        detail.setProperty("timestamp", Instant.now());
+        return detail;
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ProblemDetail handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.METHOD_NOT_ALLOWED, ex.getMessage());
+        detail.setTitle("Méthode HTTP non supportée");
         detail.setProperty("timestamp", Instant.now());
         return detail;
     }

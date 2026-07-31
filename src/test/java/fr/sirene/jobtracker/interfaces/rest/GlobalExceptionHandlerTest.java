@@ -1,6 +1,8 @@
 package fr.sirene.jobtracker.interfaces.rest;
 
 import fr.sirene.jobtracker.domain.exception.CvNonTrouveException;
+import fr.sirene.jobtracker.domain.exception.ExtractionTexteCvException;
+import fr.sirene.jobtracker.domain.exception.GenerationLettreMotivationException;
 import fr.sirene.jobtracker.domain.exception.GeocodageAdresseException;
 import fr.sirene.jobtracker.domain.exception.OffreDejaExistanteException;
 import fr.sirene.jobtracker.domain.exception.OffreNonTrouveeException;
@@ -13,10 +15,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ProblemDetail;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -70,6 +75,24 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    void renvoie_502_quand_la_generation_de_la_lettre_de_motivation_echoue() {
+        ProblemDetail detail = handler.handleGenerationLettreMotivationException(
+                new GenerationLettreMotivationException("Échec de la génération de la lettre de motivation"));
+
+        assertThat(detail.getStatus()).isEqualTo(502);
+        assertThat(detail.getDetail()).contains("lettre de motivation");
+    }
+
+    @Test
+    void renvoie_422_quand_le_texte_du_cv_ne_peut_pas_etre_extrait() {
+        ProblemDetail detail = handler.handleExtractionTexteCvException(
+                new ExtractionTexteCvException("Impossible d'extraire le texte du CV"));
+
+        assertThat(detail.getStatus()).isEqualTo(422);
+        assertThat(detail.getDetail()).contains("texte du CV");
+    }
+
+    @Test
     void renvoie_400_quand_le_type_de_fichier_n_est_pas_autorise() {
         ProblemDetail detail = handler.handleTypeFichierNonAutorise(
                 new TypeFichierNonAutoriseException("Seuls les fichiers PDF sont acceptés"));
@@ -111,6 +134,23 @@ class GlobalExceptionHandlerTest {
 
         assertThat(detail.getStatus()).isEqualTo(400);
         assertThat(detail.getDetail()).contains("nom");
+    }
+
+    @Test
+    void renvoie_404_quand_aucune_ressource_ne_correspond_a_l_url() {
+        ProblemDetail detail = handler.handleNoResourceFound(
+                new NoResourceFoundException(HttpMethod.GET, "/api/v1/inconnu", "inconnu"));
+
+        assertThat(detail.getStatus()).isEqualTo(404);
+    }
+
+    @Test
+    void renvoie_405_quand_la_methode_http_n_est_pas_supportee() {
+        ProblemDetail detail = handler.handleMethodNotSupported(
+                new HttpRequestMethodNotSupportedException("DELETE"));
+
+        assertThat(detail.getStatus()).isEqualTo(405);
+        assertThat(detail.getDetail()).contains("DELETE");
     }
 
     @Test
