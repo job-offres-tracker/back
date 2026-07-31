@@ -1,6 +1,8 @@
 package fr.sirene.jobtracker.interfaces.rest;
 
+import fr.sirene.jobtracker.domain.exception.CandidatureNonTrouveeException;
 import fr.sirene.jobtracker.domain.exception.CvNonTrouveException;
+import fr.sirene.jobtracker.domain.exception.EvenementNonTrouveException;
 import fr.sirene.jobtracker.domain.exception.ExtractionOffreIAException;
 import fr.sirene.jobtracker.domain.exception.ExtractionTexteCvException;
 import fr.sirene.jobtracker.domain.exception.GenerationLettreMotivationException;
@@ -13,6 +15,7 @@ import fr.sirene.jobtracker.domain.exception.RechercheCommuneException;
 import fr.sirene.jobtracker.domain.exception.RecuperationPageException;
 import fr.sirene.jobtracker.domain.exception.StockageFichierException;
 import fr.sirene.jobtracker.domain.exception.TailleFichierDepasseeException;
+import fr.sirene.jobtracker.domain.exception.TransitionEtatInvalideException;
 import fr.sirene.jobtracker.domain.exception.TypeFichierNonAutoriseException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -191,6 +194,30 @@ public class GlobalExceptionHandler {
         return detail;
     }
 
+    @ExceptionHandler(CandidatureNonTrouveeException.class)
+    public ProblemDetail handleCandidatureNonTrouvee(CandidatureNonTrouveeException ex) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        detail.setTitle("Candidature introuvable");
+        detail.setProperty("timestamp", Instant.now());
+        return detail;
+    }
+
+    @ExceptionHandler(EvenementNonTrouveException.class)
+    public ProblemDetail handleEvenementNonTrouve(EvenementNonTrouveException ex) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        detail.setTitle("Événement introuvable");
+        detail.setProperty("timestamp", Instant.now());
+        return detail;
+    }
+
+    @ExceptionHandler(TransitionEtatInvalideException.class)
+    public ProblemDetail handleTransitionEtatInvalide(TransitionEtatInvalideException ex) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        detail.setTitle("Transition d'état invalide");
+        detail.setProperty("timestamp", Instant.now());
+        return detail;
+    }
+  
     @ExceptionHandler(ExtractionTexteCvException.class)
     public ProblemDetail handleExtractionTexteCvException(ExtractionTexteCvException ex) {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_CONTENT, ex.getMessage());

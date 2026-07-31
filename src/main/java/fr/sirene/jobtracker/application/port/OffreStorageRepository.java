@@ -17,4 +17,6 @@ public interface OffreStorageRepository {
     void mettreAJourEtat(List<String> idsExternes, EtatOffre etat);
 
     Optional<Offre> trouverParIdExterne(String idExterne);
+
+    List<Offre> trouverParIdsExternes(List<String> idsExternes);
 }

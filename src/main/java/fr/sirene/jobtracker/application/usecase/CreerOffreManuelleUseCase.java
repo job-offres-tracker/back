@@ -18,9 +18,13 @@ public class CreerOffreManuelleUseCase {
     private static final String PROVENANCE_PAR_DEFAUT = "MANUELLE";
 
     private final OffreStorageRepository offreStorageRepository;
+    private final CandidatureAutoCreationService candidatureAutoCreationService;
 
-    public CreerOffreManuelleUseCase(OffreStorageRepository offreStorageRepository) {
+    public CreerOffreManuelleUseCase(
+            OffreStorageRepository offreStorageRepository,
+            CandidatureAutoCreationService candidatureAutoCreationService) {
         this.offreStorageRepository = offreStorageRepository;
+        this.candidatureAutoCreationService = candidatureAutoCreationService;
     }
 
     public Offre executer(
@@ -59,6 +63,9 @@ public class CreerOffreManuelleUseCase {
                 .build();
 
         offreStorageRepository.sauvegarderTout(List.of(offre));
+        if (offre.getEtat() == EtatOffre.POSTULE) {
+            candidatureAutoCreationService.assurer(offre);
+        }
         return offre;
     }
 }

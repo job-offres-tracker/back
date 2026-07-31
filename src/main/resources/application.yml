@@ -39,6 +39,10 @@ jobtracker:
   cv:
     stockage:
       repertoire: ${CV_STOCKAGE_REPERTOIRE:./data/cv}
+  candidature:
+    document:
+      stockage:
+        repertoire: ${CANDIDATURE_DOCUMENT_STOCKAGE_REPERTOIRE:./data/candidature-documents}
 
 spring:
   application:

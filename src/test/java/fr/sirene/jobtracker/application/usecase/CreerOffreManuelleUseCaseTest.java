@@ -18,6 +18,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -26,6 +27,9 @@ class CreerOffreManuelleUseCaseTest {
 
     @Mock
     private OffreStorageRepository offreStorageRepository;
+
+    @Mock
+    private CandidatureAutoCreationService candidatureAutoCreationService;
 
     @InjectMocks
     private CreerOffreManuelleUseCase useCase;
@@ -115,5 +119,24 @@ class CreerOffreManuelleUseCaseTest {
         ArgumentCaptor<List<Offre>> captor = ArgumentCaptor.captor();
         verify(offreStorageRepository).sauvegarderTout(captor.capture());
         assertThat(captor.getValue()).containsExactly(offre);
+    }
+
+    @Test
+    void assure_une_candidature_quand_l_etat_fourni_est_postule() {
+        when(offreStorageRepository.trouverParIdExterne(any())).thenReturn(Optional.empty());
+
+        Offre offre = useCase.executer(
+                null, "Développeur Java", null, null, null, null, null, null, null, null, EtatOffre.POSTULE);
+
+        verify(candidatureAutoCreationService).assurer(offre);
+    }
+
+    @Test
+    void n_assure_pas_de_candidature_quand_l_etat_n_est_pas_postule() {
+        when(offreStorageRepository.trouverParIdExterne(any())).thenReturn(Optional.empty());
+
+        useCase.executer(null, "Développeur Java", null, null, null, null, null, null, null, null, null);
+
+        verify(candidatureAutoCreationService, never()).assurer(any());
     }
 }
