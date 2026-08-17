@@ -1,6 +1,6 @@
 package fr.sirene.jobtracker.infrastructure.persistence;
 
-import fr.sirene.jobtracker.application.port.LieuRepository;
+import fr.sirene.jobtracker.application.port.offre.LieuRepository;
 import fr.sirene.jobtracker.infrastructure.persistence.entity.LieuEntity;
 
 import org.springframework.stereotype.Repository;

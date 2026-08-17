@@ -1,14 +1,14 @@
 package fr.sirene.jobtracker.interfaces.rest;
 
-import fr.sirene.jobtracker.application.usecase.AjouterDocumentCvUseCase;
-import fr.sirene.jobtracker.application.usecase.AjouterDocumentFichierUseCase;
-import fr.sirene.jobtracker.application.usecase.AjouterDocumentTexteUseCase;
-import fr.sirene.jobtracker.application.usecase.AjouterEvenementCandidatureUseCase;
-import fr.sirene.jobtracker.application.usecase.ConsulterCandidatureParOffreUseCase;
-import fr.sirene.jobtracker.application.usecase.ConsulterCandidatureUseCase;
-import fr.sirene.jobtracker.application.usecase.ConsulterCandidaturesUseCase;
-import fr.sirene.jobtracker.application.usecase.ModifierEvenementCandidatureUseCase;
-import fr.sirene.jobtracker.application.usecase.TelechargerDocumentCandidatureUseCase;
+import fr.sirene.jobtracker.application.usecase.candidature.AjouterDocumentCvUseCase;
+import fr.sirene.jobtracker.application.usecase.candidature.AjouterDocumentFichierUseCase;
+import fr.sirene.jobtracker.application.usecase.candidature.AjouterDocumentTexteUseCase;
+import fr.sirene.jobtracker.application.usecase.candidature.AjouterEvenementCandidatureUseCase;
+import fr.sirene.jobtracker.application.usecase.candidature.ConsulterCandidatureParOffreUseCase;
+import fr.sirene.jobtracker.application.usecase.candidature.ConsulterCandidatureUseCase;
+import fr.sirene.jobtracker.application.usecase.candidature.ConsulterCandidaturesUseCase;
+import fr.sirene.jobtracker.application.usecase.candidature.ModifierEvenementCandidatureUseCase;
+import fr.sirene.jobtracker.application.usecase.candidature.TelechargerDocumentCandidatureUseCase;
 import fr.sirene.jobtracker.domain.exception.CandidatureNonTrouveeException;
 import fr.sirene.jobtracker.domain.model.Candidature;
 import fr.sirene.jobtracker.domain.model.DocumentCandidature;

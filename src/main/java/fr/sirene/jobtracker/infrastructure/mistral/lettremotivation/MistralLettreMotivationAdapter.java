@@ -1,6 +1,6 @@
 package fr.sirene.jobtracker.infrastructure.mistral.lettremotivation;
 
-import fr.sirene.jobtracker.application.port.GenerationLettreMotivationPort;
+import fr.sirene.jobtracker.application.port.offre.GenerationLettreMotivationPort;
 import fr.sirene.jobtracker.domain.exception.CvNonTrouveException;
 import fr.sirene.jobtracker.domain.exception.ExtractionTexteCvException;
 import fr.sirene.jobtracker.domain.exception.GenerationLettreMotivationException;

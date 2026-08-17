@@ -1,6 +1,6 @@
 package fr.sirene.jobtracker.infrastructure.persistence;
 
-import fr.sirene.jobtracker.application.port.OffreStorageRepository;
+import fr.sirene.jobtracker.application.port.offre.OffreStorageRepository;
 import fr.sirene.jobtracker.domain.model.EtatOffre;
 import fr.sirene.jobtracker.domain.model.Lieu;
 import fr.sirene.jobtracker.domain.model.Offre;

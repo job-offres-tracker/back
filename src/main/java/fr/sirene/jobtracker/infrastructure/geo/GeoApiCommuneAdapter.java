@@ -1,6 +1,6 @@
 package fr.sirene.jobtracker.infrastructure.geo;
 
-import fr.sirene.jobtracker.application.port.RechercheCommunePort;
+import fr.sirene.jobtracker.application.port.commune.RechercheCommunePort;
 import fr.sirene.jobtracker.domain.model.Commune;
 import fr.sirene.jobtracker.infrastructure.geo.client.GeoApiClient;
 import fr.sirene.jobtracker.infrastructure.geo.dto.CommuneGeo;

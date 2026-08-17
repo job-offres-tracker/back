@@ -1,6 +1,6 @@
 package fr.sirene.jobtracker.infrastructure.cv;
 
-import fr.sirene.jobtracker.application.port.CvStockagePort;
+import fr.sirene.jobtracker.application.port.cv.CvStockagePort;
 import fr.sirene.jobtracker.domain.exception.StockageFichierException;
 import fr.sirene.jobtracker.infrastructure.cv.config.CvStockageProperties;
 

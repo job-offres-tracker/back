@@ -11,8 +11,10 @@ Backend Spring Boot 4.1.0 / Java 25, architecture hexagonale (Ports & Adapters),
 fr.sirene.jobtracker
 ├── domain/model/        Value objects (record) et entités (class + Builder)
 ├── domain/exception/    Une exception par cas d'erreur métier ou d'intégration externe
-├── application/usecase/ Orchestrateurs fins qui délèguent aux ports
-├── application/port/    Interfaces (les ports) — appelées uniquement par les use cases
+├── application/usecase/<domaine>/  Orchestrateurs fins qui délèguent aux ports, groupés par domaine
+│                                   (offre/, candidature/, cv/, parametres/, commune/)
+├── application/port/<domaine>/     Interfaces (les ports) — appelées uniquement par les use cases,
+│                                   même découpage par domaine que usecase/
 ├── infrastructure/<intégration>/   Un sous-package par intégration externe : client/, dto/, config/, l'Adapter
 ├── infrastructure/persistence/     Entités JPA + repositories Jpa*
 ├── infrastructure/config/          Cross-cutting uniquement (CORS, OpenAPI) — pas la propriété d'un seul adapter
@@ -24,6 +26,7 @@ Règles strictes :
 - **`domain/` reste du Java pur, zéro annotation framework** (ni Spring, ni Swagger, ni Jackson). Si un champ de domaine doit être documenté dans Swagger, mettre le `@Schema` sur le DTO REST qui l'expose, pas sur le record de domaine.
 - **Modélisation** : identité propre (ex. `Offre` identifiée par `idExterne`) → `class` avec `Builder`/`toBuilder()` ; identité = valeur (ex. `Lieu`, `Commune`, `ResultatPagine`) → `record`.
 - Les ports vivent dans `application/port`, jamais dans `domain/port` : ce sont les use cases qui les appellent, pas le domaine.
+- **Le sous-package de `usecase/` et `port/` correspond au domaine métier, aligné sur le contrôleur REST qui expose le use case** (`offre` ↔ `OffreController`, `candidature` ↔ `CandidatureController`, `cv` ↔ `CvController`, `parametres` ↔ `ParametresController`, `commune` ↔ `CommuneController`). Un nouveau use case/port rejoint le sous-package du domaine concerné plutôt que de créer un nouveau découpage ; en cas de doute (ex. une classe utilisée par un seul autre use case d'un autre domaine, comme `CandidatureAutoCreationService` appelée par les use cases `offre`), le rattacher au domaine qui possède la donnée manipulée, et importer explicitement depuis l'autre sous-package (plus de visibilité implicite de package une fois séparés).
 - Chaque intégration externe a son propre sous-package d'infrastructure avec `client/` (appel HTTP brut), `dto/` (records miroir de l'API externe, `@JsonProperty` pour les champs snake_case), `config/` (properties + RestClient), et l'Adapter au niveau racine du sous-package qui implémente le port et fait la conversion DTO → domaine. Voir `ban/`, `geo/`, `mistral/`, `francetravail/`, `scraping/` comme modèles.
 - Un use case reste un orchestrateur fin : il appelle un ou plusieurs ports, ne contient pas de logique HTTP/JSON/SQL.
 

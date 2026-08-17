@@ -1,8 +1,8 @@
 package fr.sirene.jobtracker.interfaces.rest;
 
-import fr.sirene.jobtracker.application.usecase.ListerCvUseCase;
-import fr.sirene.jobtracker.application.usecase.TelechargerCvUseCase;
-import fr.sirene.jobtracker.application.usecase.UploaderCvUseCase;
+import fr.sirene.jobtracker.application.usecase.cv.ListerCvUseCase;
+import fr.sirene.jobtracker.application.usecase.cv.TelechargerCvUseCase;
+import fr.sirene.jobtracker.application.usecase.cv.UploaderCvUseCase;
 import fr.sirene.jobtracker.domain.model.Cv;
 import fr.sirene.jobtracker.domain.model.CvTelecharge;
 import fr.sirene.jobtracker.interfaces.rest.dto.CvResponse;

@@ -1,6 +1,6 @@
 package fr.sirene.jobtracker.interfaces.scheduler;
 
-import fr.sirene.jobtracker.application.usecase.SynchroniserOffresUseCase;
+import fr.sirene.jobtracker.application.usecase.offre.SynchroniserOffresUseCase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

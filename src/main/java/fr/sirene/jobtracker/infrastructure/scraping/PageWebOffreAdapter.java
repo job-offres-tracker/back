@@ -1,6 +1,6 @@
 package fr.sirene.jobtracker.infrastructure.scraping;
 
-import fr.sirene.jobtracker.application.port.RecuperationPageOffrePort;
+import fr.sirene.jobtracker.application.port.offre.RecuperationPageOffrePort;
 import fr.sirene.jobtracker.infrastructure.scraping.client.PageWebClient;
 import lombok.extern.slf4j.Slf4j;
 

@@ -1,6 +1,6 @@
 package fr.sirene.jobtracker.interfaces.rest;
 
-import fr.sirene.jobtracker.application.usecase.RechercherCommunesUseCase;
+import fr.sirene.jobtracker.application.usecase.commune.RechercherCommunesUseCase;
 import fr.sirene.jobtracker.domain.model.Commune;
 import fr.sirene.jobtracker.interfaces.rest.dto.CommuneResponse;
 

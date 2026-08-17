@@ -1,6 +1,6 @@
 package fr.sirene.jobtracker.infrastructure.francetravail;
 
-import fr.sirene.jobtracker.application.port.OffreEmploiApiPort;
+import fr.sirene.jobtracker.application.port.offre.OffreEmploiApiPort;
 import fr.sirene.jobtracker.domain.model.CritereRecherche;
 import fr.sirene.jobtracker.domain.model.Offre;
 import fr.sirene.jobtracker.infrastructure.francetravail.client.FranceTravailApiClient;
