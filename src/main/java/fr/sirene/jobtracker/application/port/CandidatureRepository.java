@@ -13,6 +13,8 @@ public interface CandidatureRepository {
 
     Optional<Candidature> trouverParId(Long id);
 
+    Optional<Candidature> trouverParOffreIdExterne(String idExterneOffre);
+
     boolean existeParOffreIdExterne(String idExterneOffre);
 
     ResultatPagine<Candidature> lister(int page, int taille);

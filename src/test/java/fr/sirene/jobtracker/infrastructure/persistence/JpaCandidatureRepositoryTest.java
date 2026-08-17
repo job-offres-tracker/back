@@ -117,6 +117,30 @@ class JpaCandidatureRepositoryTest {
     }
 
     @Nested
+    class TrouverParOffreIdExterne {
+
+        @Test
+        void restitue_la_candidature_correspondant_a_l_offre() {
+            CandidatureEntity entity = nouvelleCandidatureEntity(1L);
+            when(candidatureJpaRepository.findByOffreIdExterne("123")).thenReturn(Optional.of(entity));
+            when(offreStorageRepository.trouverParIdExterne("123")).thenReturn(Optional.of(OFFRE));
+
+            Optional<Candidature> resultat = repository.trouverParOffreIdExterne("123");
+
+            assertThat(resultat).isPresent();
+            assertThat(resultat.get().getId()).isEqualTo(1L);
+            assertThat(resultat.get().getOffre().getIdExterne()).isEqualTo("123");
+        }
+
+        @Test
+        void renvoie_vide_si_aucune_candidature_ne_correspond_a_l_offre() {
+            when(candidatureJpaRepository.findByOffreIdExterne("999")).thenReturn(Optional.empty());
+
+            assertThat(repository.trouverParOffreIdExterne("999")).isEmpty();
+        }
+    }
+
+    @Nested
     class ExisteParOffreIdExterne {
 
         @Test

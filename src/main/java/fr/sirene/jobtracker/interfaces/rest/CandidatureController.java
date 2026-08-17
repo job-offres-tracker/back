@@ -4,6 +4,7 @@ import fr.sirene.jobtracker.application.usecase.AjouterDocumentCvUseCase;
 import fr.sirene.jobtracker.application.usecase.AjouterDocumentFichierUseCase;
 import fr.sirene.jobtracker.application.usecase.AjouterDocumentTexteUseCase;
 import fr.sirene.jobtracker.application.usecase.AjouterEvenementCandidatureUseCase;
+import fr.sirene.jobtracker.application.usecase.ConsulterCandidatureParOffreUseCase;
 import fr.sirene.jobtracker.application.usecase.ConsulterCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.ConsulterCandidaturesUseCase;
 import fr.sirene.jobtracker.application.usecase.ModifierEvenementCandidatureUseCase;
@@ -65,6 +66,7 @@ public class CandidatureController {
 
     private final ConsulterCandidaturesUseCase consulterCandidaturesUseCase;
     private final ConsulterCandidatureUseCase consulterCandidatureUseCase;
+    private final ConsulterCandidatureParOffreUseCase consulterCandidatureParOffreUseCase;
     private final AjouterEvenementCandidatureUseCase ajouterEvenementCandidatureUseCase;
     private final ModifierEvenementCandidatureUseCase modifierEvenementCandidatureUseCase;
     private final AjouterDocumentCvUseCase ajouterDocumentCvUseCase;
@@ -75,6 +77,7 @@ public class CandidatureController {
     public CandidatureController(
             ConsulterCandidaturesUseCase consulterCandidaturesUseCase,
             ConsulterCandidatureUseCase consulterCandidatureUseCase,
+            ConsulterCandidatureParOffreUseCase consulterCandidatureParOffreUseCase,
             AjouterEvenementCandidatureUseCase ajouterEvenementCandidatureUseCase,
             ModifierEvenementCandidatureUseCase modifierEvenementCandidatureUseCase,
             AjouterDocumentCvUseCase ajouterDocumentCvUseCase,
@@ -83,6 +86,7 @@ public class CandidatureController {
             TelechargerDocumentCandidatureUseCase telechargerDocumentCandidatureUseCase) {
         this.consulterCandidaturesUseCase = consulterCandidaturesUseCase;
         this.consulterCandidatureUseCase = consulterCandidatureUseCase;
+        this.consulterCandidatureParOffreUseCase = consulterCandidatureParOffreUseCase;
         this.ajouterEvenementCandidatureUseCase = ajouterEvenementCandidatureUseCase;
         this.modifierEvenementCandidatureUseCase = modifierEvenementCandidatureUseCase;
         this.ajouterDocumentCvUseCase = ajouterDocumentCvUseCase;
@@ -125,6 +129,21 @@ public class CandidatureController {
     @GetMapping("/{id}")
     public ResponseEntity<CandidatureDetailResponse> consulterUneCandidature(@PathVariable Long id) {
         Candidature candidature = consulterCandidatureUseCase.executer(id);
+        return ResponseEntity.ok(CandidatureDetailResponse.fromDomain(candidature));
+    }
+
+    @Operation(
+            summary = "Consulter la candidature d'une offre",
+            description = "Retourne la candidature liée à une offre à partir de son identifiant externe.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Candidature trouvée"),
+            @ApiResponse(responseCode = "404", description = "Aucune candidature ne correspond à cette offre",
+                    content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
+                            schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    @GetMapping("/par-offre/{idExterne}")
+    public ResponseEntity<CandidatureDetailResponse> consulterLaCandidatureDUneOffre(@PathVariable String idExterne) {
+        Candidature candidature = consulterCandidatureParOffreUseCase.executer(idExterne);
         return ResponseEntity.ok(CandidatureDetailResponse.fromDomain(candidature));
     }
 

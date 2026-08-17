@@ -68,6 +68,12 @@ public class JpaCandidatureRepository implements CandidatureRepository {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Optional<Candidature> trouverParOffreIdExterne(String idExterneOffre) {
+        return candidatureJpaRepository.findByOffreIdExterne(idExterneOffre).map(this::toDomain);
+    }
+
+    @Override
     public boolean existeParOffreIdExterne(String idExterneOffre) {
         return candidatureJpaRepository.existsByOffreIdExterne(idExterneOffre);
     }
