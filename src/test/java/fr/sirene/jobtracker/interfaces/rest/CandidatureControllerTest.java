@@ -4,6 +4,7 @@ import fr.sirene.jobtracker.application.usecase.AjouterDocumentCvUseCase;
 import fr.sirene.jobtracker.application.usecase.AjouterDocumentFichierUseCase;
 import fr.sirene.jobtracker.application.usecase.AjouterDocumentTexteUseCase;
 import fr.sirene.jobtracker.application.usecase.AjouterEvenementCandidatureUseCase;
+import fr.sirene.jobtracker.application.usecase.ConsulterCandidatureParOffreUseCase;
 import fr.sirene.jobtracker.application.usecase.ConsulterCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.ConsulterCandidaturesUseCase;
 import fr.sirene.jobtracker.application.usecase.ModifierEvenementCandidatureUseCase;
@@ -63,6 +64,8 @@ class CandidatureControllerTest {
     @MockitoBean
     private ConsulterCandidatureUseCase consulterCandidatureUseCase;
     @MockitoBean
+    private ConsulterCandidatureParOffreUseCase consulterCandidatureParOffreUseCase;
+    @MockitoBean
     private AjouterEvenementCandidatureUseCase ajouterEvenementCandidatureUseCase;
     @MockitoBean
     private ModifierEvenementCandidatureUseCase modifierEvenementCandidatureUseCase;
@@ -111,6 +114,29 @@ class CandidatureControllerTest {
             when(consulterCandidatureUseCase.executer(99L)).thenThrow(new CandidatureNonTrouveeException(99L));
 
             mockMvc.perform(get("/api/v1/candidatures/99"))
+                    .andExpect(status().isNotFound());
+        }
+    }
+
+    @Nested
+    class ConsulterLaCandidatureDUneOffre {
+
+        @Test
+        void renvoie_200_avec_le_detail() throws Exception {
+            Candidature candidature = Candidature.builder().id(1L).offre(OFFRE).dateCandidature(LocalDateTime.now()).build();
+            when(consulterCandidatureParOffreUseCase.executer("123")).thenReturn(candidature);
+
+            mockMvc.perform(get("/api/v1/candidatures/par-offre/123"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").value(1))
+                    .andExpect(jsonPath("$.offre.idExterne").value("123"));
+        }
+
+        @Test
+        void renvoie_404_quand_aucune_candidature_ne_correspond_a_l_offre() throws Exception {
+            when(consulterCandidatureParOffreUseCase.executer("999")).thenThrow(new CandidatureNonTrouveeException("999"));
+
+            mockMvc.perform(get("/api/v1/candidatures/par-offre/999"))
                     .andExpect(status().isNotFound());
         }
     }
