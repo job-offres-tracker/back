@@ -40,9 +40,11 @@ fr.sirene.jobtracker
 │   ├── model/         Offre, EtatOffre, Lieu, CritereRecherche, ResultatPagine<T>
 │   └── exception/     OffreEmploiApiException, OffreNonTrouveeException, OffreDejaExistanteException
 ├── application/
-│   ├── usecase/       ConsulterOffresUseCase, ConsulterOffreUseCase, CreerOffreManuelleUseCase,
-│   │                  MettreAJourEtatOffresUseCase, SynchroniserOffresUseCase, AdresseEnrichisseur
-│   └── port/          OffreStorageRepository, OffreEmploiApiPort, GeocodageAdressePort, LieuRepository
+│   ├── usecase/       Un sous-package par domaine (offre/, candidature/, cv/, parametres/, commune/),
+│   │                  aligné sur les contrôleurs REST — ex. usecase/offre/ConsulterOffreUseCase,
+│   │                  usecase/candidature/AjouterDocumentCvUseCase
+│   └── port/          Même découpage par domaine — ex. port/offre/OffreStorageRepository,
+│                      port/candidature/CandidatureRepository
 ├── infrastructure/
 │   ├── francetravail/ client/ (auth + search RestClients), mapper/, dto/*FranceTravail, config/,
 │   │                  FranceTravailOffreEmploiAdapter (implements OffreEmploiApiPort)
@@ -75,3 +77,7 @@ fr.sirene.jobtracker
 ## Database
 
 Flyway migrations in `src/main/resources/db/migration/V{n}__description.sql` (currently up to V5). `spring.jpa.hibernate.ddl-auto` is `validate` — schema changes always go through a new migration, never through entity annotations alone.
+
+## Git conventions
+
+- A commit that is a pure refactoring (no behavior change — file moves/renames, package restructuring, extracting a helper with identical semantics) must have its subject line start with `Refactoring` (e.g. `Refactoring : sous-package application/usecase et application/port par domaine`). Feature/fix commits don't use this prefix.

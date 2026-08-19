@@ -1,6 +1,6 @@
 package fr.sirene.jobtracker.infrastructure.persistence;
 
-import fr.sirene.jobtracker.application.port.ParametresDocumentCandidatureRepository;
+import fr.sirene.jobtracker.application.port.parametres.ParametresDocumentCandidatureRepository;
 import fr.sirene.jobtracker.domain.model.ParametresDocumentCandidature;
 import fr.sirene.jobtracker.infrastructure.persistence.entity.ParametresDocumentCandidatureEntity;
 

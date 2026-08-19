@@ -1,6 +1,6 @@
 package fr.sirene.jobtracker.infrastructure.ban;
 
-import fr.sirene.jobtracker.application.port.GeocodageAdressePort;
+import fr.sirene.jobtracker.application.port.offre.GeocodageAdressePort;
 import fr.sirene.jobtracker.domain.exception.GeocodageAdresseException;
 import fr.sirene.jobtracker.infrastructure.ban.client.BanAdresseApiClient;
 import fr.sirene.jobtracker.infrastructure.ban.dto.FeatureBan;

@@ -1,8 +1,8 @@
 package fr.sirene.jobtracker.interfaces.rest;
 
-import fr.sirene.jobtracker.application.usecase.ListerCvUseCase;
-import fr.sirene.jobtracker.application.usecase.TelechargerCvUseCase;
-import fr.sirene.jobtracker.application.usecase.UploaderCvUseCase;
+import fr.sirene.jobtracker.application.usecase.cv.ListerCvUseCase;
+import fr.sirene.jobtracker.application.usecase.cv.TelechargerCvUseCase;
+import fr.sirene.jobtracker.application.usecase.cv.UploaderCvUseCase;
 import fr.sirene.jobtracker.domain.exception.CvNonTrouveException;
 import fr.sirene.jobtracker.domain.exception.TailleFichierDepasseeException;
 import fr.sirene.jobtracker.domain.exception.TypeFichierNonAutoriseException;

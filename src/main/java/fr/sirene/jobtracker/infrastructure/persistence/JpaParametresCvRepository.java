@@ -1,6 +1,6 @@
 package fr.sirene.jobtracker.infrastructure.persistence;
 
-import fr.sirene.jobtracker.application.port.ParametresCvRepository;
+import fr.sirene.jobtracker.application.port.parametres.ParametresCvRepository;
 import fr.sirene.jobtracker.domain.model.ParametresCv;
 import fr.sirene.jobtracker.infrastructure.persistence.entity.ParametresCvEntity;
 

@@ -1,12 +1,12 @@
 package fr.sirene.jobtracker.interfaces.rest;
 
-import fr.sirene.jobtracker.application.usecase.ConsulterOffreUseCase;
-import fr.sirene.jobtracker.application.usecase.ConsulterOffresUseCase;
-import fr.sirene.jobtracker.application.usecase.CreerOffreManuelleUseCase;
-import fr.sirene.jobtracker.application.usecase.GenererLettreMotivationUseCase;
-import fr.sirene.jobtracker.application.usecase.ImporterOffreDepuisUrlUseCase;
-import fr.sirene.jobtracker.application.usecase.MettreAJourEtatOffresUseCase;
-import fr.sirene.jobtracker.application.usecase.SynchroniserOffresUseCase;
+import fr.sirene.jobtracker.application.usecase.offre.ConsulterOffreUseCase;
+import fr.sirene.jobtracker.application.usecase.offre.ConsulterOffresUseCase;
+import fr.sirene.jobtracker.application.usecase.offre.CreerOffreManuelleUseCase;
+import fr.sirene.jobtracker.application.usecase.offre.GenererLettreMotivationUseCase;
+import fr.sirene.jobtracker.application.usecase.offre.ImporterOffreDepuisUrlUseCase;
+import fr.sirene.jobtracker.application.usecase.offre.MettreAJourEtatOffresUseCase;
+import fr.sirene.jobtracker.application.usecase.offre.SynchroniserOffresUseCase;
 import fr.sirene.jobtracker.domain.exception.CvNonTrouveException;
 import fr.sirene.jobtracker.domain.exception.OffreDejaExistanteException;
 import fr.sirene.jobtracker.domain.exception.OffreNonTrouveeException;

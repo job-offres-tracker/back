@@ -1,6 +1,6 @@
 package fr.sirene.jobtracker.interfaces.scheduler;
 
-import fr.sirene.jobtracker.application.usecase.SynchroniserOffresUseCase;
+import fr.sirene.jobtracker.application.usecase.offre.SynchroniserOffresUseCase;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.scheduling.annotation.Scheduled;

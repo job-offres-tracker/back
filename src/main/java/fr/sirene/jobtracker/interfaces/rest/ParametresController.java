@@ -1,11 +1,11 @@
 package fr.sirene.jobtracker.interfaces.rest;
 
-import fr.sirene.jobtracker.application.usecase.ConsulterParametresCvUseCase;
-import fr.sirene.jobtracker.application.usecase.ConsulterParametresDocumentCandidatureUseCase;
-import fr.sirene.jobtracker.application.usecase.ConsulterParametresRechercheUseCase;
-import fr.sirene.jobtracker.application.usecase.ModifierParametresCvUseCase;
-import fr.sirene.jobtracker.application.usecase.ModifierParametresDocumentCandidatureUseCase;
-import fr.sirene.jobtracker.application.usecase.ModifierParametresRechercheUseCase;
+import fr.sirene.jobtracker.application.usecase.parametres.ConsulterParametresCvUseCase;
+import fr.sirene.jobtracker.application.usecase.parametres.ConsulterParametresDocumentCandidatureUseCase;
+import fr.sirene.jobtracker.application.usecase.parametres.ConsulterParametresRechercheUseCase;
+import fr.sirene.jobtracker.application.usecase.parametres.ModifierParametresCvUseCase;
+import fr.sirene.jobtracker.application.usecase.parametres.ModifierParametresDocumentCandidatureUseCase;
+import fr.sirene.jobtracker.application.usecase.parametres.ModifierParametresRechercheUseCase;
 import fr.sirene.jobtracker.domain.model.ParametresCv;
 import fr.sirene.jobtracker.domain.model.ParametresDocumentCandidature;
 import fr.sirene.jobtracker.domain.model.ParametresRecherche;

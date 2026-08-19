@@ -1,6 +1,6 @@
 package fr.sirene.jobtracker.infrastructure.persistence;
 
-import fr.sirene.jobtracker.application.port.ParametresRechercheRepository;
+import fr.sirene.jobtracker.application.port.parametres.ParametresRechercheRepository;
 import fr.sirene.jobtracker.domain.model.CommuneRecherche;
 import fr.sirene.jobtracker.domain.model.ParametresRecherche;
 import fr.sirene.jobtracker.infrastructure.persistence.entity.CommuneRechercheEmbeddable;

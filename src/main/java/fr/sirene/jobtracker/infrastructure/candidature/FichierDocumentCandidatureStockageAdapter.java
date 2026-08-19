@@ -1,6 +1,6 @@
 package fr.sirene.jobtracker.infrastructure.candidature;
 
-import fr.sirene.jobtracker.application.port.DocumentCandidatureStockagePort;
+import fr.sirene.jobtracker.application.port.candidature.DocumentCandidatureStockagePort;
 import fr.sirene.jobtracker.domain.exception.StockageFichierException;
 import fr.sirene.jobtracker.infrastructure.candidature.config.CandidatureDocumentStockageProperties;
 

@@ -1,6 +1,6 @@
 package fr.sirene.jobtracker.infrastructure.mistral;
 
-import fr.sirene.jobtracker.application.port.ExtractionOffreIAPort;
+import fr.sirene.jobtracker.application.port.offre.ExtractionOffreIAPort;
 import fr.sirene.jobtracker.domain.exception.ExtractionOffreIAException;
 import fr.sirene.jobtracker.domain.model.BrouillonOffre;
 import fr.sirene.jobtracker.infrastructure.mistral.dto.ExtractionOffreIA;
