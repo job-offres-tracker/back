@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Run tests
+        env:
+          # mvnw utilise `set -euf` et référence $MAVEN_DEBUG_OPTS / $MAVEN_CONFIG sans les
+          # définir ; sans ces valeurs par défaut, le script échoue sous sh strict (variable non liée).
+          MAVEN_DEBUG_OPTS: ""
+          MAVEN_CONFIG: ""
+        run: |
+          chmod +x mvnw
+          ./mvnw --batch-mode --no-transfer-progress test
