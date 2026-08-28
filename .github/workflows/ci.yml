@@ -20,6 +20,10 @@ jobs:
           cache: maven
 
       - name: Run tests
+        env:
+          # mvnw utilise `set -euf` et référence $MAVEN_DEBUG_OPTS sans la définir ;
+          # sans cette valeur par défaut, le script échoue sous sh strict (variable non liée).
+          MAVEN_DEBUG_OPTS: ""
         run: |
           chmod +x mvnw
           ./mvnw --batch-mode --no-transfer-progress test
