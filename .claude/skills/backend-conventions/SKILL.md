@@ -1,27 +1,16 @@
 ---
 name: backend-conventions
 description: Rappelle les règles d'architecture hexagonale, les pratiques de code et les conventions de test du backend job-offres-tracker avant d'écrire ou modifier du code. Use when adding or modifying a use case, a port/adapter, a REST endpoint, une exception, de la configuration, or a test in job-offres-tracker (backend Spring Boot).
+paths:
+  - src/main/java/**
+  - src/test/java/**
 ---
 
-Backend Spring Boot 4.1.0 / Java 25, architecture hexagonale (Ports & Adapters), mêmes conventions que le projet `sirene-backend`. À suivre à chaque ajout/modification de code backend dans ce dépôt.
+Backend Spring Boot 4.1.0 / Java 25, architecture hexagonale (Ports & Adapters), mêmes conventions que le projet `sirene-backend`. Voir CLAUDE.md §Architecture pour l'arborescence complète des packages et §Testing conventions pour la stack et les règles de test — ce qui suit ne reprend que ce qui n'y figure pas déjà.
 
-## Architecture
+## Architecture — règles strictes
 
-```
-fr.sirene.jobtracker
-├── domain/model/        Value objects (record) et entités (class + Builder)
-├── domain/exception/    Une exception par cas d'erreur métier ou d'intégration externe
-├── application/usecase/<domaine>/  Orchestrateurs fins qui délèguent aux ports, groupés par domaine
-│                                   (offre/, candidature/, cv/, parametres/, commune/)
-├── application/port/<domaine>/     Interfaces (les ports) — appelées uniquement par les use cases,
-│                                   même découpage par domaine que usecase/
-├── infrastructure/<intégration>/   Un sous-package par intégration externe : client/, dto/, config/, l'Adapter
-├── infrastructure/persistence/     Entités JPA + repositories Jpa*
-├── infrastructure/config/          Cross-cutting uniquement (CORS, OpenAPI) — pas la propriété d'un seul adapter
-└── interfaces/rest/ + interfaces/scheduler/
-```
-
-Règles strictes :
+Au-delà de l'arborescence documentée dans CLAUDE.md :
 
 - **`domain/` reste du Java pur, zéro annotation framework** (ni Spring, ni Swagger, ni Jackson). Si un champ de domaine doit être documenté dans Swagger, mettre le `@Schema` sur le DTO REST qui l'expose, pas sur le record de domaine.
 - **Modélisation** : identité propre (ex. `Offre` identifiée par `idExterne`) → `class` avec `Builder`/`toBuilder()` ; identité = valeur (ex. `Lieu`, `Commune`, `ResultatPagine`) → `record`.
@@ -46,12 +35,7 @@ Règles strictes :
 
 ## Tests
 
-- Stack : JUnit 5 + AssertJ (`assertThat`/`assertThatThrownBy`) + Mockito (`@ExtendWith(MockitoExtension.class)`, `@Mock`/`@InjectMocks`).
-- **Noms de test en français, snake_case, descriptifs du comportement testé** — pas une reformulation du nom de la méthode (ex. `transmet_le_filtre_etats_a_la_recherche_et_au_comptage`, pas `test_executer`).
-- `@Nested` uniquement quand une classe de test couvre plusieurs méthodes/endpoints (ex. contrôleur avec plusieurs routes) — jamais sur une classe à une seule méthode testée.
-- Couche REST : `@WebMvcTest(controllers = XxxController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = CorsConfig.class))` — `CorsConfig` doit être exclu car son `CorsProperties` (`@ConfigurationProperties`) n'est pas enregistré dans cette tranche de contexte.
-- Adapters HTTP (`FranceTravailAuthClient`, `FranceTravailApiClient`, etc.) : tester avec `MockRestServiceServer.bindTo(RestClient.Builder)`, pas en mockant `RestClient` directement.
-- Pas de `@SpringBootTest` en dehors du smoke test de l'application.
+Voir CLAUDE.md §Testing conventions (stack, nommage, `@Nested`, `@WebMvcTest`, test des clients HTTP, pas de `@SpringBootTest`).
 
 ## Avant de considérer une tâche terminée
 
