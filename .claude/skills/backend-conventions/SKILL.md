@@ -3,6 +3,7 @@ name: backend-conventions
 description: Rappelle les règles d'architecture hexagonale, les pratiques de code et les conventions de test du backend job-offres-tracker avant d'écrire ou modifier du code. Use when adding or modifying a use case, a port/adapter, a REST endpoint, une exception, de la configuration, or a test in job-offres-tracker (backend Spring Boot).
 paths:
   - src/main/java/**
+  - src/main/resources/**
   - src/test/java/**
 ---
 

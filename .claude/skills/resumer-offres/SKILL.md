@@ -3,7 +3,6 @@ name: resumer-offres
 description: Synchronise les offres d'emploi France Travail via le backend job-offres-tracker puis résume les offres non lues. Use when the user asks to synchroniser les offres, checker les nouvelles offres d'emploi, or résumer/faire le point sur les offres non lues.
 context: fork
 agent: job-offres-tracker
-allowed-tools: PowerShell, Read
 ---
 
 Le backend `job-offres-tracker` doit tourner en local sur le port 8081 (`./mvnw spring-boot:run`), avec Postgres démarré. Si un appel échoue avec une erreur de connexion, arrête-toi et indique à l'utilisateur de démarrer le backend au lieu de réessayer en boucle.
