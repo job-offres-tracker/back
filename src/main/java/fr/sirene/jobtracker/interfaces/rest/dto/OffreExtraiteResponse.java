@@ -35,7 +35,7 @@ public record OffreExtraiteResponse(
         @Schema(description = "Date de publication extraite, au format AAAA-MM-JJ si déterminable", example = "2026-07-20")
         String datePublication
 ) {
-    public static OffreExtraiteResponse fromDomain(BrouillonOffre brouillon, String provenance) {
+    public static OffreExtraiteResponse fromDomain(BrouillonOffre brouillon) {
         return new OffreExtraiteResponse(
                 brouillon.intitule(),
                 brouillon.description(),
@@ -44,7 +44,7 @@ public record OffreExtraiteResponse(
                 brouillon.typeContrat(),
                 brouillon.salaire(),
                 brouillon.urlOrigine(),
-                provenance,
+                brouillon.provenance(),
                 brouillon.referenceExterne(),
                 brouillon.datePublication());
     }

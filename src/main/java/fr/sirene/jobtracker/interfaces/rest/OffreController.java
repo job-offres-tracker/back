@@ -56,7 +56,6 @@ import java.util.List;
 @Tag(name = "Offres", description = "Consultation, création et suivi des offres d'emploi")
 public class OffreController {
 
-    private static final String PROVENANCE_HELLOWORK = "hellowork";
     private static final int TAILLE_PAGE_MAX = 100;
 
     private final ConsulterOffresUseCase consulterOffresUseCase;
@@ -205,7 +204,7 @@ public class OffreController {
     public ResponseEntity<OffreExtraiteResponse> importer(@Valid @RequestBody ImporterOffreRequest requete) {
         log.debug("requete: {}", requete);
         BrouillonOffre brouillon = importerOffreDepuisUrlUseCase.executer(requete.url());
-        return ResponseEntity.ok(OffreExtraiteResponse.fromDomain(brouillon, PROVENANCE_HELLOWORK));
+        return ResponseEntity.ok(OffreExtraiteResponse.fromDomain(brouillon));
     }
 
     @Operation(
