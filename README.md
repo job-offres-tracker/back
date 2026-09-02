@@ -121,7 +121,7 @@ fr.sirene.jobtracker
 │   ├── geo/            client/, dto/, config/, GeoApiCommuneAdapter (implémente RechercheCommunePort)
 │   ├── scraping/       client/ (fetch HTTP générique + extraction texte via Jsoup), config/,
 │   │                   PageWebOffreAdapter (implémente RecuperationPageOffrePort)
-│   ├── mistral/        client/, dto/, config/, MistralExtractionAdapter (implémente ExtractionOffreIAPort)
+│   ├── ai/             client/, dto/, config/, AiExtractionAdapter (implémente ExtractionOffreIAPort)
 │   ├── persistence/    entités JPA, JpaOffreStorageRepository, JpaLieuRepository
 │   └── config/         CorsConfig/CorsProperties, OpenApiConfig — cross-cutting, pas propriété d'un seul adapter
 └── interfaces/
@@ -178,7 +178,7 @@ graph LR
         BanGeocodageAdapter
         GeoApiCommuneAdapter
         PageWebOffreAdapter
-        MistralExtractionAdapter
+        AiExtractionAdapter
     end
 
     subgraph Externe["Systèmes externes"]
@@ -218,7 +218,7 @@ graph LR
     GeocodageAdressePort -.->|implémenté par| BanGeocodageAdapter
     RechercheCommunePort -.->|implémenté par| GeoApiCommuneAdapter
     RecuperationPageOffrePort -.->|implémenté par| PageWebOffreAdapter
-    ExtractionOffreIAPort -.->|implémenté par| MistralExtractionAdapter
+    ExtractionOffreIAPort -.->|implémenté par| AiExtractionAdapter
 
     JpaOffreStorageRepository --> Postgres
     JpaLieuRepository --> Postgres
@@ -226,7 +226,7 @@ graph LR
     BanGeocodageAdapter --> BAN
     GeoApiCommuneAdapter --> Geo
     PageWebOffreAdapter --> Web
-    MistralExtractionAdapter --> Mistral
+    AiExtractionAdapter --> Mistral
 ```
 
 ### Séquence : synchronisation planifiée
@@ -267,7 +267,7 @@ sequenceDiagram
     participant Ctrl as OffreController
     participant UC as ImporterOffreDepuisUrlUseCase
     participant Page as PageWebOffreAdapter
-    participant IA as MistralExtractionAdapter
+    participant IA as AiExtractionAdapter
     participant Mistral as Mistral AI
 
     FE->>Ctrl: POST /api/v1/offres/importer {url}

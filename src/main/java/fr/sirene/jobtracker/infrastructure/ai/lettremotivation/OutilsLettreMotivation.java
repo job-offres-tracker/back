@@ -1,4 +1,4 @@
-package fr.sirene.jobtracker.infrastructure.mistral.lettremotivation;
+package fr.sirene.jobtracker.infrastructure.ai.lettremotivation;
 
 import fr.sirene.jobtracker.application.port.cv.CvRepository;
 import fr.sirene.jobtracker.application.port.cv.CvStockagePort;
