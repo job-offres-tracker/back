@@ -10,6 +10,8 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.stereotype.Repository;
 
+import java.net.URI;
+
 @Repository
 @Slf4j
 public class MistralExtractionAdapter implements ExtractionOffreIAPort {
@@ -63,7 +65,18 @@ public class MistralExtractionAdapter implements ExtractionOffreIAPort {
                 extraction.typeContrat(),
                 extraction.salaire(),
                 urlOrigine,
+                extraireProvenance(urlOrigine),
                 extraction.referenceExterne(),
                 extraction.datePublication());
+    }
+
+    private String extraireProvenance(String urlOrigine) {
+        String hote = URI.create(urlOrigine).getHost();
+        if (hote == null) {
+            return null;
+        }
+        String sansWww = hote.startsWith("www.") ? hote.substring(4) : hote;
+        int indexPremierPoint = sansWww.indexOf('.');
+        return indexPremierPoint > 0 ? sansWww.substring(0, indexPremierPoint) : sansWww;
     }
 }

@@ -30,7 +30,8 @@ class ImporterOffreDepuisUrlUseCaseTest {
         String url = "https://www.hellowork.com/fr-fr/emplois/12345.html";
         when(recuperationPageOffrePort.recuperer(url)).thenReturn("contenu de la page");
         BrouillonOffre brouillon = new BrouillonOffre(
-                "Développeur Java", "description", "Acme", "Nantes", "CDI", "45K€", url, "REF-123", "2026-07-20");
+                "Développeur Java", "description", "Acme", "Nantes", "CDI", "45K€", url, "hellowork", "REF-123",
+                "2026-07-20");
         when(extractionOffreIAPort.extraire("contenu de la page", url)).thenReturn(brouillon);
 
         BrouillonOffre resultat = useCase.executer(url);

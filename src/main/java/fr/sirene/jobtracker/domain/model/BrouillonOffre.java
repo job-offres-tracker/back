@@ -8,6 +8,7 @@ public record BrouillonOffre(
         String typeContrat,
         String salaire,
         String urlOrigine,
+        String provenance,
         String referenceExterne,
         String datePublication
 ) {}
