@@ -173,7 +173,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ExtractionOffreIAException.class)
     public ProblemDetail handleExtractionOffreIAException(ExtractionOffreIAException ex) {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_GATEWAY, ex.getMessage());
-        detail.setTitle("Erreur API Mistral");
+        detail.setTitle("Erreur API IA");
         detail.setProperty("timestamp", Instant.now());
         return detail;
     }

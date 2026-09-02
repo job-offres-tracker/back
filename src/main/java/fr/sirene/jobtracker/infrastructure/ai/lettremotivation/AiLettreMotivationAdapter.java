@@ -1,4 +1,4 @@
-package fr.sirene.jobtracker.infrastructure.mistral.lettremotivation;
+package fr.sirene.jobtracker.infrastructure.ai.lettremotivation;
 
 import fr.sirene.jobtracker.application.port.offre.GenerationLettreMotivationPort;
 import fr.sirene.jobtracker.domain.exception.CvNonTrouveException;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @Slf4j
-public class MistralLettreMotivationAdapter implements GenerationLettreMotivationPort {
+public class AiLettreMotivationAdapter implements GenerationLettreMotivationPort {
 
     private static final String PROMPT_SYSTEME = """
             Tu es un rédacteur spécialisé en lettres de motivation en français. Utilise l'outil recupererOffre \
@@ -27,7 +27,7 @@ public class MistralLettreMotivationAdapter implements GenerationLettreMotivatio
 
     private final ChatClient chatClient;
 
-    public MistralLettreMotivationAdapter(ChatClient lettreMotivationChatClient) {
+    public AiLettreMotivationAdapter(ChatClient lettreMotivationChatClient) {
         this.chatClient = lettreMotivationChatClient;
     }
 

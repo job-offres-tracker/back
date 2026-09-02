@@ -1,9 +1,9 @@
-package fr.sirene.jobtracker.infrastructure.mistral;
+package fr.sirene.jobtracker.infrastructure.ai;
 
 import fr.sirene.jobtracker.application.port.offre.ExtractionOffreIAPort;
 import fr.sirene.jobtracker.domain.exception.ExtractionOffreIAException;
 import fr.sirene.jobtracker.domain.model.BrouillonOffre;
-import fr.sirene.jobtracker.infrastructure.mistral.dto.ExtractionOffreIA;
+import fr.sirene.jobtracker.infrastructure.ai.dto.ExtractionOffreIA;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.ai.chat.client.ChatClient;
@@ -14,7 +14,7 @@ import java.net.URI;
 
 @Repository
 @Slf4j
-public class MistralExtractionAdapter implements ExtractionOffreIAPort {
+public class AiExtractionAdapter implements ExtractionOffreIAPort {
 
     private static final String PROMPT_SYSTEME = """
             Tu es un extracteur de données pour des offres d'emploi. À partir du texte brut d'une page web \
@@ -33,7 +33,7 @@ public class MistralExtractionAdapter implements ExtractionOffreIAPort {
 
     private final ChatClient chatClient;
 
-    public MistralExtractionAdapter(ChatClient.Builder chatClientBuilder) {
+    public AiExtractionAdapter(ChatClient.Builder chatClientBuilder) {
         this.chatClient = chatClientBuilder.build();
     }
 
@@ -53,7 +53,7 @@ public class MistralExtractionAdapter implements ExtractionOffreIAPort {
             throw new ExtractionOffreIAException("Échec de l'extraction des champs de l'offre par l'IA", e);
         }
         if (extraction == null) {
-            throw new ExtractionOffreIAException("Réponse vide de l'API Mistral");
+            throw new ExtractionOffreIAException("Réponse vide de l'API IA");
         }
         log.debug("Extraction : {}", extraction);
 

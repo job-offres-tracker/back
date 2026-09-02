@@ -1,4 +1,4 @@
-package fr.sirene.jobtracker.infrastructure.mistral.dto;
+package fr.sirene.jobtracker.infrastructure.ai.dto;
 
 public record ExtractionOffreIA(
         String intitule,

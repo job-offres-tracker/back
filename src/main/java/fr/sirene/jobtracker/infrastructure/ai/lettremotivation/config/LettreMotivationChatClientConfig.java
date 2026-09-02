@@ -1,6 +1,6 @@
-package fr.sirene.jobtracker.infrastructure.mistral.lettremotivation.config;
+package fr.sirene.jobtracker.infrastructure.ai.lettremotivation.config;
 
-import fr.sirene.jobtracker.infrastructure.mistral.lettremotivation.OutilsLettreMotivation;
+import fr.sirene.jobtracker.infrastructure.ai.lettremotivation.OutilsLettreMotivation;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.context.annotation.Bean;

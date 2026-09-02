@@ -17,7 +17,7 @@ Au-delà de l'arborescence documentée dans CLAUDE.md :
 - **Modélisation** : identité propre (ex. `Offre` identifiée par `idExterne`) → `class` avec `Builder`/`toBuilder()` ; identité = valeur (ex. `Lieu`, `Commune`, `ResultatPagine`) → `record`.
 - Les ports vivent dans `application/port`, jamais dans `domain/port` : ce sont les use cases qui les appellent, pas le domaine.
 - **Le sous-package de `usecase/` et `port/` correspond au domaine métier, aligné sur le contrôleur REST qui expose le use case** (`offre` ↔ `OffreController`, `candidature` ↔ `CandidatureController`, `cv` ↔ `CvController`, `parametres` ↔ `ParametresController`, `commune` ↔ `CommuneController`). Un nouveau use case/port rejoint le sous-package du domaine concerné plutôt que de créer un nouveau découpage ; en cas de doute (ex. une classe utilisée par un seul autre use case d'un autre domaine, comme `CandidatureAutoCreationService` appelée par les use cases `offre`), le rattacher au domaine qui possède la donnée manipulée, et importer explicitement depuis l'autre sous-package (plus de visibilité implicite de package une fois séparés).
-- Chaque intégration externe a son propre sous-package d'infrastructure avec `client/` (appel HTTP brut), `dto/` (records miroir de l'API externe, `@JsonProperty` pour les champs snake_case), `config/` (properties + RestClient), et l'Adapter au niveau racine du sous-package qui implémente le port et fait la conversion DTO → domaine. Voir `ban/`, `geo/`, `mistral/`, `francetravail/`, `scraping/` comme modèles.
+- Chaque intégration externe a son propre sous-package d'infrastructure avec `client/` (appel HTTP brut), `dto/` (records miroir de l'API externe, `@JsonProperty` pour les champs snake_case), `config/` (properties + RestClient), et l'Adapter au niveau racine du sous-package qui implémente le port et fait la conversion DTO → domaine. Voir `ban/`, `geo/`, `ai/`, `francetravail/`, `scraping/` comme modèles.
 - Un use case reste un orchestrateur fin : il appelle un ou plusieurs ports, ne contient pas de logique HTTP/JSON/SQL.
 
 ## Pratiques de code
@@ -32,7 +32,7 @@ Au-delà de l'arborescence documentée dans CLAUDE.md :
 - **Documentation OpenAPI obligatoire sur tout nouvel endpoint** : `@Tag` sur le contrôleur, `@Operation` + `@ApiResponses` (avec `schema = @Schema(implementation = ProblemDetail.class)` pour les réponses d'erreur) sur chaque méthode, `@Schema(description = ...)` sur les champs des DTO REST.
 - **CORS** : `CorsConfig` couvre `/api/v1/**` pour GET/PATCH/POST/OPTIONS — ajouter la méthode HTTP si un nouvel endpoint utilise un verbe non listé.
 - **Spring Boot 4 / Jackson 3** : `ObjectMapper` vient de `tools.jackson.databind`, pas de `com.fasterxml.jackson.databind`. `@WebMvcTest` vient de `org.springframework.boot.webmvc.test.autoconfigure`. Préférer `@MockitoBean` à `@MockBean` (déprécié).
-- Pas de classe Mapper dédiée pour un mapping trivial 1:1 (voir `BanGeocodageAdapter`, `GeoApiCommuneAdapter`, `MistralExtractionAdapter` — mapping inline dans l'adapter) ; réserver un Mapper séparé aux conversions non triviales avec plusieurs champs imbriqués (voir `OffreMapper` pour France Travail).
+- Pas de classe Mapper dédiée pour un mapping trivial 1:1 (voir `BanGeocodageAdapter`, `GeoApiCommuneAdapter`, `AiExtractionAdapter` — mapping inline dans l'adapter) ; réserver un Mapper séparé aux conversions non triviales avec plusieurs champs imbriqués (voir `OffreMapper` pour France Travail).
 
 ## Tests
 

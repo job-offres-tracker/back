@@ -1,4 +1,4 @@
-package fr.sirene.jobtracker.infrastructure.mistral.lettremotivation;
+package fr.sirene.jobtracker.infrastructure.ai.lettremotivation;
 
 import fr.sirene.jobtracker.domain.exception.CvNonTrouveException;
 import fr.sirene.jobtracker.domain.exception.ExtractionTexteCvException;
@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class MistralLettreMotivationAdapterTest {
+class AiLettreMotivationAdapterTest {
 
     @Mock
     private ChatClient chatClient;
@@ -33,7 +33,7 @@ class MistralLettreMotivationAdapterTest {
     private ChatClient.CallResponseSpec responseSpec;
 
     @InjectMocks
-    private MistralLettreMotivationAdapter adapter;
+    private AiLettreMotivationAdapter adapter;
 
     @BeforeEach
     void setUp() {
@@ -79,7 +79,7 @@ class MistralLettreMotivationAdapterTest {
 
     @Test
     void enveloppe_dans_generation_lettre_motivation_exception_quand_l_appel_ia_echoue() {
-        when(responseSpec.content()).thenThrow(new RuntimeException("Service Mistral indisponible"));
+        when(responseSpec.content()).thenThrow(new RuntimeException("Service IA indisponible"));
 
         assertThatThrownBy(() -> adapter.genererLettre("123", "cv-1"))
                 .isInstanceOf(GenerationLettreMotivationException.class);
