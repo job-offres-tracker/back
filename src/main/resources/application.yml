@@ -51,7 +51,7 @@ spring:
     mistralai:
       api-key: ${MISTRAL_API_KEY:placeholder}
       chat:
-        model: mistral-small-latest
+        model: ministral-8b-2512
         temperature: 0.7
     # Par défaut Spring AI avale les exceptions levées par un @Tool et les transforme en
     # simple message texte renvoyé au modèle ; on veut qu'elles remontent comme de vraies

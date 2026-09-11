@@ -172,6 +172,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ExtractionOffreIAException.class)
     public ProblemDetail handleExtractionOffreIAException(ExtractionOffreIAException ex) {
+        log.debug("Exception Extraction offre IA : {}", ex.getMessage(), ex);
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_GATEWAY, ex.getMessage());
         detail.setTitle("Erreur API IA");
         detail.setProperty("timestamp", Instant.now());
@@ -220,6 +221,7 @@ public class GlobalExceptionHandler {
   
     @ExceptionHandler(ExtractionTexteCvException.class)
     public ProblemDetail handleExtractionTexteCvException(ExtractionTexteCvException ex) {
+         log.debug("Exception Extraction Texte : {}", ex.getMessage(), ex);
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_CONTENT, ex.getMessage());
         detail.setTitle("Impossible d'extraire le texte du CV");
         detail.setProperty("timestamp", Instant.now());
@@ -236,6 +238,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(TailleFichierDepasseeException.class)
     public ProblemDetail handleTailleFichierDepassee(TailleFichierDepasseeException ex) {
+        log.debug("Exception taille fichier dépassée : {}", ex.getMessage(), ex);
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
         detail.setTitle("Fichier trop volumineux");
         detail.setProperty("timestamp", Instant.now());
@@ -252,6 +255,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ProblemDetail handleMaxUploadSizeExceeded(MaxUploadSizeExceededException ex) {
+         log.debug("Exception MaxUpload Size Exceeded : {}", ex.getMessage(), ex);
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_REQUEST, "Le fichier envoyé dépasse la taille maximale autorisée par le serveur");
         detail.setTitle("Fichier trop volumineux");
@@ -261,6 +265,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(StockageFichierException.class)
     public ProblemDetail handleStockageFichier(StockageFichierException ex) {
+        log.debug("Exception StockageFichier : {}", ex.getMessage(), ex);
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         detail.setTitle("Erreur de stockage");
         detail.setProperty("timestamp", Instant.now());
