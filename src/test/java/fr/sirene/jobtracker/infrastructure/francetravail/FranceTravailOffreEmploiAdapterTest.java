@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static fr.sirene.jobtracker.domain.model.CommuneRechercheFixtures.NANTES;
+import static fr.sirene.jobtracker.domain.model.CommuneRechercheFixtures.SAINT_HERBLAIN;
+import static fr.sirene.jobtracker.domain.model.CommuneRechercheFixtures.septCommunesNantesMetropole;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -40,7 +43,7 @@ class FranceTravailOffreEmploiAdapterTest {
 
     private FranceTravailOffreEmploiAdapter adapter;
 
-    private final CritereRecherche critere = new CritereRecherche("Java", "CDI", "44109");
+    private final CritereRecherche critere = new CritereRecherche("Java", "CDI", List.of(NANTES));
 
     @BeforeEach
     void setUp() {
@@ -130,5 +133,45 @@ class FranceTravailOffreEmploiAdapterTest {
         assertThat(resultat).hasSize(50);
         verify(apiClient, times(1))
                 .rechercherOffres(anyString(), anyString(), anyString(), anyInt(), anyInt(), anyString());
+    }
+
+    @Test
+    void joint_les_codes_commune_d_un_meme_groupe_en_une_chaine_separee_par_des_virgules() {
+        CritereRecherche critereDeuxCommunes = new CritereRecherche("Java", "CDI", List.of(NANTES, SAINT_HERBLAIN));
+        when(apiClient.rechercherOffres("Java", "CDI", "44109,44020", 0, 49, "jeton-abc"))
+                .thenReturn(ResponseEntity.ok().body(new ReponseRechercheFranceTravail(Collections.emptyList())));
+
+        adapter.rechercherOffres(critereDeuxCommunes);
+
+        verify(apiClient).rechercherOffres("Java", "CDI", "44109,44020", 0, 49, "jeton-abc");
+    }
+
+    @Test
+    void decoupe_les_communes_en_groupes_de_5_maximum_pour_respecter_la_contrainte_de_l_api() {
+        CritereRecherche critereSeptCommunes = new CritereRecherche("Java", "CDI", septCommunesNantesMetropole());
+        when(apiClient.rechercherOffres(anyString(), anyString(), anyString(), anyInt(), anyInt(), anyString()))
+                .thenReturn(ResponseEntity.ok().body(new ReponseRechercheFranceTravail(Collections.emptyList())));
+
+        adapter.rechercherOffres(critereSeptCommunes);
+
+        verify(apiClient).rechercherOffres("Java", "CDI", "44109,44020,44143,44114,44047", 0, 49, "jeton-abc");
+        verify(apiClient).rechercherOffres("Java", "CDI", "44215,44018", 0, 49, "jeton-abc");
+    }
+
+    @Test
+    void agrege_les_offres_de_tous_les_groupes_de_communes() {
+        CritereRecherche critereSeptCommunes = new CritereRecherche("Java", "CDI", septCommunesNantesMetropole());
+        List<OffreFranceTravail> pageGroupe1 = pageDe(2, 0);
+        List<OffreFranceTravail> pageGroupe2 = pageDe(1, 2);
+        when(apiClient.rechercherOffres("Java", "CDI", "44109,44020,44143,44114,44047", 0, 49, "jeton-abc"))
+                .thenReturn(ResponseEntity.ok().body(new ReponseRechercheFranceTravail(pageGroupe1)));
+        when(apiClient.rechercherOffres("Java", "CDI", "44215,44018", 0, 49, "jeton-abc"))
+                .thenReturn(ResponseEntity.ok().body(new ReponseRechercheFranceTravail(pageGroupe2)));
+        when(mapper.toDomainList(pageGroupe1)).thenAnswer(inv -> mapperOffres(pageGroupe1));
+        when(mapper.toDomainList(pageGroupe2)).thenAnswer(inv -> mapperOffres(pageGroupe2));
+
+        List<Offre> resultat = adapter.rechercherOffres(critereSeptCommunes);
+
+        assertThat(resultat).hasSize(3);
     }
 }

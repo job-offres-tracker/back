@@ -4,7 +4,6 @@ import fr.sirene.jobtracker.application.port.offre.OffreEmploiApiPort;
 import fr.sirene.jobtracker.application.port.offre.OffreStorageRepository;
 import fr.sirene.jobtracker.application.port.parametres.ParametresRechercheRepository;
 import fr.sirene.jobtracker.domain.exception.ParametresRechercheNonConfiguresException;
-import fr.sirene.jobtracker.domain.model.CommuneRecherche;
 import fr.sirene.jobtracker.domain.model.CritereRecherche;
 import fr.sirene.jobtracker.domain.model.Offre;
 import fr.sirene.jobtracker.domain.model.ParametresRecherche;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class SynchroniserOffresUseCase {
@@ -43,17 +41,10 @@ public class SynchroniserOffresUseCase {
                     "Impossible de synchroniser : mots-clés, communes et type de contrat doivent être configurés. "
                             + "Configurez-les via PUT /api/v1/parametres/recherche");
         }
-        String codeCommune = parametres.communes().stream()
-                .map(CommuneRecherche::codeInsee)
-                .collect(Collectors.joining(","));
-
         Map<String, Offre> offresParIdExterne = new LinkedHashMap<>();
 
         for (String motsCles : parametres.motsCles()) {
-            CritereRecherche critere = new CritereRecherche(
-                    motsCles,
-                    parametres.typeContrat(),
-                    codeCommune);
+            CritereRecherche critere = new CritereRecherche(motsCles, parametres.typeContrat(), parametres.communes());
 
             for (Offre offre : offreEmploiApiPort.rechercherOffres(critere)) {
                 offresParIdExterne.put(offre.getIdExterne(), offre);

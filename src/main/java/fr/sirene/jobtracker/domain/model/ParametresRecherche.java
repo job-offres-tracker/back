@@ -4,7 +4,7 @@ import java.util.List;
 
 public record ParametresRecherche(List<String> motsCles, List<CommuneRecherche> communes, String typeContrat) {
 
-    private static final int NB_COMMUNES_MAX = 5;
+    private static final int NB_COMMUNES_MAX = 20;
 
     public ParametresRecherche {
         motsCles = motsCles == null ? List.of() : List.copyOf(motsCles);
