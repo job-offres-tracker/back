@@ -77,9 +77,13 @@ public class ParametresController {
 
     @Operation(
             summary = "Modifier les paramètres de recherche",
-            description = "Remplace intégralement les mots-clés et communes utilisés pour la synchronisation des offres.")
+            description = "Remplace intégralement les mots-clés et communes utilisés pour la synchronisation des offres "
+                    + "(20 communes maximum).")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Paramètres mis à jour")
+            @ApiResponse(responseCode = "200", description = "Paramètres mis à jour"),
+            @ApiResponse(responseCode = "400", description = "Plus de 20 communes fournies",
+                    content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
+                            schema = @Schema(implementation = ProblemDetail.class)))
     })
     @PutMapping("/recherche")
     public ResponseEntity<ParametresRechercheResponse> modifierRecherche(@Valid @RequestBody ParametresRechercheRequest requete) {
