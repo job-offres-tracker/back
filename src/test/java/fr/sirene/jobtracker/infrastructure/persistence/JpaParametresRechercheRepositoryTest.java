@@ -1,6 +1,5 @@
 package fr.sirene.jobtracker.infrastructure.persistence;
 
-import fr.sirene.jobtracker.domain.model.CommuneRecherche;
 import fr.sirene.jobtracker.domain.model.ParametresRecherche;
 import fr.sirene.jobtracker.infrastructure.persistence.entity.CommuneRechercheEmbeddable;
 import fr.sirene.jobtracker.infrastructure.persistence.entity.ParametresRechercheEntity;
@@ -14,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
+import static fr.sirene.jobtracker.domain.model.CommuneRechercheFixtures.NANTES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -56,7 +56,7 @@ class JpaParametresRechercheRepositoryTest {
             ParametresRecherche parametres = repository.recuperer();
 
             assertThat(parametres.motsCles()).containsExactly("Java");
-            assertThat(parametres.communes()).containsExactly(new CommuneRecherche("44109", "Nantes"));
+            assertThat(parametres.communes()).containsExactly(NANTES);
             assertThat(parametres.typeContrat()).isEqualTo("CDI");
         }
     }
@@ -71,10 +71,10 @@ class JpaParametresRechercheRepositoryTest {
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
             ParametresRecherche resultat = repository.sauvegarder(
-                    new ParametresRecherche(List.of("Java"), List.of(new CommuneRecherche("44109", "Nantes")), "CDI"));
+                    new ParametresRecherche(List.of("Java"), List.of(NANTES), "CDI"));
 
             assertThat(resultat.motsCles()).containsExactly("Java");
-            assertThat(resultat.communes()).containsExactly(new CommuneRecherche("44109", "Nantes"));
+            assertThat(resultat.communes()).containsExactly(NANTES);
             assertThat(resultat.typeContrat()).isEqualTo("CDI");
         }
 
@@ -88,7 +88,7 @@ class JpaParametresRechercheRepositoryTest {
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
             repository.sauvegarder(
-                    new ParametresRecherche(List.of("nouveau"), List.of(new CommuneRecherche("44109", "Nantes")), "CDI"));
+                    new ParametresRecherche(List.of("nouveau"), List.of(NANTES), "CDI"));
 
             verify(jpaRepository).save(existante);
             assertThat(existante.getMotsCles()).containsExactly("nouveau");

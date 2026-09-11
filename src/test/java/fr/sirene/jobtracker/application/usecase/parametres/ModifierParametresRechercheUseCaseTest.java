@@ -11,14 +11,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static fr.sirene.jobtracker.domain.model.CommuneRechercheFixtures.NANTES;
+import static fr.sirene.jobtracker.domain.model.CommuneRechercheFixtures.sixCommunesValides;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ModifierParametresRechercheUseCaseTest {
-
-    private static final CommuneRecherche NANTES = new CommuneRecherche("44109", "Nantes");
 
     @Mock
     private ParametresRechercheRepository parametresRechercheRepository;
@@ -42,14 +42,8 @@ class ModifierParametresRechercheUseCaseTest {
     }
 
     @Test
-    void accepte_plus_de_5_communes() {
-        List<CommuneRecherche> sixCommunes = List.of(
-                new CommuneRecherche("44109", "Nantes"),
-                new CommuneRecherche("44020", "Saint-Herblain"),
-                new CommuneRecherche("85191", "Les Sables-d'Olonne"),
-                new CommuneRecherche("85047", "Challans"),
-                new CommuneRecherche("85194", "Talmont-Saint-Hilaire"),
-                new CommuneRecherche("44000", "Nantes centre"));
+    void accepte_un_nombre_de_communes_superieur_a_la_limite_de_batching_france_travail() {
+        List<CommuneRecherche> sixCommunes = sixCommunesValides();
         ParametresRecherche parametres = new ParametresRecherche(List.of("Java"), sixCommunes, "CDI");
         when(parametresRechercheRepository.sauvegarder(parametres)).thenReturn(parametres);
 

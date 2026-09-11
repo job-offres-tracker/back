@@ -27,8 +27,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 
 import java.util.List;
-import java.util.stream.IntStream;
 
+import static fr.sirene.jobtracker.domain.model.CommuneRechercheFixtures.NANTES;
+import static fr.sirene.jobtracker.domain.model.CommuneRechercheFixtures.sixCommunesValides;
+import static fr.sirene.jobtracker.domain.model.CommuneRechercheFixtures.vingtEtUneCommunes;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -39,8 +41,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = ParametresController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = CorsConfig.class))
 class ParametresControllerTest {
-
-    private static final CommuneRecherche NANTES = new CommuneRecherche("44109", "Nantes");
 
     @Inject
     private ObjectMapper objectMapper;
@@ -104,14 +104,8 @@ class ParametresControllerTest {
         }
 
         @Test
-        void renvoie_200_avec_plus_de_5_communes_fournies() throws Exception {
-            List<CommuneRecherche> sixCommunes = List.of(
-                    new CommuneRecherche("44109", "Nantes"),
-                    new CommuneRecherche("44020", "Saint-Herblain"),
-                    new CommuneRecherche("85191", "Les Sables-d'Olonne"),
-                    new CommuneRecherche("85047", "Challans"),
-                    new CommuneRecherche("85194", "Talmont-Saint-Hilaire"),
-                    new CommuneRecherche("44000", "Nantes centre"));
+        void renvoie_200_quand_le_nombre_de_communes_depasse_la_limite_de_batching_france_travail() throws Exception {
+            List<CommuneRecherche> sixCommunes = sixCommunesValides();
             ParametresRechercheRequest requete = new ParametresRechercheRequest(List.of("Java"), sixCommunes, "CDI");
             when(modifierParametresRechercheUseCase.executer(eq(List.of("Java")), eq(sixCommunes), eq("CDI")))
                     .thenReturn(new ParametresRecherche(List.of("Java"), sixCommunes, "CDI"));
@@ -125,11 +119,8 @@ class ParametresControllerTest {
 
         @Test
         void renvoie_400_quand_plus_de_20_communes_sont_fournies() throws Exception {
-            List<CommuneRecherche> vingtEtUneCommunes = IntStream.rangeClosed(1, 21)
-                    .mapToObj(i -> new CommuneRecherche("4410" + i, "Commune " + i))
-                    .toList();
             ParametresRechercheRequest requete =
-                    new ParametresRechercheRequest(List.of("Java"), vingtEtUneCommunes, "CDI");
+                    new ParametresRechercheRequest(List.of("Java"), vingtEtUneCommunes(), "CDI");
 
             mockMvc.perform(put("/api/v1/parametres/recherche")
                             .contentType("application/json")

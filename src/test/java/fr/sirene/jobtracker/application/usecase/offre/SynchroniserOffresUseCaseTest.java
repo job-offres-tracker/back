@@ -16,6 +16,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static fr.sirene.jobtracker.domain.model.CommuneRechercheFixtures.NANTES;
+import static fr.sirene.jobtracker.domain.model.CommuneRechercheFixtures.septCommunesNantesMetropole;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,14 +29,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SynchroniserOffresUseCaseTest {
-
-    private static final CommuneRecherche NANTES = new CommuneRecherche("44109", "Nantes");
-    private static final CommuneRecherche SAINT_HERBLAIN = new CommuneRecherche("44020", "Saint-Herblain");
-    private static final CommuneRecherche REZE = new CommuneRecherche("44143", "Rezé");
-    private static final CommuneRecherche ORVAULT = new CommuneRecherche("44114", "Orvault");
-    private static final CommuneRecherche COUERON = new CommuneRecherche("44047", "Couëron");
-    private static final CommuneRecherche VERTOU = new CommuneRecherche("44215", "Vertou");
-    private static final CommuneRecherche BOUGUENAIS = new CommuneRecherche("44018", "Bouguenais");
 
     @Mock
     private OffreEmploiApiPort offreEmploiApiPort;
@@ -82,8 +76,7 @@ class SynchroniserOffresUseCaseTest {
 
     @Test
     void transmet_toutes_les_communes_configurees_en_un_seul_critere_de_recherche() {
-        List<CommuneRecherche> septCommunes =
-                List.of(NANTES, SAINT_HERBLAIN, REZE, ORVAULT, COUERON, VERTOU, BOUGUENAIS);
+        List<CommuneRecherche> septCommunes = septCommunesNantesMetropole();
         when(parametresRechercheRepository.recuperer())
                 .thenReturn(new ParametresRecherche(List.of("Java,développeur"), septCommunes, "CDI"));
         when(offreEmploiApiPort.rechercherOffres(any(CritereRecherche.class))).thenReturn(List.of());
@@ -96,8 +89,7 @@ class SynchroniserOffresUseCaseTest {
 
     @Test
     void croise_toutes_les_communes_avec_chaque_entree_de_mots_cles() {
-        List<CommuneRecherche> septCommunes =
-                List.of(NANTES, SAINT_HERBLAIN, REZE, ORVAULT, COUERON, VERTOU, BOUGUENAIS);
+        List<CommuneRecherche> septCommunes = septCommunesNantesMetropole();
         when(parametresRechercheRepository.recuperer())
                 .thenReturn(new ParametresRecherche(
                         List.of("Java,développeur", "lead dev, lead tech"), septCommunes, "CDI"));
