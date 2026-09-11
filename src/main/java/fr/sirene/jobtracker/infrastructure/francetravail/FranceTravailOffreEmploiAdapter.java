@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Gatherers;
 
 @Repository
 public class FranceTravailOffreEmploiAdapter implements OffreEmploiApiPort {
@@ -41,17 +42,18 @@ public class FranceTravailOffreEmploiAdapter implements OffreEmploiApiPort {
 
     @Override
     public List<Offre> rechercherOffres(CritereRecherche critere) {
-        List<Offre> resultat = new ArrayList<>();
-        for (List<CommuneRecherche> groupe : decouperEnGroupesDeCommunes(critere.communes())) {
-            String codeCommune = groupe.stream()
-                    .map(CommuneRecherche::codeInsee)
-                    .collect(Collectors.joining(","));
-            resultat.addAll(rechercherOffresPourUnGroupeDeCommunes(critere, codeCommune));
-        }
-        return resultat;
+        return critere.communes().stream()
+                .gather(Gatherers.<CommuneRecherche>windowFixed(NB_COMMUNES_MAX_PAR_APPEL_API))
+                .flatMap(groupe -> rechercherOffresPourUnGroupeDeCommunes(critere, groupe).stream())
+                .toList();
     }
 
-    private List<Offre> rechercherOffresPourUnGroupeDeCommunes(CritereRecherche critere, String codeCommune) {
+    private List<Offre> rechercherOffresPourUnGroupeDeCommunes(
+            CritereRecherche critere, List<CommuneRecherche> groupeDeCommunes) {
+        String codeCommune = groupeDeCommunes.stream()
+                .map(CommuneRecherche::codeInsee)
+                .collect(Collectors.joining(","));
+
         List<Offre> resultat = new ArrayList<>();
         int debut = 0;
         long total = Long.MAX_VALUE;
@@ -76,14 +78,6 @@ public class FranceTravailOffreEmploiAdapter implements OffreEmploiApiPort {
         }
 
         return resultat;
-    }
-
-    private List<List<CommuneRecherche>> decouperEnGroupesDeCommunes(List<CommuneRecherche> communes) {
-        List<List<CommuneRecherche>> groupes = new ArrayList<>();
-        for (int debut = 0; debut < communes.size(); debut += NB_COMMUNES_MAX_PAR_APPEL_API) {
-            groupes.add(communes.subList(debut, Math.min(debut + NB_COMMUNES_MAX_PAR_APPEL_API, communes.size())));
-        }
-        return groupes;
     }
 
     private long extraireTotal(String contentRange, int tailleActuelle) {
