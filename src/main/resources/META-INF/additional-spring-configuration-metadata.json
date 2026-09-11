@@ -38,5 +38,10 @@
     "name": "jobtracker.cv.stockage",
     "type": "fr.sirene.jobtracker.infrastructure.cv.config.CvStockageProperties",
     "description": "A description for 'jobtracker.cv.stockage'"
+  },
+  {
+    "name": "jobtracker.candidature.document.stockage",
+    "type": "fr.sirene.jobtracker.infrastructure.candidature.config.CandidatureDocumentStockageProperties",
+    "description": "A description for 'jobtracker.candidature.document.stockage'"
   }
 ]}

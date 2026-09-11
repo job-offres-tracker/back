@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -29,6 +30,11 @@ class SynchroniserOffresUseCaseTest {
 
     private static final CommuneRecherche NANTES = new CommuneRecherche("44109", "Nantes");
     private static final CommuneRecherche SAINT_HERBLAIN = new CommuneRecherche("44020", "Saint-Herblain");
+    private static final CommuneRecherche REZE = new CommuneRecherche("44143", "Rezé");
+    private static final CommuneRecherche ORVAULT = new CommuneRecherche("44114", "Orvault");
+    private static final CommuneRecherche COUERON = new CommuneRecherche("44047", "Couëron");
+    private static final CommuneRecherche VERTOU = new CommuneRecherche("44215", "Vertou");
+    private static final CommuneRecherche BOUGUENAIS = new CommuneRecherche("44018", "Bouguenais");
 
     @Mock
     private OffreEmploiApiPort offreEmploiApiPort;
@@ -71,18 +77,38 @@ class SynchroniserOffresUseCaseTest {
 
         useCase.executer();
 
-        verify(offreEmploiApiPort).rechercherOffres(new CritereRecherche("Java,développeur", "CDI", "44109"));
+        verify(offreEmploiApiPort).rechercherOffres(new CritereRecherche("Java,développeur", "CDI", List.of(NANTES)));
     }
 
     @Test
-    void joint_les_codes_commune_configures_en_une_chaine_separee_par_des_virgules() {
+    void transmet_toutes_les_communes_configurees_en_un_seul_critere_de_recherche() {
+        List<CommuneRecherche> septCommunes =
+                List.of(NANTES, SAINT_HERBLAIN, REZE, ORVAULT, COUERON, VERTOU, BOUGUENAIS);
         when(parametresRechercheRepository.recuperer())
-                .thenReturn(new ParametresRecherche(List.of("Java,développeur"), List.of(NANTES, SAINT_HERBLAIN), "CDI"));
+                .thenReturn(new ParametresRecherche(List.of("Java,développeur"), septCommunes, "CDI"));
         when(offreEmploiApiPort.rechercherOffres(any(CritereRecherche.class))).thenReturn(List.of());
 
         useCase.executer();
 
-        verify(offreEmploiApiPort).rechercherOffres(new CritereRecherche("Java,développeur", "CDI", "44109,44020"));
+        verify(offreEmploiApiPort, times(1)).rechercherOffres(any(CritereRecherche.class));
+        verify(offreEmploiApiPort).rechercherOffres(new CritereRecherche("Java,développeur", "CDI", septCommunes));
+    }
+
+    @Test
+    void croise_toutes_les_communes_avec_chaque_entree_de_mots_cles() {
+        List<CommuneRecherche> septCommunes =
+                List.of(NANTES, SAINT_HERBLAIN, REZE, ORVAULT, COUERON, VERTOU, BOUGUENAIS);
+        when(parametresRechercheRepository.recuperer())
+                .thenReturn(new ParametresRecherche(
+                        List.of("Java,développeur", "lead dev, lead tech"), septCommunes, "CDI"));
+        when(offreEmploiApiPort.rechercherOffres(any(CritereRecherche.class))).thenReturn(List.of());
+
+        useCase.executer();
+
+        verify(offreEmploiApiPort, times(2)).rechercherOffres(any(CritereRecherche.class));
+        verify(offreEmploiApiPort).rechercherOffres(new CritereRecherche("Java,développeur", "CDI", septCommunes));
+        verify(offreEmploiApiPort).rechercherOffres(
+                new CritereRecherche("lead dev, lead tech", "CDI", septCommunes));
     }
 
     @Test
@@ -103,8 +129,8 @@ class SynchroniserOffresUseCaseTest {
 
         useCase.executer();
 
-        verify(offreEmploiApiPort).rechercherOffres(new CritereRecherche("Java,développeur", "CDI", "44109"));
-        verify(offreEmploiApiPort).rechercherOffres(new CritereRecherche("lead dev, lead tech", "CDI", "44109"));
+        verify(offreEmploiApiPort).rechercherOffres(new CritereRecherche("Java,développeur", "CDI", List.of(NANTES)));
+        verify(offreEmploiApiPort).rechercherOffres(new CritereRecherche("lead dev, lead tech", "CDI", List.of(NANTES)));
     }
 
     @Test
@@ -112,9 +138,9 @@ class SynchroniserOffresUseCaseTest {
         when(parametresRechercheRepository.recuperer())
                 .thenReturn(new ParametresRecherche(List.of("Java,développeur", "lead dev, lead tech"), List.of(NANTES), "CDI"));
         Offre offre = Offre.builder().idExterne("123").intitule("Développeur Java").build();
-        when(offreEmploiApiPort.rechercherOffres(new CritereRecherche("Java,développeur", "CDI", "44109")))
+        when(offreEmploiApiPort.rechercherOffres(new CritereRecherche("Java,développeur", "CDI", List.of(NANTES))))
                 .thenReturn(List.of(offre));
-        when(offreEmploiApiPort.rechercherOffres(new CritereRecherche("lead dev, lead tech", "CDI", "44109")))
+        when(offreEmploiApiPort.rechercherOffres(new CritereRecherche("lead dev, lead tech", "CDI", List.of(NANTES))))
                 .thenReturn(List.of(offre));
 
         int nombre = useCase.executer();

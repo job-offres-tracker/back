@@ -12,9 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,7 +42,7 @@ class ModifierParametresRechercheUseCaseTest {
     }
 
     @Test
-    void rejette_plus_de_5_communes() {
+    void accepte_plus_de_5_communes() {
         List<CommuneRecherche> sixCommunes = List.of(
                 new CommuneRecherche("44109", "Nantes"),
                 new CommuneRecherche("44020", "Saint-Herblain"),
@@ -52,9 +50,12 @@ class ModifierParametresRechercheUseCaseTest {
                 new CommuneRecherche("85047", "Challans"),
                 new CommuneRecherche("85194", "Talmont-Saint-Hilaire"),
                 new CommuneRecherche("44000", "Nantes centre"));
+        ParametresRecherche parametres = new ParametresRecherche(List.of("Java"), sixCommunes, "CDI");
+        when(parametresRechercheRepository.sauvegarder(parametres)).thenReturn(parametres);
 
-        assertThatThrownBy(() -> useCase.executer(List.of("Java"), sixCommunes, "CDI"))
-                .isInstanceOf(IllegalArgumentException.class);
-        verifyNoInteractions(parametresRechercheRepository);
+        ParametresRecherche resultat = useCase.executer(List.of("Java"), sixCommunes, "CDI");
+
+        assertThat(resultat.communes()).hasSize(6);
+        verify(parametresRechercheRepository).sauvegarder(parametres);
     }
 }

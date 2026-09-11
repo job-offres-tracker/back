@@ -12,7 +12,7 @@ public record ParametresRechercheResponse(
         @Schema(description = "Mots-clés de recherche (une entrée = un appel de recherche distinct)")
         List<String> motsCles,
 
-        @Schema(description = "Communes ciblées (5 maximum)")
+        @Schema(description = "Communes ciblées")
         List<CommuneRecherche> communes,
 
         @Schema(description = "Type de contrat recherché", example = "CDI")

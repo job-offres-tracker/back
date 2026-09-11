@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -103,7 +104,7 @@ class ParametresControllerTest {
         }
 
         @Test
-        void renvoie_400_quand_plus_de_5_communes_sont_fournies() throws Exception {
+        void renvoie_200_avec_plus_de_5_communes_fournies() throws Exception {
             List<CommuneRecherche> sixCommunes = List.of(
                     new CommuneRecherche("44109", "Nantes"),
                     new CommuneRecherche("44020", "Saint-Herblain"),
@@ -112,6 +113,23 @@ class ParametresControllerTest {
                     new CommuneRecherche("85194", "Talmont-Saint-Hilaire"),
                     new CommuneRecherche("44000", "Nantes centre"));
             ParametresRechercheRequest requete = new ParametresRechercheRequest(List.of("Java"), sixCommunes, "CDI");
+            when(modifierParametresRechercheUseCase.executer(eq(List.of("Java")), eq(sixCommunes), eq("CDI")))
+                    .thenReturn(new ParametresRecherche(List.of("Java"), sixCommunes, "CDI"));
+
+            mockMvc.perform(put("/api/v1/parametres/recherche")
+                            .contentType("application/json")
+                            .content(objectMapper.writeValueAsString(requete)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.communes.length()").value(6));
+        }
+
+        @Test
+        void renvoie_400_quand_plus_de_20_communes_sont_fournies() throws Exception {
+            List<CommuneRecherche> vingtEtUneCommunes = IntStream.rangeClosed(1, 21)
+                    .mapToObj(i -> new CommuneRecherche("4410" + i, "Commune " + i))
+                    .toList();
+            ParametresRechercheRequest requete =
+                    new ParametresRechercheRequest(List.of("Java"), vingtEtUneCommunes, "CDI");
 
             mockMvc.perform(put("/api/v1/parametres/recherche")
                             .contentType("application/json")

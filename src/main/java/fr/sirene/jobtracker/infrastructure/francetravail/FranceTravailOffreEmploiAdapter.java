@@ -1,6 +1,7 @@
 package fr.sirene.jobtracker.infrastructure.francetravail;
 
 import fr.sirene.jobtracker.application.port.offre.OffreEmploiApiPort;
+import fr.sirene.jobtracker.domain.model.CommuneRecherche;
 import fr.sirene.jobtracker.domain.model.CritereRecherche;
 import fr.sirene.jobtracker.domain.model.Offre;
 import fr.sirene.jobtracker.infrastructure.francetravail.client.FranceTravailApiClient;
@@ -14,11 +15,18 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class FranceTravailOffreEmploiAdapter implements OffreEmploiApiPort {
 
     private static final int TAILLE_PAGE = 50;
+
+    /**
+     * L'API France Travail (endpoint /offres/search) limite le paramètre "commune" à 5 codes INSEE
+     * par appel : contrainte technique de cette API tierce, pas une limite fonctionnelle imposée à l'utilisateur.
+     */
+    private static final int NB_COMMUNES_MAX_PAR_APPEL_API = 5;
 
     private final FranceTravailAuthClient authClient;
     private final FranceTravailApiClient apiClient;
@@ -34,6 +42,17 @@ public class FranceTravailOffreEmploiAdapter implements OffreEmploiApiPort {
     @Override
     public List<Offre> rechercherOffres(CritereRecherche critere) {
         List<Offre> resultat = new ArrayList<>();
+        for (List<CommuneRecherche> groupe : decouperEnGroupesDeCommunes(critere.communes())) {
+            String codeCommune = groupe.stream()
+                    .map(CommuneRecherche::codeInsee)
+                    .collect(Collectors.joining(","));
+            resultat.addAll(rechercherOffresPourUnGroupeDeCommunes(critere, codeCommune));
+        }
+        return resultat;
+    }
+
+    private List<Offre> rechercherOffresPourUnGroupeDeCommunes(CritereRecherche critere, String codeCommune) {
+        List<Offre> resultat = new ArrayList<>();
         int debut = 0;
         long total = Long.MAX_VALUE;
 
@@ -43,7 +62,7 @@ public class FranceTravailOffreEmploiAdapter implements OffreEmploiApiPort {
 
             ResponseEntity<ReponseRechercheFranceTravail> reponse =
                     apiClient.rechercherOffres(
-                            critere.motsCles(), critere.typeContrat(), critere.codeCommune(), debut, fin, token);
+                            critere.motsCles(), critere.typeContrat(), codeCommune, debut, fin, token);
 
             ReponseRechercheFranceTravail corps = reponse.getBody();
             List<OffreFranceTravail> offresPage = corps != null ? corps.resultats() : null;
@@ -57,6 +76,14 @@ public class FranceTravailOffreEmploiAdapter implements OffreEmploiApiPort {
         }
 
         return resultat;
+    }
+
+    private List<List<CommuneRecherche>> decouperEnGroupesDeCommunes(List<CommuneRecherche> communes) {
+        List<List<CommuneRecherche>> groupes = new ArrayList<>();
+        for (int debut = 0; debut < communes.size(); debut += NB_COMMUNES_MAX_PAR_APPEL_API) {
+            groupes.add(communes.subList(debut, Math.min(debut + NB_COMMUNES_MAX_PAR_APPEL_API, communes.size())));
+        }
+        return groupes;
     }
 
     private long extraireTotal(String contentRange, int tailleActuelle) {

@@ -14,8 +14,8 @@ public record ParametresRechercheRequest(
                 example = "[\"Java, Back-end\", \"lead tech\"]")
         List<String> motsCles,
 
-        @Schema(description = "Communes ciblées (5 maximum)")
-        @Size(max = 5, message = "5 communes maximum")
+        @Schema(description = "Communes ciblées", maxLength = 20)
+        @Size(max = 20, message = "Le nombre de communes ne peut pas dépasser 20")
         List<CommuneRecherche> communes,
 
         @Schema(description = "Type de contrat recherché", example = "CDI")
