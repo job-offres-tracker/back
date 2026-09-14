@@ -4,6 +4,7 @@ import fr.sirene.jobtracker.application.port.candidature.CandidatureRepository;
 import fr.sirene.jobtracker.application.port.candidature.DocumentCandidatureStockagePort;
 import fr.sirene.jobtracker.domain.exception.CandidatureNonTrouveeException;
 import fr.sirene.jobtracker.domain.model.Candidature;
+import fr.sirene.jobtracker.domain.model.CandidatureOffre;
 import fr.sirene.jobtracker.domain.model.DocumentCandidature;
 import fr.sirene.jobtracker.domain.model.DocumentCandidatureTelecharge;
 import fr.sirene.jobtracker.domain.model.DocumentFichier;
@@ -44,7 +45,8 @@ class TelechargerDocumentCandidatureUseCaseTest {
 
     @Test
     void leve_une_exception_quand_le_document_est_introuvable() {
-        Candidature candidature = Candidature.builder().id(1L).offre(Offre.builder().idExterne("123").build()).build();
+        Candidature candidature = new CandidatureOffre(
+                1L, Offre.builder().idExterne("123").build(), LocalDateTime.now(), List.of(), List.of());
         when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
 
         assertThatThrownBy(() -> useCase.executer(1L, 10L)).isInstanceOf(IllegalArgumentException.class);
@@ -53,8 +55,8 @@ class TelechargerDocumentCandidatureUseCaseTest {
     @Test
     void leve_une_exception_quand_le_document_n_est_pas_un_fichier() {
         DocumentCandidature documentTexte = new DocumentTexte(10L, "Notes", "...", LocalDateTime.now());
-        Candidature candidature = Candidature.builder()
-                .id(1L).offre(Offre.builder().idExterne("123").build()).documents(List.of(documentTexte)).build();
+        Candidature candidature = new CandidatureOffre(
+                1L, Offre.builder().idExterne("123").build(), LocalDateTime.now(), List.of(), List.of(documentTexte));
         when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
 
         assertThatThrownBy(() -> useCase.executer(1L, 10L)).isInstanceOf(IllegalArgumentException.class);
@@ -64,8 +66,8 @@ class TelechargerDocumentCandidatureUseCaseTest {
     void retourne_le_contenu_du_document_fichier() {
         DocumentCandidature documentFichier =
                 new DocumentFichier(10L, "Lettre.pdf", "abc-123", 3, "application/pdf", LocalDateTime.now());
-        Candidature candidature = Candidature.builder()
-                .id(1L).offre(Offre.builder().idExterne("123").build()).documents(List.of(documentFichier)).build();
+        Candidature candidature = new CandidatureOffre(
+                1L, Offre.builder().idExterne("123").build(), LocalDateTime.now(), List.of(), List.of(documentFichier));
         when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
         when(documentCandidatureStockagePort.lire(1L, "abc-123")).thenReturn(new byte[] {1, 2, 3});
 

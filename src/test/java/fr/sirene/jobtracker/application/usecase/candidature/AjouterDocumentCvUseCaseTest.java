@@ -5,6 +5,7 @@ import fr.sirene.jobtracker.application.port.cv.CvRepository;
 import fr.sirene.jobtracker.domain.exception.CandidatureNonTrouveeException;
 import fr.sirene.jobtracker.domain.exception.CvNonTrouveException;
 import fr.sirene.jobtracker.domain.model.Candidature;
+import fr.sirene.jobtracker.domain.model.CandidatureOffre;
 import fr.sirene.jobtracker.domain.model.Cv;
 import fr.sirene.jobtracker.domain.model.DocumentCandidature;
 import fr.sirene.jobtracker.domain.model.DocumentCv;
@@ -16,6 +17,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,10 +40,8 @@ class AjouterDocumentCvUseCaseTest {
     @InjectMocks
     private AjouterDocumentCvUseCase useCase;
 
-    private static final Candidature CANDIDATURE = Candidature.builder()
-            .id(1L)
-            .offre(Offre.builder().idExterne("123").build())
-            .build();
+    private static final Candidature CANDIDATURE = new CandidatureOffre(
+            1L, Offre.builder().idExterne("123").build(), LocalDateTime.now(), List.of(), List.of());
 
     @Test
     void leve_une_exception_quand_la_candidature_est_introuvable() {

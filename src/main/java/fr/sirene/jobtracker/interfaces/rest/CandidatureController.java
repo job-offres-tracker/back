@@ -7,6 +7,7 @@ import fr.sirene.jobtracker.application.usecase.candidature.AjouterEvenementCand
 import fr.sirene.jobtracker.application.usecase.candidature.ConsulterCandidatureParOffreUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.ConsulterCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.ConsulterCandidaturesUseCase;
+import fr.sirene.jobtracker.application.usecase.candidature.CreerCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.ModifierEvenementCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.TelechargerDocumentCandidatureUseCase;
 import fr.sirene.jobtracker.domain.model.Candidature;
@@ -18,7 +19,9 @@ import fr.sirene.jobtracker.interfaces.rest.dto.AjouterDocumentCvRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.AjouterDocumentTexteRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.CandidatureDetailResponse;
 import fr.sirene.jobtracker.interfaces.rest.dto.CandidatureListItemResponse;
+import fr.sirene.jobtracker.interfaces.rest.dto.CreerCandidatureSpontaneeRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.CreerEvenementRequest;
+import fr.sirene.jobtracker.interfaces.rest.dto.CreerPriseDeContactRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.DocumentCandidatureResponse;
 import fr.sirene.jobtracker.interfaces.rest.dto.EvenementResponse;
 import fr.sirene.jobtracker.interfaces.rest.dto.PagedResponse;
@@ -67,6 +70,7 @@ public class CandidatureController {
     private final ConsulterCandidaturesUseCase consulterCandidaturesUseCase;
     private final ConsulterCandidatureUseCase consulterCandidatureUseCase;
     private final ConsulterCandidatureParOffreUseCase consulterCandidatureParOffreUseCase;
+    private final CreerCandidatureUseCase creerCandidatureUseCase;
     private final AjouterEvenementCandidatureUseCase ajouterEvenementCandidatureUseCase;
     private final ModifierEvenementCandidatureUseCase modifierEvenementCandidatureUseCase;
     private final AjouterDocumentCvUseCase ajouterDocumentCvUseCase;
@@ -78,6 +82,7 @@ public class CandidatureController {
             ConsulterCandidaturesUseCase consulterCandidaturesUseCase,
             ConsulterCandidatureUseCase consulterCandidatureUseCase,
             ConsulterCandidatureParOffreUseCase consulterCandidatureParOffreUseCase,
+            CreerCandidatureUseCase creerCandidatureUseCase,
             AjouterEvenementCandidatureUseCase ajouterEvenementCandidatureUseCase,
             ModifierEvenementCandidatureUseCase modifierEvenementCandidatureUseCase,
             AjouterDocumentCvUseCase ajouterDocumentCvUseCase,
@@ -87,6 +92,7 @@ public class CandidatureController {
         this.consulterCandidaturesUseCase = consulterCandidaturesUseCase;
         this.consulterCandidatureUseCase = consulterCandidatureUseCase;
         this.consulterCandidatureParOffreUseCase = consulterCandidatureParOffreUseCase;
+        this.creerCandidatureUseCase = creerCandidatureUseCase;
         this.ajouterEvenementCandidatureUseCase = ajouterEvenementCandidatureUseCase;
         this.modifierEvenementCandidatureUseCase = modifierEvenementCandidatureUseCase;
         this.ajouterDocumentCvUseCase = ajouterDocumentCvUseCase;
@@ -145,6 +151,42 @@ public class CandidatureController {
     public ResponseEntity<CandidatureDetailResponse> consulterLaCandidatureDUneOffre(@PathVariable String idExterne) {
         Candidature candidature = consulterCandidatureParOffreUseCase.executer(idExterne);
         return ResponseEntity.ok(CandidatureDetailResponse.fromDomain(candidature));
+    }
+
+    @Operation(
+            summary = "Créer une candidature spontanée",
+            description = "Crée une candidature spontanée à une entreprise, sans offre rattachée.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Candidature créée"),
+            @ApiResponse(responseCode = "400", description = "Requête invalide",
+                    content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
+                            schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    @PostMapping("/spontanee")
+    public ResponseEntity<CandidatureDetailResponse> creerCandidatureSpontanee(
+            @Valid @RequestBody CreerCandidatureSpontaneeRequest requete) {
+        Candidature candidature = creerCandidatureUseCase.creerSpontanee(
+                requete.nomEntreprise(), requete.urlEntreprise(), requete.typeEntreprise(),
+                requete.statut(), requete.dateCandidature());
+        return ResponseEntity.status(HttpStatus.CREATED).body(CandidatureDetailResponse.fromDomain(candidature));
+    }
+
+    @Operation(
+            summary = "Créer une prise de contact",
+            description = "Crée une prise de contact initiée par un chasseur de tête ou une entreprise, sans offre rattachée.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Candidature créée"),
+            @ApiResponse(responseCode = "400", description = "Requête invalide",
+                    content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
+                            schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    @PostMapping("/prise-de-contact")
+    public ResponseEntity<CandidatureDetailResponse> creerPriseDeContact(
+            @Valid @RequestBody CreerPriseDeContactRequest requete) {
+        Candidature candidature = creerCandidatureUseCase.creerPriseDeContact(
+                requete.nomEntreprise(), requete.urlEntreprise(), requete.typeEntreprise(),
+                requete.statut(), requete.dateCandidature());
+        return ResponseEntity.status(HttpStatus.CREATED).body(CandidatureDetailResponse.fromDomain(candidature));
     }
 
     @Operation(

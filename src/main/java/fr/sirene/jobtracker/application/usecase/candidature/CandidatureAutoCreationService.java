@@ -2,11 +2,13 @@ package fr.sirene.jobtracker.application.usecase.candidature;
 
 import fr.sirene.jobtracker.application.port.candidature.CandidatureRepository;
 import fr.sirene.jobtracker.domain.model.Candidature;
+import fr.sirene.jobtracker.domain.model.CandidatureOffre;
 import fr.sirene.jobtracker.domain.model.Offre;
 
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class CandidatureAutoCreationService {
@@ -21,10 +23,7 @@ public class CandidatureAutoCreationService {
         if (candidatureRepository.existeParOffreIdExterne(offre.getIdExterne())) {
             return;
         }
-        Candidature candidature = Candidature.builder()
-                .offre(offre)
-                .dateCandidature(LocalDateTime.now())
-                .build();
+        Candidature candidature = new CandidatureOffre(null, offre, LocalDateTime.now(), List.of(), List.of());
         candidatureRepository.sauvegarder(candidature);
     }
 }

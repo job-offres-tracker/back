@@ -7,10 +7,14 @@ import fr.sirene.jobtracker.application.usecase.candidature.AjouterEvenementCand
 import fr.sirene.jobtracker.application.usecase.candidature.ConsulterCandidatureParOffreUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.ConsulterCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.ConsulterCandidaturesUseCase;
+import fr.sirene.jobtracker.application.usecase.candidature.CreerCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.ModifierEvenementCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.TelechargerDocumentCandidatureUseCase;
 import fr.sirene.jobtracker.domain.exception.CandidatureNonTrouveeException;
 import fr.sirene.jobtracker.domain.model.Candidature;
+import fr.sirene.jobtracker.domain.model.CandidatureOffre;
+import fr.sirene.jobtracker.domain.model.CandidaturePriseDeContact;
+import fr.sirene.jobtracker.domain.model.CandidatureSpontanee;
 import fr.sirene.jobtracker.domain.model.DocumentCandidature;
 import fr.sirene.jobtracker.domain.model.DocumentCandidatureTelecharge;
 import fr.sirene.jobtracker.domain.model.DocumentCv;
@@ -19,11 +23,16 @@ import fr.sirene.jobtracker.domain.model.DocumentTexte;
 import fr.sirene.jobtracker.domain.model.Evenement;
 import fr.sirene.jobtracker.domain.model.Offre;
 import fr.sirene.jobtracker.domain.model.ResultatPagine;
+import fr.sirene.jobtracker.domain.model.StatutCandidatureSpontanee;
+import fr.sirene.jobtracker.domain.model.StatutPriseDeContact;
+import fr.sirene.jobtracker.domain.model.TypeEntreprise;
 import fr.sirene.jobtracker.domain.model.TypeEvenement;
 import fr.sirene.jobtracker.infrastructure.config.CorsConfig;
 import fr.sirene.jobtracker.interfaces.rest.dto.AjouterDocumentCvRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.AjouterDocumentTexteRequest;
+import fr.sirene.jobtracker.interfaces.rest.dto.CreerCandidatureSpontaneeRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.CreerEvenementRequest;
+import fr.sirene.jobtracker.interfaces.rest.dto.CreerPriseDeContactRequest;
 import jakarta.inject.Inject;
 import tools.jackson.databind.ObjectMapper;
 
@@ -66,6 +75,8 @@ class CandidatureControllerTest {
     @MockitoBean
     private ConsulterCandidatureParOffreUseCase consulterCandidatureParOffreUseCase;
     @MockitoBean
+    private CreerCandidatureUseCase creerCandidatureUseCase;
+    @MockitoBean
     private AjouterEvenementCandidatureUseCase ajouterEvenementCandidatureUseCase;
     @MockitoBean
     private ModifierEvenementCandidatureUseCase modifierEvenementCandidatureUseCase;
@@ -85,7 +96,7 @@ class CandidatureControllerTest {
 
         @Test
         void renvoie_200_avec_la_liste_paginee() throws Exception {
-            Candidature candidature = Candidature.builder().id(1L).offre(OFFRE).dateCandidature(LocalDateTime.now()).build();
+            Candidature candidature = new CandidatureOffre(1L, OFFRE, LocalDateTime.now(), List.of(), List.of());
             when(consulterCandidaturesUseCase.executer(0, 20))
                     .thenReturn(new ResultatPagine<>(List.of(candidature), 0, 20, 1));
 
@@ -101,7 +112,7 @@ class CandidatureControllerTest {
 
         @Test
         void renvoie_200_avec_le_detail() throws Exception {
-            Candidature candidature = Candidature.builder().id(1L).offre(OFFRE).dateCandidature(LocalDateTime.now()).build();
+            Candidature candidature = new CandidatureOffre(1L, OFFRE, LocalDateTime.now(), List.of(), List.of());
             when(consulterCandidatureUseCase.executer(1L)).thenReturn(candidature);
 
             mockMvc.perform(get("/api/v1/candidatures/1"))
@@ -123,7 +134,7 @@ class CandidatureControllerTest {
 
         @Test
         void renvoie_200_avec_le_detail() throws Exception {
-            Candidature candidature = Candidature.builder().id(1L).offre(OFFRE).dateCandidature(LocalDateTime.now()).build();
+            Candidature candidature = new CandidatureOffre(1L, OFFRE, LocalDateTime.now(), List.of(), List.of());
             when(consulterCandidatureParOffreUseCase.executer("123")).thenReturn(candidature);
 
             mockMvc.perform(get("/api/v1/candidatures/par-offre/123"))
@@ -138,6 +149,69 @@ class CandidatureControllerTest {
 
             mockMvc.perform(get("/api/v1/candidatures/par-offre/999"))
                     .andExpect(status().isNotFound());
+        }
+    }
+
+    @Nested
+    class CreerCandidatureSpontanee {
+
+        @Test
+        void renvoie_201_a_la_creation() throws Exception {
+            Candidature candidature = new CandidatureSpontanee(
+                    1L, "Acme SAS", "https://acme.example", TypeEntreprise.ESN,
+                    StatutCandidatureSpontanee.ENVOYE, LocalDateTime.now(), List.of(), List.of());
+            when(creerCandidatureUseCase.creerSpontanee(eq("Acme SAS"), any(), eq(TypeEntreprise.ESN), any(), any()))
+                    .thenReturn(candidature);
+
+            CreerCandidatureSpontaneeRequest requete =
+                    new CreerCandidatureSpontaneeRequest("Acme SAS", "https://acme.example", TypeEntreprise.ESN, null, null);
+
+            mockMvc.perform(post("/api/v1/candidatures/spontanee")
+                            .contentType("application/json")
+                            .content(objectMapper.writeValueAsString(requete)))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.nomEntreprise").value("Acme SAS"))
+                    .andExpect(jsonPath("$.type").value("SPONTANEE"));
+        }
+
+        @Test
+        void renvoie_400_quand_le_nom_de_l_entreprise_est_absent() throws Exception {
+            mockMvc.perform(post("/api/v1/candidatures/spontanee")
+                            .contentType("application/json")
+                            .content("{\"typeEntreprise\":\"ESN\"}"))
+                    .andExpect(status().isBadRequest());
+        }
+    }
+
+    @Nested
+    class CreerPriseDeContact {
+
+        @Test
+        void renvoie_201_a_la_creation() throws Exception {
+            Candidature candidature = new CandidaturePriseDeContact(
+                    1L, "Acme SAS", null, TypeEntreprise.CABINET_RECRUTEMENT,
+                    StatutPriseDeContact.ETABLI, LocalDateTime.now(), List.of(), List.of());
+            when(creerCandidatureUseCase.creerPriseDeContact(
+                    eq("Acme SAS"), any(), eq(TypeEntreprise.CABINET_RECRUTEMENT), any(), any()))
+                    .thenReturn(candidature);
+
+            CreerPriseDeContactRequest requete =
+                    new CreerPriseDeContactRequest("Acme SAS", null, TypeEntreprise.CABINET_RECRUTEMENT, null, null);
+
+            mockMvc.perform(post("/api/v1/candidatures/prise-de-contact")
+                            .contentType("application/json")
+                            .content(objectMapper.writeValueAsString(requete)))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.nomEntreprise").value("Acme SAS"))
+                    .andExpect(jsonPath("$.type").value("PRISE_DE_CONTACT"));
+        }
+
+        @Test
+        void renvoie_400_quand_le_type_d_entreprise_est_absent() throws Exception {
+            mockMvc.perform(post("/api/v1/candidatures/prise-de-contact")
+                            .contentType("application/json")
+                            .content("{\"nomEntreprise\":\"Acme SAS\"}"))
+                    .andExpect(status().isBadRequest());
         }
     }
 

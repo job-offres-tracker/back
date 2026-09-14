@@ -1,6 +1,13 @@
 package fr.sirene.jobtracker.interfaces.rest.dto;
 
 import fr.sirene.jobtracker.domain.model.Candidature;
+import fr.sirene.jobtracker.domain.model.CandidatureOffre;
+import fr.sirene.jobtracker.domain.model.CandidaturePriseDeContact;
+import fr.sirene.jobtracker.domain.model.CandidatureSpontanee;
+import fr.sirene.jobtracker.domain.model.StatutCandidatureSpontanee;
+import fr.sirene.jobtracker.domain.model.StatutPriseDeContact;
+import fr.sirene.jobtracker.domain.model.TypeCandidature;
+import fr.sirene.jobtracker.domain.model.TypeEntreprise;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -12,11 +19,29 @@ public record CandidatureDetailResponse(
         @Schema(description = "Identifiant de la candidature")
         Long id,
 
+        @Schema(description = "Type de candidature")
+        TypeCandidature type,
+
         @Schema(description = "Date de création de la candidature")
         LocalDateTime dateCandidature,
 
-        @Schema(description = "Offre liée à la candidature")
+        @Schema(description = "Offre liée à la candidature (uniquement pour le type OFFRE)")
         OffreResponse offre,
+
+        @Schema(description = "Nom de l'entreprise (uniquement pour SPONTANEE/PRISE_DE_CONTACT)")
+        String nomEntreprise,
+
+        @Schema(description = "URL du site de l'entreprise (uniquement pour SPONTANEE/PRISE_DE_CONTACT)")
+        String urlEntreprise,
+
+        @Schema(description = "Type de l'entreprise (uniquement pour SPONTANEE/PRISE_DE_CONTACT)")
+        TypeEntreprise typeEntreprise,
+
+        @Schema(description = "Statut de la candidature spontanée (uniquement pour le type SPONTANEE)")
+        StatutCandidatureSpontanee statutCandidatureSpontanee,
+
+        @Schema(description = "Statut de la prise de contact (uniquement pour le type PRISE_DE_CONTACT)")
+        StatutPriseDeContact statutPriseDeContact,
 
         @Schema(description = "Événements de la candidature, du plus ancien au plus récent")
         List<EvenementResponse> evenements,
@@ -25,11 +50,18 @@ public record CandidatureDetailResponse(
         List<DocumentCandidatureResponse> documents
 ) {
     public static CandidatureDetailResponse fromDomain(Candidature candidature) {
-        return new CandidatureDetailResponse(
-                candidature.getId(),
-                candidature.getDateCandidature(),
-                OffreResponse.fromDomain(candidature.getOffre()),
-                candidature.getEvenements().stream().map(EvenementResponse::fromDomain).toList(),
-                candidature.getDocuments().stream().map(DocumentCandidatureResponse::fromDomain).toList());
+        List<EvenementResponse> evenements = candidature.evenements().stream().map(EvenementResponse::fromDomain).toList();
+        List<DocumentCandidatureResponse> documents = candidature.documents().stream().map(DocumentCandidatureResponse::fromDomain).toList();
+        return switch (candidature) {
+            case CandidatureOffre co -> new CandidatureDetailResponse(
+                    co.id(), TypeCandidature.OFFRE, co.dateCandidature(), OffreResponse.fromDomain(co.offre()),
+                    null, null, null, null, null, evenements, documents);
+            case CandidatureSpontanee cs -> new CandidatureDetailResponse(
+                    cs.id(), TypeCandidature.SPONTANEE, cs.dateCandidature(), null,
+                    cs.nomEntreprise(), cs.urlEntreprise(), cs.typeEntreprise(), cs.statut(), null, evenements, documents);
+            case CandidaturePriseDeContact cp -> new CandidatureDetailResponse(
+                    cp.id(), TypeCandidature.PRISE_DE_CONTACT, cp.dateCandidature(), null,
+                    cp.nomEntreprise(), cp.urlEntreprise(), cp.typeEntreprise(), null, cp.statut(), evenements, documents);
+        };
     }
 }
