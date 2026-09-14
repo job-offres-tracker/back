@@ -2,6 +2,7 @@ package fr.sirene.jobtracker.application.usecase.candidature;
 
 import fr.sirene.jobtracker.application.port.candidature.CandidatureRepository;
 import fr.sirene.jobtracker.domain.model.Candidature;
+import fr.sirene.jobtracker.domain.model.CandidatureOffre;
 import fr.sirene.jobtracker.domain.model.Offre;
 import fr.sirene.jobtracker.domain.model.ResultatPagine;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,7 +28,8 @@ class ConsulterCandidaturesUseCaseTest {
 
     @Test
     void delegue_la_recherche_paginee_au_repository() {
-        Candidature candidature = Candidature.builder().offre(Offre.builder().idExterne("123").build()).build();
+        Candidature candidature = new CandidatureOffre(
+                null, Offre.builder().idExterne("123").build(), LocalDateTime.now(), List.of(), List.of());
         ResultatPagine<Candidature> resultat = new ResultatPagine<>(List.of(candidature), 0, 20, 1);
         when(candidatureRepository.lister(0, 20)).thenReturn(resultat);
 

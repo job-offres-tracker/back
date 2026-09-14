@@ -4,6 +4,7 @@ import fr.sirene.jobtracker.application.port.candidature.CandidatureRepository;
 import fr.sirene.jobtracker.domain.exception.CandidatureNonTrouveeException;
 import fr.sirene.jobtracker.domain.exception.EvenementNonTrouveException;
 import fr.sirene.jobtracker.domain.model.Candidature;
+import fr.sirene.jobtracker.domain.model.CandidatureOffre;
 import fr.sirene.jobtracker.domain.model.Evenement;
 import fr.sirene.jobtracker.domain.model.Offre;
 import fr.sirene.jobtracker.domain.model.TypeEvenement;
@@ -14,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,11 +42,10 @@ class ModifierEvenementCandidatureUseCaseTest {
 
     @Test
     void leve_une_exception_quand_l_evenement_n_appartient_pas_a_la_candidature() {
-        Candidature candidature = Candidature.builder()
-                .id(1L)
-                .offre(Offre.builder().idExterne("123").build())
-                .evenements(List.of(Evenement.builder().id(99L).date(LocalDate.now()).type(TypeEvenement.MAIL).build()))
-                .build();
+        Candidature candidature = new CandidatureOffre(
+                1L, Offre.builder().idExterne("123").build(), LocalDateTime.now(),
+                List.of(Evenement.builder().id(99L).date(LocalDate.now()).type(TypeEvenement.MAIL).build()),
+                List.of());
         when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
 
         assertThatThrownBy(() -> useCase.executer(1L, 10L, LocalDate.now(), TypeEvenement.MAIL, null))
@@ -53,11 +54,10 @@ class ModifierEvenementCandidatureUseCaseTest {
 
     @Test
     void modifie_l_evenement_existant() {
-        Candidature candidature = Candidature.builder()
-                .id(1L)
-                .offre(Offre.builder().idExterne("123").build())
-                .evenements(List.of(Evenement.builder().id(10L).date(LocalDate.now()).type(TypeEvenement.MAIL).build()))
-                .build();
+        Candidature candidature = new CandidatureOffre(
+                1L, Offre.builder().idExterne("123").build(), LocalDateTime.now(),
+                List.of(Evenement.builder().id(10L).date(LocalDate.now()).type(TypeEvenement.MAIL).build()),
+                List.of());
         when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
         LocalDate nouvelleDate = LocalDate.of(2026, 8, 15);
         when(candidatureRepository.modifierEvenement(org.mockito.ArgumentMatchers.eq(1L), org.mockito.ArgumentMatchers.eq(10L), org.mockito.ArgumentMatchers.any()))

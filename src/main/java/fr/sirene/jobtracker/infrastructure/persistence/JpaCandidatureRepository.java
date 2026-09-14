@@ -3,6 +3,9 @@ package fr.sirene.jobtracker.infrastructure.persistence;
 import fr.sirene.jobtracker.application.port.candidature.CandidatureRepository;
 import fr.sirene.jobtracker.application.port.offre.OffreStorageRepository;
 import fr.sirene.jobtracker.domain.model.Candidature;
+import fr.sirene.jobtracker.domain.model.CandidatureOffre;
+import fr.sirene.jobtracker.domain.model.CandidaturePriseDeContact;
+import fr.sirene.jobtracker.domain.model.CandidatureSpontanee;
 import fr.sirene.jobtracker.domain.model.DocumentCandidature;
 import fr.sirene.jobtracker.domain.model.DocumentCv;
 import fr.sirene.jobtracker.domain.model.DocumentFichier;
@@ -10,6 +13,7 @@ import fr.sirene.jobtracker.domain.model.DocumentTexte;
 import fr.sirene.jobtracker.domain.model.Evenement;
 import fr.sirene.jobtracker.domain.model.Offre;
 import fr.sirene.jobtracker.domain.model.ResultatPagine;
+import fr.sirene.jobtracker.domain.model.TypeCandidature;
 import fr.sirene.jobtracker.domain.model.TypeDocument;
 import fr.sirene.jobtracker.infrastructure.persistence.entity.CandidatureEntity;
 import fr.sirene.jobtracker.infrastructure.persistence.entity.CvEntity;
@@ -23,6 +27,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -53,11 +58,31 @@ public class JpaCandidatureRepository implements CandidatureRepository {
     @Override
     @Transactional
     public Candidature sauvegarder(Candidature candidature) {
-        OffreEntity offreEntity = offreJpaRepository.findByIdExterne(candidature.getOffre().getIdExterne())
-                .orElseThrow(() -> new IllegalStateException(
-                        "Offre introuvable pour l'identifiant externe : " + candidature.getOffre().getIdExterne()));
-        CandidatureEntity entity = new CandidatureEntity(offreEntity);
-        entity.setDateCandidature(candidature.getDateCandidature());
+        CandidatureEntity entity = switch (candidature) {
+            case CandidatureOffre co -> {
+                OffreEntity offreEntity = offreJpaRepository.findByIdExterne(co.offre().getIdExterne())
+                        .orElseThrow(() -> new IllegalStateException(
+                                "Offre introuvable pour l'identifiant externe : " + co.offre().getIdExterne()));
+                yield new CandidatureEntity(offreEntity);
+            }
+            case CandidatureSpontanee cs -> {
+                CandidatureEntity e = new CandidatureEntity(TypeCandidature.SPONTANEE);
+                e.setNomEntreprise(cs.nomEntreprise());
+                e.setUrlEntreprise(cs.urlEntreprise());
+                e.setTypeEntreprise(cs.typeEntreprise());
+                e.setStatutCandidatureSpontanee(cs.statut());
+                yield e;
+            }
+            case CandidaturePriseDeContact cp -> {
+                CandidatureEntity e = new CandidatureEntity(TypeCandidature.PRISE_DE_CONTACT);
+                e.setNomEntreprise(cp.nomEntreprise());
+                e.setUrlEntreprise(cp.urlEntreprise());
+                e.setTypeEntreprise(cp.typeEntreprise());
+                e.setStatutPriseDeContact(cp.statut());
+                yield e;
+            }
+        };
+        entity.setDateCandidature(candidature.dateCandidature());
         return toDomain(candidatureJpaRepository.save(entity));
     }
 
@@ -144,16 +169,22 @@ public class JpaCandidatureRepository implements CandidatureRepository {
     }
 
     private Candidature toDomain(CandidatureEntity entity) {
-        Offre offre = offreStorageRepository.trouverParIdExterne(entity.getOffre().getIdExterne())
-                .orElseThrow(() -> new IllegalStateException(
-                        "Offre introuvable pour l'identifiant externe : " + entity.getOffre().getIdExterne()));
-        return Candidature.builder()
-                .id(entity.getId())
-                .offre(offre)
-                .dateCandidature(entity.getDateCandidature())
-                .evenements(entity.getEvenements().stream().map(this::toDomain).toList())
-                .documents(entity.getDocuments().stream().map(this::toDomain).toList())
-                .build();
+        List<Evenement> evenements = entity.getEvenements().stream().map(this::toDomain).toList();
+        List<DocumentCandidature> documents = entity.getDocuments().stream().map(this::toDomain).toList();
+        return switch (entity.getType()) {
+            case OFFRE -> {
+                Offre offre = offreStorageRepository.trouverParIdExterne(entity.getOffre().getIdExterne())
+                        .orElseThrow(() -> new IllegalStateException(
+                                "Offre introuvable pour l'identifiant externe : " + entity.getOffre().getIdExterne()));
+                yield new CandidatureOffre(entity.getId(), offre, entity.getDateCandidature(), evenements, documents);
+            }
+            case SPONTANEE -> new CandidatureSpontanee(
+                    entity.getId(), entity.getNomEntreprise(), entity.getUrlEntreprise(), entity.getTypeEntreprise(),
+                    entity.getStatutCandidatureSpontanee(), entity.getDateCandidature(), evenements, documents);
+            case PRISE_DE_CONTACT -> new CandidaturePriseDeContact(
+                    entity.getId(), entity.getNomEntreprise(), entity.getUrlEntreprise(), entity.getTypeEntreprise(),
+                    entity.getStatutPriseDeContact(), entity.getDateCandidature(), evenements, documents);
+        };
     }
 
     private Evenement toDomain(EvenementCandidatureEntity entity) {
