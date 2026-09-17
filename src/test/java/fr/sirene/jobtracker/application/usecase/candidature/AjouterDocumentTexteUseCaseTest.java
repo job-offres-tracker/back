@@ -7,6 +7,7 @@ import fr.sirene.jobtracker.domain.model.CandidatureOffre;
 import fr.sirene.jobtracker.domain.model.DocumentCandidature;
 import fr.sirene.jobtracker.domain.model.DocumentTexte;
 import fr.sirene.jobtracker.domain.model.Offre;
+import fr.sirene.jobtracker.domain.model.StatutCandidatureOffre;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -43,7 +44,7 @@ class AjouterDocumentTexteUseCaseTest {
     @Test
     void ajoute_le_document_texte() {
         Candidature candidature = new CandidatureOffre(
-                1L, Offre.builder().idExterne("123").build(), LocalDateTime.now(), List.of(), List.of());
+                1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
         when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
         when(candidatureRepository.ajouterDocument(eq(1L), any())).thenAnswer(invocation -> invocation.getArgument(1));
 

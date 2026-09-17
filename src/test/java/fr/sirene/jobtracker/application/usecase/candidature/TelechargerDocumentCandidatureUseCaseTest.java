@@ -10,6 +10,7 @@ import fr.sirene.jobtracker.domain.model.DocumentCandidatureTelecharge;
 import fr.sirene.jobtracker.domain.model.DocumentFichier;
 import fr.sirene.jobtracker.domain.model.DocumentTexte;
 import fr.sirene.jobtracker.domain.model.Offre;
+import fr.sirene.jobtracker.domain.model.StatutCandidatureOffre;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -46,7 +47,7 @@ class TelechargerDocumentCandidatureUseCaseTest {
     @Test
     void leve_une_exception_quand_le_document_est_introuvable() {
         Candidature candidature = new CandidatureOffre(
-                1L, Offre.builder().idExterne("123").build(), LocalDateTime.now(), List.of(), List.of());
+                1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
         when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
 
         assertThatThrownBy(() -> useCase.executer(1L, 10L)).isInstanceOf(IllegalArgumentException.class);
@@ -56,7 +57,7 @@ class TelechargerDocumentCandidatureUseCaseTest {
     void leve_une_exception_quand_le_document_n_est_pas_un_fichier() {
         DocumentCandidature documentTexte = new DocumentTexte(10L, "Notes", "...", LocalDateTime.now());
         Candidature candidature = new CandidatureOffre(
-                1L, Offre.builder().idExterne("123").build(), LocalDateTime.now(), List.of(), List.of(documentTexte));
+                1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of(documentTexte));
         when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
 
         assertThatThrownBy(() -> useCase.executer(1L, 10L)).isInstanceOf(IllegalArgumentException.class);
@@ -67,7 +68,7 @@ class TelechargerDocumentCandidatureUseCaseTest {
         DocumentCandidature documentFichier =
                 new DocumentFichier(10L, "Lettre.pdf", "abc-123", 3, "application/pdf", LocalDateTime.now());
         Candidature candidature = new CandidatureOffre(
-                1L, Offre.builder().idExterne("123").build(), LocalDateTime.now(), List.of(), List.of(documentFichier));
+                1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of(documentFichier));
         when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
         when(documentCandidatureStockagePort.lire(1L, "abc-123")).thenReturn(new byte[] {1, 2, 3});
 

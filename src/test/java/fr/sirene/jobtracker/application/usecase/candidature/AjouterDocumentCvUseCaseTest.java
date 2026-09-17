@@ -10,6 +10,7 @@ import fr.sirene.jobtracker.domain.model.Cv;
 import fr.sirene.jobtracker.domain.model.DocumentCandidature;
 import fr.sirene.jobtracker.domain.model.DocumentCv;
 import fr.sirene.jobtracker.domain.model.Offre;
+import fr.sirene.jobtracker.domain.model.StatutCandidatureOffre;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -41,7 +42,7 @@ class AjouterDocumentCvUseCaseTest {
     private AjouterDocumentCvUseCase useCase;
 
     private static final Candidature CANDIDATURE = new CandidatureOffre(
-            1L, Offre.builder().idExterne("123").build(), LocalDateTime.now(), List.of(), List.of());
+            1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
 
     @Test
     void leve_une_exception_quand_la_candidature_est_introuvable() {

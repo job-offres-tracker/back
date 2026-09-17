@@ -58,7 +58,22 @@ public class JpaCandidatureRepository implements CandidatureRepository {
     @Override
     @Transactional
     public Candidature sauvegarder(Candidature candidature) {
-        CandidatureEntity entity = switch (candidature) {
+        CandidatureEntity entity = candidature.id() != null
+                ? candidatureJpaRepository.findById(candidature.id())
+                        .orElseThrow(() -> new IllegalStateException("Candidature introuvable : " + candidature.id()))
+                : nouvelleEntite(candidature);
+
+        switch (candidature) {
+            case CandidatureOffre co -> entity.setStatutOffre(co.statut());
+            case CandidatureSpontanee cs -> entity.setStatutCandidatureSpontanee(cs.statut());
+            case CandidaturePriseDeContact cp -> entity.setStatutPriseDeContact(cp.statut());
+        }
+        entity.setDateCandidature(candidature.dateCandidature());
+        return toDomain(candidatureJpaRepository.save(entity));
+    }
+
+    private CandidatureEntity nouvelleEntite(Candidature candidature) {
+        return switch (candidature) {
             case CandidatureOffre co -> {
                 OffreEntity offreEntity = offreJpaRepository.findByIdExterne(co.offre().getIdExterne())
                         .orElseThrow(() -> new IllegalStateException(
@@ -70,7 +85,6 @@ public class JpaCandidatureRepository implements CandidatureRepository {
                 e.setNomEntreprise(cs.nomEntreprise());
                 e.setUrlEntreprise(cs.urlEntreprise());
                 e.setTypeEntreprise(cs.typeEntreprise());
-                e.setStatutCandidatureSpontanee(cs.statut());
                 yield e;
             }
             case CandidaturePriseDeContact cp -> {
@@ -78,12 +92,9 @@ public class JpaCandidatureRepository implements CandidatureRepository {
                 e.setNomEntreprise(cp.nomEntreprise());
                 e.setUrlEntreprise(cp.urlEntreprise());
                 e.setTypeEntreprise(cp.typeEntreprise());
-                e.setStatutPriseDeContact(cp.statut());
                 yield e;
             }
         };
-        entity.setDateCandidature(candidature.dateCandidature());
-        return toDomain(candidatureJpaRepository.save(entity));
     }
 
     @Override
@@ -176,7 +187,8 @@ public class JpaCandidatureRepository implements CandidatureRepository {
                 Offre offre = offreStorageRepository.trouverParIdExterne(entity.getOffre().getIdExterne())
                         .orElseThrow(() -> new IllegalStateException(
                                 "Offre introuvable pour l'identifiant externe : " + entity.getOffre().getIdExterne()));
-                yield new CandidatureOffre(entity.getId(), offre, entity.getDateCandidature(), evenements, documents);
+                yield new CandidatureOffre(
+                        entity.getId(), offre, entity.getStatutOffre(), entity.getDateCandidature(), evenements, documents);
             }
             case SPONTANEE -> new CandidatureSpontanee(
                     entity.getId(), entity.getNomEntreprise(), entity.getUrlEntreprise(), entity.getTypeEntreprise(),

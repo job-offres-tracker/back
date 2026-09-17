@@ -4,6 +4,7 @@ import fr.sirene.jobtracker.application.port.candidature.CandidatureRepository;
 import fr.sirene.jobtracker.domain.model.Candidature;
 import fr.sirene.jobtracker.domain.model.CandidatureOffre;
 import fr.sirene.jobtracker.domain.model.Offre;
+import fr.sirene.jobtracker.domain.model.StatutCandidatureOffre;
 
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,8 @@ public class CandidatureAutoCreationService {
         if (candidatureRepository.existeParOffreIdExterne(offre.getIdExterne())) {
             return;
         }
-        Candidature candidature = new CandidatureOffre(null, offre, LocalDateTime.now(), List.of(), List.of());
+        Candidature candidature = new CandidatureOffre(
+                null, offre, StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
         candidatureRepository.sauvegarder(candidature);
     }
 }

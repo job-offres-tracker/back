@@ -6,6 +6,7 @@ import fr.sirene.jobtracker.domain.model.Candidature;
 import fr.sirene.jobtracker.domain.model.CandidatureOffre;
 import fr.sirene.jobtracker.domain.model.Evenement;
 import fr.sirene.jobtracker.domain.model.Offre;
+import fr.sirene.jobtracker.domain.model.StatutCandidatureOffre;
 import fr.sirene.jobtracker.domain.model.TypeEvenement;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,7 +45,7 @@ class AjouterEvenementCandidatureUseCaseTest {
     @Test
     void ajoute_l_evenement_a_la_candidature() {
         Candidature candidature = new CandidatureOffre(
-                1L, Offre.builder().idExterne("123").build(), LocalDateTime.now(), List.of(), List.of());
+                1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
         when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
         LocalDate date = LocalDate.of(2026, 8, 1);
         when(candidatureRepository.ajouterEvenement(org.mockito.ArgumentMatchers.eq(1L), org.mockito.ArgumentMatchers.any()))

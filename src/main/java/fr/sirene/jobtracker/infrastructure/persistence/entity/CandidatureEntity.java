@@ -1,5 +1,6 @@
 package fr.sirene.jobtracker.infrastructure.persistence.entity;
 
+import fr.sirene.jobtracker.domain.model.StatutCandidatureOffre;
 import fr.sirene.jobtracker.domain.model.StatutCandidatureSpontanee;
 import fr.sirene.jobtracker.domain.model.StatutPriseDeContact;
 import fr.sirene.jobtracker.domain.model.TypeCandidature;
@@ -46,6 +47,10 @@ public class CandidatureEntity {
     @ManyToOne
     @JoinColumn(name = "offre_id", unique = true, nullable = true)
     private OffreEntity offre;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "statut_offre")
+    private StatutCandidatureOffre statutOffre;
 
     @Column(name = "nom_entreprise")
     private String nomEntreprise;

@@ -11,6 +11,7 @@ import fr.sirene.jobtracker.domain.model.DocumentCandidature;
 import fr.sirene.jobtracker.domain.model.DocumentFichier;
 import fr.sirene.jobtracker.domain.model.Offre;
 import fr.sirene.jobtracker.domain.model.ParametresDocumentCandidature;
+import fr.sirene.jobtracker.domain.model.StatutCandidatureOffre;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,7 +50,7 @@ class AjouterDocumentFichierUseCaseTest {
     private AjouterDocumentFichierUseCase useCase;
 
     private static final Candidature CANDIDATURE = new CandidatureOffre(
-            1L, Offre.builder().idExterne("123").build(), LocalDateTime.now(), List.of(), List.of());
+            1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
 
     @BeforeEach
     void setUp() {

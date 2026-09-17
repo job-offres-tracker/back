@@ -13,6 +13,7 @@ import fr.sirene.jobtracker.domain.exception.OffreNonTrouveeException;
 import fr.sirene.jobtracker.domain.exception.ParametresRechercheNonConfiguresException;
 import fr.sirene.jobtracker.domain.exception.RechercheCommuneException;
 import fr.sirene.jobtracker.domain.exception.RecuperationPageException;
+import fr.sirene.jobtracker.domain.exception.StatutCandidatureInvalideException;
 import fr.sirene.jobtracker.domain.exception.StockageFichierException;
 import fr.sirene.jobtracker.domain.exception.TailleFichierDepasseeException;
 import fr.sirene.jobtracker.domain.exception.TransitionEtatInvalideException;
@@ -215,6 +216,14 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleTransitionEtatInvalide(TransitionEtatInvalideException ex) {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
         detail.setTitle("Transition d'état invalide");
+        detail.setProperty("timestamp", Instant.now());
+        return detail;
+    }
+
+    @ExceptionHandler(StatutCandidatureInvalideException.class)
+    public ProblemDetail handleStatutCandidatureInvalide(StatutCandidatureInvalideException ex) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        detail.setTitle("Statut de candidature invalide");
         detail.setProperty("timestamp", Instant.now());
         return detail;
     }

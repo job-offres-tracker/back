@@ -6,6 +6,7 @@ import fr.sirene.jobtracker.domain.model.CandidaturePriseDeContact;
 import fr.sirene.jobtracker.domain.model.CandidatureSpontanee;
 import fr.sirene.jobtracker.domain.model.EtatOffre;
 import fr.sirene.jobtracker.domain.model.Lieu;
+import fr.sirene.jobtracker.domain.model.StatutCandidatureOffre;
 import fr.sirene.jobtracker.domain.model.StatutCandidatureSpontanee;
 import fr.sirene.jobtracker.domain.model.StatutPriseDeContact;
 import fr.sirene.jobtracker.domain.model.TypeCandidature;
@@ -37,6 +38,9 @@ public record CandidatureListItemResponse(
         @Schema(description = "Lieu de travail (uniquement pour le type OFFRE)")
         Lieu lieu,
 
+        @Schema(description = "Statut de la candidature liée à une offre (uniquement pour le type OFFRE)")
+        StatutCandidatureOffre statutCandidatureOffre,
+
         @Schema(description = "Statut de la candidature spontanée (uniquement pour le type SPONTANEE)")
         StatutCandidatureSpontanee statutCandidatureSpontanee,
 
@@ -50,13 +54,13 @@ public record CandidatureListItemResponse(
         return switch (candidature) {
             case CandidatureOffre co -> new CandidatureListItemResponse(
                     co.id(), TypeCandidature.OFFRE, co.offre().getIdExterne(), co.offre().getIntitule(),
-                    co.offre().getEtat(), co.offre().getEntreprise(), co.offre().getLieu(), null, null,
+                    co.offre().getEtat(), co.offre().getEntreprise(), co.offre().getLieu(), co.statut(), null, null,
                     co.dateCandidature());
             case CandidatureSpontanee cs -> new CandidatureListItemResponse(
-                    cs.id(), TypeCandidature.SPONTANEE, null, null, null, cs.nomEntreprise(), null,
+                    cs.id(), TypeCandidature.SPONTANEE, null, null, null, cs.nomEntreprise(), null, null,
                     cs.statut(), null, cs.dateCandidature());
             case CandidaturePriseDeContact cp -> new CandidatureListItemResponse(
-                    cp.id(), TypeCandidature.PRISE_DE_CONTACT, null, null, null, cp.nomEntreprise(), null,
+                    cp.id(), TypeCandidature.PRISE_DE_CONTACT, null, null, null, cp.nomEntreprise(), null, null,
                     null, cp.statut(), cp.dateCandidature());
         };
     }

@@ -7,6 +7,7 @@ import fr.sirene.jobtracker.domain.model.Candidature;
 import fr.sirene.jobtracker.domain.model.CandidatureOffre;
 import fr.sirene.jobtracker.domain.model.Evenement;
 import fr.sirene.jobtracker.domain.model.Offre;
+import fr.sirene.jobtracker.domain.model.StatutCandidatureOffre;
 import fr.sirene.jobtracker.domain.model.TypeEvenement;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,7 +44,7 @@ class ModifierEvenementCandidatureUseCaseTest {
     @Test
     void leve_une_exception_quand_l_evenement_n_appartient_pas_a_la_candidature() {
         Candidature candidature = new CandidatureOffre(
-                1L, Offre.builder().idExterne("123").build(), LocalDateTime.now(),
+                1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(),
                 List.of(Evenement.builder().id(99L).date(LocalDate.now()).type(TypeEvenement.MAIL).build()),
                 List.of());
         when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
@@ -55,7 +56,7 @@ class ModifierEvenementCandidatureUseCaseTest {
     @Test
     void modifie_l_evenement_existant() {
         Candidature candidature = new CandidatureOffre(
-                1L, Offre.builder().idExterne("123").build(), LocalDateTime.now(),
+                1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(),
                 List.of(Evenement.builder().id(10L).date(LocalDate.now()).type(TypeEvenement.MAIL).build()),
                 List.of());
         when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));

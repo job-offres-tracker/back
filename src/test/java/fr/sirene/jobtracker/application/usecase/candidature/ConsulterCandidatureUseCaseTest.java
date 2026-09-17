@@ -5,6 +5,7 @@ import fr.sirene.jobtracker.domain.exception.CandidatureNonTrouveeException;
 import fr.sirene.jobtracker.domain.model.Candidature;
 import fr.sirene.jobtracker.domain.model.CandidatureOffre;
 import fr.sirene.jobtracker.domain.model.Offre;
+import fr.sirene.jobtracker.domain.model.StatutCandidatureOffre;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,7 +32,7 @@ class ConsulterCandidatureUseCaseTest {
     @Test
     void retourne_la_candidature_correspondant_a_l_id() {
         Candidature candidature = new CandidatureOffre(
-                1L, Offre.builder().idExterne("123").build(), LocalDateTime.now(), List.of(), List.of());
+                1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
         when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
 
         Candidature obtenue = useCase.executer(1L);

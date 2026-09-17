@@ -4,6 +4,7 @@ import fr.sirene.jobtracker.domain.model.Candidature;
 import fr.sirene.jobtracker.domain.model.CandidatureOffre;
 import fr.sirene.jobtracker.domain.model.CandidaturePriseDeContact;
 import fr.sirene.jobtracker.domain.model.CandidatureSpontanee;
+import fr.sirene.jobtracker.domain.model.StatutCandidatureOffre;
 import fr.sirene.jobtracker.domain.model.StatutCandidatureSpontanee;
 import fr.sirene.jobtracker.domain.model.StatutPriseDeContact;
 import fr.sirene.jobtracker.domain.model.TypeCandidature;
@@ -27,6 +28,9 @@ public record CandidatureDetailResponse(
 
         @Schema(description = "Offre liée à la candidature (uniquement pour le type OFFRE)")
         OffreResponse offre,
+
+        @Schema(description = "Statut de la candidature liée à une offre (uniquement pour le type OFFRE)")
+        StatutCandidatureOffre statutCandidatureOffre,
 
         @Schema(description = "Nom de l'entreprise (uniquement pour SPONTANEE/PRISE_DE_CONTACT)")
         String nomEntreprise,
@@ -54,13 +58,13 @@ public record CandidatureDetailResponse(
         List<DocumentCandidatureResponse> documents = candidature.documents().stream().map(DocumentCandidatureResponse::fromDomain).toList();
         return switch (candidature) {
             case CandidatureOffre co -> new CandidatureDetailResponse(
-                    co.id(), TypeCandidature.OFFRE, co.dateCandidature(), OffreResponse.fromDomain(co.offre()),
+                    co.id(), TypeCandidature.OFFRE, co.dateCandidature(), OffreResponse.fromDomain(co.offre()), co.statut(),
                     null, null, null, null, null, evenements, documents);
             case CandidatureSpontanee cs -> new CandidatureDetailResponse(
-                    cs.id(), TypeCandidature.SPONTANEE, cs.dateCandidature(), null,
+                    cs.id(), TypeCandidature.SPONTANEE, cs.dateCandidature(), null, null,
                     cs.nomEntreprise(), cs.urlEntreprise(), cs.typeEntreprise(), cs.statut(), null, evenements, documents);
             case CandidaturePriseDeContact cp -> new CandidatureDetailResponse(
-                    cp.id(), TypeCandidature.PRISE_DE_CONTACT, cp.dateCandidature(), null,
+                    cp.id(), TypeCandidature.PRISE_DE_CONTACT, cp.dateCandidature(), null, null,
                     cp.nomEntreprise(), cp.urlEntreprise(), cp.typeEntreprise(), null, cp.statut(), evenements, documents);
         };
     }

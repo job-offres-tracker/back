@@ -11,6 +11,7 @@ import fr.sirene.jobtracker.domain.model.DocumentTexte;
 import fr.sirene.jobtracker.domain.model.Evenement;
 import fr.sirene.jobtracker.domain.model.Offre;
 import fr.sirene.jobtracker.domain.model.ResultatPagine;
+import fr.sirene.jobtracker.domain.model.StatutCandidatureOffre;
 import fr.sirene.jobtracker.domain.model.StatutCandidatureSpontanee;
 import fr.sirene.jobtracker.domain.model.StatutPriseDeContact;
 import fr.sirene.jobtracker.domain.model.TypeCandidature;
@@ -66,6 +67,7 @@ class JpaCandidatureRepositoryTest {
     private CandidatureEntity nouvelleCandidatureEntity(Long id) {
         OffreEntity offreEntity = new OffreEntity("123");
         CandidatureEntity entity = new CandidatureEntity(offreEntity);
+        entity.setStatutOffre(StatutCandidatureOffre.POSTULE);
         entity.setDateCandidature(LocalDateTime.now());
         if (id != null) {
             org.springframework.test.util.ReflectionTestUtils.setField(entity, "id", id);
@@ -84,7 +86,8 @@ class JpaCandidatureRepositoryTest {
                     .thenAnswer(invocation -> invocation.getArgument(0));
             when(offreStorageRepository.trouverParIdExterne("123")).thenReturn(Optional.of(OFFRE));
 
-            Candidature candidature = new CandidatureOffre(null, OFFRE, LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = new CandidatureOffre(
+                    null, OFFRE, StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
 
             Candidature resultat = repository.sauvegarder(candidature);
 
@@ -92,6 +95,26 @@ class JpaCandidatureRepositoryTest {
             ArgumentCaptor<CandidatureEntity> captor = ArgumentCaptor.captor();
             verify(candidatureJpaRepository).save(captor.capture());
             assertThat(captor.getValue().getOffre()).isEqualTo(offreEntity);
+        }
+
+        @Test
+        void met_a_jour_l_entite_existante_plutot_que_d_en_creer_une_nouvelle_quand_un_id_est_fourni() {
+            CandidatureEntity entiteExistante = nouvelleCandidatureEntity(1L);
+            when(candidatureJpaRepository.findById(1L)).thenReturn(Optional.of(entiteExistante));
+            when(candidatureJpaRepository.save(any(CandidatureEntity.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+            when(offreStorageRepository.trouverParIdExterne("123")).thenReturn(Optional.of(OFFRE));
+
+            Candidature candidature = new CandidatureOffre(
+                    1L, OFFRE, StatutCandidatureOffre.ACCEPTE, LocalDateTime.now(), List.of(), List.of());
+
+            repository.sauvegarder(candidature);
+
+            ArgumentCaptor<CandidatureEntity> captor = ArgumentCaptor.captor();
+            verify(candidatureJpaRepository).save(captor.capture());
+            assertThat(captor.getValue()).isSameAs(entiteExistante);
+            assertThat(captor.getValue().getStatutOffre()).isEqualTo(StatutCandidatureOffre.ACCEPTE);
+            verify(offreJpaRepository, org.mockito.Mockito.never()).findByIdExterne(any());
         }
 
         @Test
@@ -152,6 +175,7 @@ class JpaCandidatureRepositoryTest {
             assertThat(resultat).isPresent();
             assertThat(resultat.get().evenements()).hasSize(1);
             assertThat(resultat.get().evenements().get(0).getType()).isEqualTo(TypeEvenement.ENTRETIEN);
+            assertThat(((CandidatureOffre) resultat.get()).statut()).isEqualTo(StatutCandidatureOffre.POSTULE);
         }
 
         @Test

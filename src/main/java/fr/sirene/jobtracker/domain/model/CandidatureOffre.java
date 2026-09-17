@@ -6,6 +6,7 @@ import java.util.List;
 public record CandidatureOffre(
         Long id,
         Offre offre,
+        StatutCandidatureOffre statut,
         LocalDateTime dateCandidature,
         List<Evenement> evenements,
         List<DocumentCandidature> documents

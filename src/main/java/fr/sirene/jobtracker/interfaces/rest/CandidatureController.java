@@ -9,6 +9,7 @@ import fr.sirene.jobtracker.application.usecase.candidature.ConsulterCandidature
 import fr.sirene.jobtracker.application.usecase.candidature.ConsulterCandidaturesUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.CreerCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.ModifierEvenementCandidatureUseCase;
+import fr.sirene.jobtracker.application.usecase.candidature.ModifierStatutCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.TelechargerDocumentCandidatureUseCase;
 import fr.sirene.jobtracker.domain.model.Candidature;
 import fr.sirene.jobtracker.domain.model.DocumentCandidature;
@@ -24,6 +25,7 @@ import fr.sirene.jobtracker.interfaces.rest.dto.CreerEvenementRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.CreerPriseDeContactRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.DocumentCandidatureResponse;
 import fr.sirene.jobtracker.interfaces.rest.dto.EvenementResponse;
+import fr.sirene.jobtracker.interfaces.rest.dto.ModifierStatutCandidatureRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.PagedResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,6 +48,7 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -73,6 +76,7 @@ public class CandidatureController {
     private final CreerCandidatureUseCase creerCandidatureUseCase;
     private final AjouterEvenementCandidatureUseCase ajouterEvenementCandidatureUseCase;
     private final ModifierEvenementCandidatureUseCase modifierEvenementCandidatureUseCase;
+    private final ModifierStatutCandidatureUseCase modifierStatutCandidatureUseCase;
     private final AjouterDocumentCvUseCase ajouterDocumentCvUseCase;
     private final AjouterDocumentFichierUseCase ajouterDocumentFichierUseCase;
     private final AjouterDocumentTexteUseCase ajouterDocumentTexteUseCase;
@@ -85,6 +89,7 @@ public class CandidatureController {
             CreerCandidatureUseCase creerCandidatureUseCase,
             AjouterEvenementCandidatureUseCase ajouterEvenementCandidatureUseCase,
             ModifierEvenementCandidatureUseCase modifierEvenementCandidatureUseCase,
+            ModifierStatutCandidatureUseCase modifierStatutCandidatureUseCase,
             AjouterDocumentCvUseCase ajouterDocumentCvUseCase,
             AjouterDocumentFichierUseCase ajouterDocumentFichierUseCase,
             AjouterDocumentTexteUseCase ajouterDocumentTexteUseCase,
@@ -95,6 +100,7 @@ public class CandidatureController {
         this.creerCandidatureUseCase = creerCandidatureUseCase;
         this.ajouterEvenementCandidatureUseCase = ajouterEvenementCandidatureUseCase;
         this.modifierEvenementCandidatureUseCase = modifierEvenementCandidatureUseCase;
+        this.modifierStatutCandidatureUseCase = modifierStatutCandidatureUseCase;
         this.ajouterDocumentCvUseCase = ajouterDocumentCvUseCase;
         this.ajouterDocumentFichierUseCase = ajouterDocumentFichierUseCase;
         this.ajouterDocumentTexteUseCase = ajouterDocumentTexteUseCase;
@@ -220,6 +226,26 @@ public class CandidatureController {
         Evenement evenement = modifierEvenementCandidatureUseCase.executer(
                 id, evenementId, requete.date(), requete.type(), requete.description());
         return ResponseEntity.ok(EvenementResponse.fromDomain(evenement));
+    }
+
+    @Operation(
+            summary = "Modifier le statut d'une candidature",
+            description = "Met à jour le statut d'une candidature (valeurs autorisées dépendantes de son type : "
+                    + "StatutCandidatureOffre, StatutCandidatureSpontanee ou StatutPriseDeContact).")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Statut modifié"),
+            @ApiResponse(responseCode = "400", description = "Statut invalide pour ce type de candidature",
+                    content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
+                            schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "404", description = "Candidature introuvable",
+                    content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
+                            schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    @PatchMapping("/{id}/statut")
+    public ResponseEntity<CandidatureDetailResponse> modifierStatut(
+            @PathVariable Long id, @Valid @RequestBody ModifierStatutCandidatureRequest requete) {
+        Candidature candidature = modifierStatutCandidatureUseCase.executer(id, requete.statut());
+        return ResponseEntity.ok(CandidatureDetailResponse.fromDomain(candidature));
     }
 
     @Operation(
