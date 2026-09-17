@@ -9,6 +9,8 @@ UPDATE candidature c SET statut_offre = 'ACCEPTE'
 FROM offre o WHERE c.offre_id = o.id AND c.type_candidature = 'OFFRE' AND o.etat = 'ACCEPTE';
 UPDATE candidature c SET statut_offre = 'RECALE'
 FROM offre o WHERE c.offre_id = o.id AND c.type_candidature = 'OFFRE' AND o.etat = 'RECALE';
+UPDATE candidature c SET statut_offre = 'REFUSE'
+FROM offre o WHERE c.offre_id = o.id AND c.type_candidature = 'OFFRE' AND o.etat = 'REFUSE';
 
 ALTER TABLE candidature DROP CONSTRAINT chk_candidature_coherence;
 ALTER TABLE candidature ADD CONSTRAINT chk_candidature_coherence CHECK (

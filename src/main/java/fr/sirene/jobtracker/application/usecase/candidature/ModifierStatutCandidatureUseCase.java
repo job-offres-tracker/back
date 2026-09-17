@@ -12,6 +12,7 @@ import fr.sirene.jobtracker.domain.model.StatutCandidatureSpontanee;
 import fr.sirene.jobtracker.domain.model.StatutPriseDeContact;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 
@@ -24,49 +25,32 @@ public class ModifierStatutCandidatureUseCase {
         this.candidatureRepository = candidatureRepository;
     }
 
+    @Transactional
     public Candidature executer(Long id, String statut) {
         Candidature candidature = candidatureRepository.trouverParId(id)
                 .orElseThrow(() -> new CandidatureNonTrouveeException(id));
 
         Candidature miseAJour = switch (candidature) {
             case CandidatureOffre co -> new CandidatureOffre(
-                    co.id(), co.offre(), parseStatutOffre(statut), co.dateCandidature(), co.evenements(), co.documents());
+                    co.id(), co.offre(), parseStatut(statut, StatutCandidatureOffre.class), co.dateCandidature(),
+                    co.evenements(), co.documents());
             case CandidatureSpontanee cs -> new CandidatureSpontanee(
-                    cs.id(), cs.nomEntreprise(), cs.urlEntreprise(), cs.typeEntreprise(), parseStatutSpontanee(statut),
-                    cs.dateCandidature(), cs.evenements(), cs.documents());
+                    cs.id(), cs.nomEntreprise(), cs.urlEntreprise(), cs.typeEntreprise(),
+                    parseStatut(statut, StatutCandidatureSpontanee.class), cs.dateCandidature(), cs.evenements(), cs.documents());
             case CandidaturePriseDeContact cp -> new CandidaturePriseDeContact(
-                    cp.id(), cp.nomEntreprise(), cp.urlEntreprise(), cp.typeEntreprise(), parseStatutPriseDeContact(statut),
-                    cp.dateCandidature(), cp.evenements(), cp.documents());
+                    cp.id(), cp.nomEntreprise(), cp.urlEntreprise(), cp.typeEntreprise(),
+                    parseStatut(statut, StatutPriseDeContact.class), cp.dateCandidature(), cp.evenements(), cp.documents());
         };
 
-        return candidatureRepository.sauvegarder(miseAJour);
+        return candidatureRepository.mettreAJourStatut(miseAJour);
     }
 
-    private StatutCandidatureOffre parseStatutOffre(String statut) {
+    private <E extends Enum<E>> E parseStatut(String statut, Class<E> type) {
         try {
-            return StatutCandidatureOffre.valueOf(statut);
+            return Enum.valueOf(type, statut);
         } catch (IllegalArgumentException e) {
-            throw new StatutCandidatureInvalideException(messageInvalide(statut, StatutCandidatureOffre.values()), e);
+            throw new StatutCandidatureInvalideException(
+                    "Statut '%s' invalide. Valeurs autorisées : %s".formatted(statut, Arrays.toString(type.getEnumConstants())), e);
         }
-    }
-
-    private StatutCandidatureSpontanee parseStatutSpontanee(String statut) {
-        try {
-            return StatutCandidatureSpontanee.valueOf(statut);
-        } catch (IllegalArgumentException e) {
-            throw new StatutCandidatureInvalideException(messageInvalide(statut, StatutCandidatureSpontanee.values()), e);
-        }
-    }
-
-    private StatutPriseDeContact parseStatutPriseDeContact(String statut) {
-        try {
-            return StatutPriseDeContact.valueOf(statut);
-        } catch (IllegalArgumentException e) {
-            throw new StatutCandidatureInvalideException(messageInvalide(statut, StatutPriseDeContact.values()), e);
-        }
-    }
-
-    private String messageInvalide(String statut, Enum<?>[] valeursAutorisees) {
-        return "Statut '%s' invalide. Valeurs autorisées : %s".formatted(statut, Arrays.toString(valeursAutorisees));
     }
 }

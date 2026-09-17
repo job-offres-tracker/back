@@ -56,13 +56,13 @@ class ModifierStatutCandidatureUseCaseTest {
                     1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE,
                     LocalDateTime.now(), List.of(), List.of());
             when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
-            when(candidatureRepository.sauvegarder(any())).thenAnswer(invocation -> invocation.getArgument(0));
+            when(candidatureRepository.mettreAJourStatut(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
             Candidature resultat = useCase.executer(1L, "ACCEPTE");
 
             assertThat(((CandidatureOffre) resultat).statut()).isEqualTo(StatutCandidatureOffre.ACCEPTE);
             ArgumentCaptor<Candidature> captor = ArgumentCaptor.captor();
-            verify(candidatureRepository).sauvegarder(captor.capture());
+            verify(candidatureRepository).mettreAJourStatut(captor.capture());
             assertThat(((CandidatureOffre) captor.getValue()).statut()).isEqualTo(StatutCandidatureOffre.ACCEPTE);
         }
 
@@ -87,7 +87,7 @@ class ModifierStatutCandidatureUseCaseTest {
                     2L, "Acme SAS", null, TypeEntreprise.ESN, StatutCandidatureSpontanee.ENVOYE,
                     LocalDateTime.now(), List.of(), List.of());
             when(candidatureRepository.trouverParId(2L)).thenReturn(Optional.of(candidature));
-            when(candidatureRepository.sauvegarder(any())).thenAnswer(invocation -> invocation.getArgument(0));
+            when(candidatureRepository.mettreAJourStatut(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
             Candidature resultat = useCase.executer(2L, "RECALE");
 
@@ -115,7 +115,7 @@ class ModifierStatutCandidatureUseCaseTest {
                     3L, "Acme SAS", null, TypeEntreprise.CABINET_RECRUTEMENT, StatutPriseDeContact.ETABLI,
                     LocalDateTime.now(), List.of(), List.of());
             when(candidatureRepository.trouverParId(3L)).thenReturn(Optional.of(candidature));
-            when(candidatureRepository.sauvegarder(any())).thenAnswer(invocation -> invocation.getArgument(0));
+            when(candidatureRepository.mettreAJourStatut(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
             Candidature resultat = useCase.executer(3L, "ACCEPTE");
 

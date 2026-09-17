@@ -38,6 +38,8 @@ Au-delà de l'arborescence documentée dans CLAUDE.md :
 
 Voir CLAUDE.md §Testing conventions (stack, nommage, `@Nested`, `@WebMvcTest`, test des clients HTTP, pas de `@SpringBootTest`).
 
+- **Précision sur `@Nested` dans une classe à une seule méthode** : la règle de CLAUDE.md (`@Nested` seulement si la classe couvre plusieurs méthodes) vise à éviter un `@Nested` décoratif. Elle n'interdit pas de grouper par variante quand la méthode testée bifurque réellement selon un type (ex. `sealed interface`, discriminant d'enum) — voir `ModifierStatutCandidatureUseCaseTest` (`CandidatureDeTypeOffre`/`CandidatureDeTypeSpontanee`/`CandidatureDeTypePriseDeContact`). Dans ce cas le `@Nested` reste légitime.
+
 ## Avant de considérer une tâche terminée
 
 - [ ] Nouvelle config → entrée ajoutée dans `additional-spring-configuration-metadata.json`

@@ -72,6 +72,21 @@ public class JpaCandidatureRepository implements CandidatureRepository {
         return toDomain(candidatureJpaRepository.save(entity));
     }
 
+    @Override
+    @Transactional
+    public Candidature mettreAJourStatut(Candidature candidature) {
+        CandidatureEntity entity = candidatureJpaRepository.findById(candidature.id())
+                .orElseThrow(() -> new IllegalStateException("Candidature introuvable : " + candidature.id()));
+
+        switch (candidature) {
+            case CandidatureOffre co -> entity.setStatutOffre(co.statut());
+            case CandidatureSpontanee cs -> entity.setStatutCandidatureSpontanee(cs.statut());
+            case CandidaturePriseDeContact cp -> entity.setStatutPriseDeContact(cp.statut());
+        }
+        candidatureJpaRepository.save(entity);
+        return candidature;
+    }
+
     private CandidatureEntity nouvelleEntite(Candidature candidature) {
         return switch (candidature) {
             case CandidatureOffre co -> {

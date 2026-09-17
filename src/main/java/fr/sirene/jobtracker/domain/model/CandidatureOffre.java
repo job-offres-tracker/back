@@ -11,4 +11,10 @@ public record CandidatureOffre(
         List<Evenement> evenements,
         List<DocumentCandidature> documents
 ) implements Candidature {
+
+    public CandidatureOffre {
+        if (offre == null) {
+            throw new IllegalArgumentException("L'offre est obligatoire pour construire une CandidatureOffre");
+        }
+    }
 }

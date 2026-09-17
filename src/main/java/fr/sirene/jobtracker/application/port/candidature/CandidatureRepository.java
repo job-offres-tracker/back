@@ -11,6 +11,8 @@ public interface CandidatureRepository {
 
     Candidature sauvegarder(Candidature candidature);
 
+    Candidature mettreAJourStatut(Candidature candidature);
+
     Optional<Candidature> trouverParId(Long id);
 
     Optional<Candidature> trouverParOffreIdExterne(String idExterneOffre);
