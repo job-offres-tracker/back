@@ -24,8 +24,13 @@ public class CandidatureAutoCreationService {
         if (candidatureRepository.existeParOffreIdExterne(offre.getIdExterne())) {
             return;
         }
-        Candidature candidature = new CandidatureOffre(
-                null, offre, StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
+        Candidature candidature = CandidatureOffre.builder()
+                .offre(offre)
+                .statut(StatutCandidatureOffre.POSTULE)
+                .dateCandidature(LocalDateTime.now())
+                .evenements(List.of())
+                .documents(List.of())
+                .build();
         candidatureRepository.sauvegarder(candidature);
     }
 }

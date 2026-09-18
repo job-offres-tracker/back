@@ -58,43 +58,43 @@ public class JpaCandidatureRepository implements CandidatureRepository {
     @Override
     @Transactional
     public Candidature sauvegarder(Candidature candidature) {
-        CandidatureEntity entity = candidature.id() != null
-                ? candidatureJpaRepository.findById(candidature.id())
-                        .orElseThrow(() -> new IllegalStateException("Candidature introuvable : " + candidature.id()))
+        CandidatureEntity entity = candidature.getId() != null
+                ? candidatureJpaRepository.findById(candidature.getId())
+                        .orElseThrow(() -> new IllegalStateException("Candidature introuvable : " + candidature.getId()))
                 : nouvelleEntite(candidature);
 
         switch (candidature) {
             case CandidatureOffre co -> {
-                entity.setOffre(resoudreOffre(co.offre().getIdExterne()));
-                entity.setStatutOffre(co.statut());
+                entity.setOffre(resoudreOffre(co.getOffre().getIdExterne()));
+                entity.setStatutOffre(co.getStatut());
             }
             case CandidatureSpontanee cs -> {
-                entity.setNomEntreprise(cs.nomEntreprise());
-                entity.setUrlEntreprise(cs.urlEntreprise());
-                entity.setTypeEntreprise(cs.typeEntreprise());
-                entity.setStatutCandidatureSpontanee(cs.statut());
+                entity.setNomEntreprise(cs.getNomEntreprise());
+                entity.setUrlEntreprise(cs.getUrlEntreprise());
+                entity.setTypeEntreprise(cs.getTypeEntreprise());
+                entity.setStatutCandidatureSpontanee(cs.getStatut());
             }
             case CandidaturePriseDeContact cp -> {
-                entity.setNomEntreprise(cp.nomEntreprise());
-                entity.setUrlEntreprise(cp.urlEntreprise());
-                entity.setTypeEntreprise(cp.typeEntreprise());
-                entity.setStatutPriseDeContact(cp.statut());
+                entity.setNomEntreprise(cp.getNomEntreprise());
+                entity.setUrlEntreprise(cp.getUrlEntreprise());
+                entity.setTypeEntreprise(cp.getTypeEntreprise());
+                entity.setStatutPriseDeContact(cp.getStatut());
             }
         }
-        entity.setDateCandidature(candidature.dateCandidature());
+        entity.setDateCandidature(candidature.getDateCandidature());
         return toDomain(candidatureJpaRepository.save(entity));
     }
 
     @Override
     @Transactional
     public Candidature mettreAJourStatut(Candidature candidature) {
-        CandidatureEntity entity = candidatureJpaRepository.findById(candidature.id())
-                .orElseThrow(() -> new IllegalStateException("Candidature introuvable : " + candidature.id()));
+        CandidatureEntity entity = candidatureJpaRepository.findById(candidature.getId())
+                .orElseThrow(() -> new IllegalStateException("Candidature introuvable : " + candidature.getId()));
 
         switch (candidature) {
-            case CandidatureOffre co -> entity.setStatutOffre(co.statut());
-            case CandidatureSpontanee cs -> entity.setStatutCandidatureSpontanee(cs.statut());
-            case CandidaturePriseDeContact cp -> entity.setStatutPriseDeContact(cp.statut());
+            case CandidatureOffre co -> entity.setStatutOffre(co.getStatut());
+            case CandidatureSpontanee cs -> entity.setStatutCandidatureSpontanee(cs.getStatut());
+            case CandidaturePriseDeContact cp -> entity.setStatutPriseDeContact(cp.getStatut());
         }
         candidatureJpaRepository.save(entity);
         return candidature;
@@ -102,7 +102,7 @@ public class JpaCandidatureRepository implements CandidatureRepository {
 
     private CandidatureEntity nouvelleEntite(Candidature candidature) {
         return switch (candidature) {
-            case CandidatureOffre co -> new CandidatureEntity(resoudreOffre(co.offre().getIdExterne()));
+            case CandidatureOffre co -> new CandidatureEntity(resoudreOffre(co.getOffre().getIdExterne()));
             case CandidatureSpontanee _ -> new CandidatureEntity(TypeCandidature.SPONTANEE);
             case CandidaturePriseDeContact _ -> new CandidatureEntity(TypeCandidature.PRISE_DE_CONTACT);
         };
@@ -170,25 +170,25 @@ public class JpaCandidatureRepository implements CandidatureRepository {
                 .orElseThrow(() -> new IllegalStateException("Candidature introuvable : " + candidatureId));
 
         DocumentCandidatureEntity entity = new DocumentCandidatureEntity(candidature);
-        entity.setLibelle(document.libelle());
-        entity.setDateAjout(document.dateAjout());
+        entity.setLibelle(document.getLibelle());
+        entity.setDateAjout(document.getDateAjout());
 
         switch (document) {
             case DocumentCv cv -> {
                 entity.setType(TypeDocument.CV);
-                CvEntity cvEntity = cvJpaRepository.findByNomUnique(cv.cvNomUnique())
-                        .orElseThrow(() -> new IllegalStateException("CV introuvable : " + cv.cvNomUnique()));
+                CvEntity cvEntity = cvJpaRepository.findByNomUnique(cv.getCvNomUnique())
+                        .orElseThrow(() -> new IllegalStateException("CV introuvable : " + cv.getCvNomUnique()));
                 entity.setCv(cvEntity);
             }
             case DocumentFichier fichier -> {
                 entity.setType(TypeDocument.FICHIER);
-                entity.setNomStocke(fichier.nomStocke());
-                entity.setTailleOctets(fichier.tailleOctets());
-                entity.setContentType(fichier.contentType());
+                entity.setNomStocke(fichier.getNomStocke());
+                entity.setTailleOctets(fichier.getTailleOctets());
+                entity.setContentType(fichier.getContentType());
             }
             case DocumentTexte texte -> {
                 entity.setType(TypeDocument.TEXTE);
-                entity.setContenuTexte(texte.contenuTexte());
+                entity.setContenuTexte(texte.getContenuTexte());
             }
         }
 
@@ -203,15 +203,35 @@ public class JpaCandidatureRepository implements CandidatureRepository {
                 Offre offre = offreStorageRepository.trouverParIdExterne(entity.getOffre().getIdExterne())
                         .orElseThrow(() -> new IllegalStateException(
                                 "Offre introuvable pour l'identifiant externe : " + entity.getOffre().getIdExterne()));
-                yield new CandidatureOffre(
-                        entity.getId(), offre, entity.getStatutOffre(), entity.getDateCandidature(), evenements, documents);
+                yield CandidatureOffre.builder()
+                        .id(entity.getId())
+                        .offre(offre)
+                        .statut(entity.getStatutOffre())
+                        .dateCandidature(entity.getDateCandidature())
+                        .evenements(evenements)
+                        .documents(documents)
+                        .build();
             }
-            case SPONTANEE -> new CandidatureSpontanee(
-                    entity.getId(), entity.getNomEntreprise(), entity.getUrlEntreprise(), entity.getTypeEntreprise(),
-                    entity.getStatutCandidatureSpontanee(), entity.getDateCandidature(), evenements, documents);
-            case PRISE_DE_CONTACT -> new CandidaturePriseDeContact(
-                    entity.getId(), entity.getNomEntreprise(), entity.getUrlEntreprise(), entity.getTypeEntreprise(),
-                    entity.getStatutPriseDeContact(), entity.getDateCandidature(), evenements, documents);
+            case SPONTANEE -> CandidatureSpontanee.builder()
+                    .id(entity.getId())
+                    .nomEntreprise(entity.getNomEntreprise())
+                    .urlEntreprise(entity.getUrlEntreprise())
+                    .typeEntreprise(entity.getTypeEntreprise())
+                    .statut(entity.getStatutCandidatureSpontanee())
+                    .dateCandidature(entity.getDateCandidature())
+                    .evenements(evenements)
+                    .documents(documents)
+                    .build();
+            case PRISE_DE_CONTACT -> CandidaturePriseDeContact.builder()
+                    .id(entity.getId())
+                    .nomEntreprise(entity.getNomEntreprise())
+                    .urlEntreprise(entity.getUrlEntreprise())
+                    .typeEntreprise(entity.getTypeEntreprise())
+                    .statut(entity.getStatutPriseDeContact())
+                    .dateCandidature(entity.getDateCandidature())
+                    .evenements(evenements)
+                    .documents(documents)
+                    .build();
         };
     }
 
@@ -226,13 +246,27 @@ public class JpaCandidatureRepository implements CandidatureRepository {
 
     private DocumentCandidature toDomain(DocumentCandidatureEntity entity) {
         return switch (entity.getType()) {
-            case CV -> new DocumentCv(
-                    entity.getId(), entity.getLibelle(), entity.getCv().getNomUnique(),
-                    entity.getCv().getTailleOctets(), entity.getDateAjout());
-            case FICHIER -> new DocumentFichier(
-                    entity.getId(), entity.getLibelle(), entity.getNomStocke(), entity.getTailleOctets(),
-                    entity.getContentType(), entity.getDateAjout());
-            case TEXTE -> new DocumentTexte(entity.getId(), entity.getLibelle(), entity.getContenuTexte(), entity.getDateAjout());
+            case CV -> DocumentCv.builder()
+                    .id(entity.getId())
+                    .libelle(entity.getLibelle())
+                    .cvNomUnique(entity.getCv().getNomUnique())
+                    .tailleOctets(entity.getCv().getTailleOctets())
+                    .dateAjout(entity.getDateAjout())
+                    .build();
+            case FICHIER -> DocumentFichier.builder()
+                    .id(entity.getId())
+                    .libelle(entity.getLibelle())
+                    .nomStocke(entity.getNomStocke())
+                    .tailleOctets(entity.getTailleOctets())
+                    .contentType(entity.getContentType())
+                    .dateAjout(entity.getDateAjout())
+                    .build();
+            case TEXTE -> DocumentTexte.builder()
+                    .id(entity.getId())
+                    .libelle(entity.getLibelle())
+                    .contenuTexte(entity.getContenuTexte())
+                    .dateAjout(entity.getDateAjout())
+                    .build();
         };
     }
 }

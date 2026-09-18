@@ -30,8 +30,12 @@ public class AjouterDocumentCvUseCase {
         Cv cv = cvRepository.trouverParNomUnique(cvNomUnique)
                 .orElseThrow(() -> new CvNonTrouveException(cvNomUnique));
 
-        DocumentCandidature document =
-                new DocumentCv(null, cv.getNomOriginal(), cv.getNomUnique(), cv.getTailleOctets(), LocalDateTime.now());
+        DocumentCandidature document = DocumentCv.builder()
+                .libelle(cv.getNomOriginal())
+                .cvNomUnique(cv.getNomUnique())
+                .tailleOctets(cv.getTailleOctets())
+                .dateAjout(LocalDateTime.now())
+                .build();
 
         return candidatureRepository.ajouterDocument(candidatureId, document);
     }

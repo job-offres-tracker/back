@@ -54,18 +54,18 @@ public record CandidatureDetailResponse(
         List<DocumentCandidatureResponse> documents
 ) {
     public static CandidatureDetailResponse fromDomain(Candidature candidature) {
-        List<EvenementResponse> evenements = candidature.evenements().stream().map(EvenementResponse::fromDomain).toList();
-        List<DocumentCandidatureResponse> documents = candidature.documents().stream().map(DocumentCandidatureResponse::fromDomain).toList();
+        List<EvenementResponse> evenements = candidature.getEvenements().stream().map(EvenementResponse::fromDomain).toList();
+        List<DocumentCandidatureResponse> documents = candidature.getDocuments().stream().map(DocumentCandidatureResponse::fromDomain).toList();
         return switch (candidature) {
             case CandidatureOffre co -> new CandidatureDetailResponse(
-                    co.id(), TypeCandidature.OFFRE, co.dateCandidature(), OffreResponse.fromDomain(co.offre()), co.statut(),
+                    co.getId(), TypeCandidature.OFFRE, co.getDateCandidature(), OffreResponse.fromDomain(co.getOffre()), co.getStatut(),
                     null, null, null, null, null, evenements, documents);
             case CandidatureSpontanee cs -> new CandidatureDetailResponse(
-                    cs.id(), TypeCandidature.SPONTANEE, cs.dateCandidature(), null, null,
-                    cs.nomEntreprise(), cs.urlEntreprise(), cs.typeEntreprise(), cs.statut(), null, evenements, documents);
+                    cs.getId(), TypeCandidature.SPONTANEE, cs.getDateCandidature(), null, null,
+                    cs.getNomEntreprise(), cs.getUrlEntreprise(), cs.getTypeEntreprise(), cs.getStatut(), null, evenements, documents);
             case CandidaturePriseDeContact cp -> new CandidatureDetailResponse(
-                    cp.id(), TypeCandidature.PRISE_DE_CONTACT, cp.dateCandidature(), null, null,
-                    cp.nomEntreprise(), cp.urlEntreprise(), cp.typeEntreprise(), null, cp.statut(), evenements, documents);
+                    cp.getId(), TypeCandidature.PRISE_DE_CONTACT, cp.getDateCandidature(), null, null,
+                    cp.getNomEntreprise(), cp.getUrlEntreprise(), cp.getTypeEntreprise(), null, cp.getStatut(), evenements, documents);
         };
     }
 }

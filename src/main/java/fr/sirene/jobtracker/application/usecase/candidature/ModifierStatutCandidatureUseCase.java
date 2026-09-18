@@ -31,15 +31,9 @@ public class ModifierStatutCandidatureUseCase {
                 .orElseThrow(() -> new CandidatureNonTrouveeException(id));
 
         Candidature miseAJour = switch (candidature) {
-            case CandidatureOffre co -> new CandidatureOffre(
-                    co.id(), co.offre(), parseStatut(statut, StatutCandidatureOffre.class), co.dateCandidature(),
-                    co.evenements(), co.documents());
-            case CandidatureSpontanee cs -> new CandidatureSpontanee(
-                    cs.id(), cs.nomEntreprise(), cs.urlEntreprise(), cs.typeEntreprise(),
-                    parseStatut(statut, StatutCandidatureSpontanee.class), cs.dateCandidature(), cs.evenements(), cs.documents());
-            case CandidaturePriseDeContact cp -> new CandidaturePriseDeContact(
-                    cp.id(), cp.nomEntreprise(), cp.urlEntreprise(), cp.typeEntreprise(),
-                    parseStatut(statut, StatutPriseDeContact.class), cp.dateCandidature(), cp.evenements(), cp.documents());
+            case CandidatureOffre co -> co.toBuilder().statut(parseStatut(statut, StatutCandidatureOffre.class)).build();
+            case CandidatureSpontanee cs -> cs.toBuilder().statut(parseStatut(statut, StatutCandidatureSpontanee.class)).build();
+            case CandidaturePriseDeContact cp -> cp.toBuilder().statut(parseStatut(statut, StatutPriseDeContact.class)).build();
         };
 
         return candidatureRepository.mettreAJourStatut(miseAJour);

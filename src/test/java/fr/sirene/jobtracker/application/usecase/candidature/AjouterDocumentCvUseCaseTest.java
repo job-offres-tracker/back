@@ -41,8 +41,14 @@ class AjouterDocumentCvUseCaseTest {
     @InjectMocks
     private AjouterDocumentCvUseCase useCase;
 
-    private static final Candidature CANDIDATURE = new CandidatureOffre(
-            1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
+    private static final Candidature CANDIDATURE = CandidatureOffre.builder()
+            .id(1L)
+            .offre(Offre.builder().idExterne("123").build())
+            .statut(StatutCandidatureOffre.POSTULE)
+            .dateCandidature(LocalDateTime.now())
+            .evenements(List.of())
+            .documents(List.of())
+            .build();
 
     @Test
     void leve_une_exception_quand_la_candidature_est_introuvable() {
@@ -70,8 +76,8 @@ class AjouterDocumentCvUseCaseTest {
         DocumentCandidature document = useCase.executer(1L, "abc.pdf");
 
         assertThat(document).isInstanceOf(DocumentCv.class);
-        assertThat(document.libelle()).isEqualTo("cv-jean.pdf");
-        assertThat(((DocumentCv) document).cvNomUnique()).isEqualTo("abc.pdf");
-        assertThat(((DocumentCv) document).tailleOctets()).isEqualTo(10);
+        assertThat(document.getLibelle()).isEqualTo("cv-jean.pdf");
+        assertThat(((DocumentCv) document).getCvNomUnique()).isEqualTo("abc.pdf");
+        assertThat(((DocumentCv) document).getTailleOctets()).isEqualTo(10);
     }
 }

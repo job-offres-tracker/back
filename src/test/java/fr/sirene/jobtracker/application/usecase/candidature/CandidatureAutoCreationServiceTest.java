@@ -36,9 +36,9 @@ class CandidatureAutoCreationServiceTest {
 
         ArgumentCaptor<Candidature> captor = ArgumentCaptor.captor();
         verify(candidatureRepository).sauvegarder(captor.capture());
-        assertThat(((CandidatureOffre) captor.getValue()).offre()).isEqualTo(offre);
-        assertThat(((CandidatureOffre) captor.getValue()).statut()).isEqualTo(StatutCandidatureOffre.POSTULE);
-        assertThat(captor.getValue().dateCandidature()).isNotNull();
+        assertThat(((CandidatureOffre) captor.getValue()).getOffre()).isEqualTo(offre);
+        assertThat(((CandidatureOffre) captor.getValue()).getStatut()).isEqualTo(StatutCandidatureOffre.POSTULE);
+        assertThat(captor.getValue().getDateCandidature()).isNotNull();
     }
 
     @Test

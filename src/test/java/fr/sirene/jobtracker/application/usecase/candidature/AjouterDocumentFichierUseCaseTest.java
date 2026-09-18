@@ -49,8 +49,14 @@ class AjouterDocumentFichierUseCaseTest {
     @InjectMocks
     private AjouterDocumentFichierUseCase useCase;
 
-    private static final Candidature CANDIDATURE = new CandidatureOffre(
-            1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
+    private static final Candidature CANDIDATURE = CandidatureOffre.builder()
+            .id(1L)
+            .offre(Offre.builder().idExterne("123").build())
+            .statut(StatutCandidatureOffre.POSTULE)
+            .dateCandidature(LocalDateTime.now())
+            .evenements(List.of())
+            .documents(List.of())
+            .build();
 
     @BeforeEach
     void setUp() {
@@ -87,13 +93,13 @@ class AjouterDocumentFichierUseCaseTest {
 
         assertThat(document).isInstanceOf(DocumentFichier.class);
         DocumentFichier fichier = (DocumentFichier) document;
-        assertThat(fichier.libelle()).isEqualTo("Lettre de motivation");
-        assertThat(fichier.tailleOctets()).isEqualTo(3);
-        assertThat(fichier.contentType()).isEqualTo("application/pdf");
-        assertThat(fichier.nomStocke()).isNotBlank();
+        assertThat(fichier.getLibelle()).isEqualTo("Lettre de motivation");
+        assertThat(fichier.getTailleOctets()).isEqualTo(3);
+        assertThat(fichier.getContentType()).isEqualTo("application/pdf");
+        assertThat(fichier.getNomStocke()).isNotBlank();
 
         ArgumentCaptor<String> nomStockeCaptor = ArgumentCaptor.captor();
         verify(documentCandidatureStockagePort).ecrire(eq(1L), nomStockeCaptor.capture(), eq(contenu));
-        assertThat(nomStockeCaptor.getValue()).isEqualTo(fichier.nomStocke());
+        assertThat(nomStockeCaptor.getValue()).isEqualTo(fichier.getNomStocke());
     }
 }

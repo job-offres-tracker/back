@@ -87,12 +87,13 @@ class JpaCandidatureRepositoryTest {
                     .thenAnswer(invocation -> invocation.getArgument(0));
             when(offreStorageRepository.trouverParIdExterne("123")).thenReturn(Optional.of(OFFRE));
 
-            Candidature candidature = new CandidatureOffre(
-                    null, OFFRE, StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidatureOffre.builder()
+                    .offre(OFFRE).statut(StatutCandidatureOffre.POSTULE).dateCandidature(LocalDateTime.now())
+                    .evenements(List.of()).documents(List.of()).build();
 
             Candidature resultat = repository.sauvegarder(candidature);
 
-            assertThat(((CandidatureOffre) resultat).offre().getIdExterne()).isEqualTo("123");
+            assertThat(((CandidatureOffre) resultat).getOffre().getIdExterne()).isEqualTo("123");
             ArgumentCaptor<CandidatureEntity> captor = ArgumentCaptor.captor();
             verify(candidatureJpaRepository).save(captor.capture());
             assertThat(captor.getValue().getOffre()).isEqualTo(offreEntity);
@@ -107,8 +108,9 @@ class JpaCandidatureRepositoryTest {
             when(offreJpaRepository.findByIdExterne("123")).thenReturn(Optional.of(new OffreEntity("123")));
             when(offreStorageRepository.trouverParIdExterne("123")).thenReturn(Optional.of(OFFRE));
 
-            Candidature candidature = new CandidatureOffre(
-                    1L, OFFRE, StatutCandidatureOffre.ACCEPTE, LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidatureOffre.builder()
+                    .id(1L).offre(OFFRE).statut(StatutCandidatureOffre.ACCEPTE).dateCandidature(LocalDateTime.now())
+                    .evenements(List.of()).documents(List.of()).build();
 
             repository.sauvegarder(candidature);
 
@@ -129,8 +131,9 @@ class JpaCandidatureRepositoryTest {
             Offre nouvelleOffre = Offre.builder().idExterne("456").intitule("Autre poste").build();
             when(offreStorageRepository.trouverParIdExterne("456")).thenReturn(Optional.of(nouvelleOffre));
 
-            Candidature candidature = new CandidatureOffre(
-                    1L, nouvelleOffre, StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidatureOffre.builder()
+                    .id(1L).offre(nouvelleOffre).statut(StatutCandidatureOffre.POSTULE).dateCandidature(LocalDateTime.now())
+                    .evenements(List.of()).documents(List.of()).build();
 
             repository.sauvegarder(candidature);
 
@@ -151,9 +154,10 @@ class JpaCandidatureRepositoryTest {
             when(candidatureJpaRepository.save(any(CandidatureEntity.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
-            Candidature candidature = new CandidatureSpontanee(
-                    2L, "Nouveau nom", "https://nouveau.example", TypeEntreprise.EDITEUR,
-                    StatutCandidatureSpontanee.ACCEPTE, LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidatureSpontanee.builder()
+                    .id(2L).nomEntreprise("Nouveau nom").urlEntreprise("https://nouveau.example")
+                    .typeEntreprise(TypeEntreprise.EDITEUR).statut(StatutCandidatureSpontanee.ACCEPTE)
+                    .dateCandidature(LocalDateTime.now()).evenements(List.of()).documents(List.of()).build();
 
             repository.sauvegarder(candidature);
 
@@ -171,15 +175,16 @@ class JpaCandidatureRepositoryTest {
             when(candidatureJpaRepository.save(any(CandidatureEntity.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
-            Candidature candidature = new CandidatureSpontanee(
-                    null, "Acme SAS", "https://acme.example", TypeEntreprise.ESN,
-                    StatutCandidatureSpontanee.ENVOYE, LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidatureSpontanee.builder()
+                    .nomEntreprise("Acme SAS").urlEntreprise("https://acme.example").typeEntreprise(TypeEntreprise.ESN)
+                    .statut(StatutCandidatureSpontanee.ENVOYE).dateCandidature(LocalDateTime.now())
+                    .evenements(List.of()).documents(List.of()).build();
 
             Candidature resultat = repository.sauvegarder(candidature);
 
             assertThat(resultat).isInstanceOf(CandidatureSpontanee.class);
-            assertThat(((CandidatureSpontanee) resultat).nomEntreprise()).isEqualTo("Acme SAS");
-            assertThat(((CandidatureSpontanee) resultat).statut()).isEqualTo(StatutCandidatureSpontanee.ENVOYE);
+            assertThat(((CandidatureSpontanee) resultat).getNomEntreprise()).isEqualTo("Acme SAS");
+            assertThat(((CandidatureSpontanee) resultat).getStatut()).isEqualTo(StatutCandidatureSpontanee.ENVOYE);
             ArgumentCaptor<CandidatureEntity> captor = ArgumentCaptor.captor();
             verify(candidatureJpaRepository).save(captor.capture());
             assertThat(captor.getValue().getType()).isEqualTo(TypeCandidature.SPONTANEE);
@@ -198,9 +203,10 @@ class JpaCandidatureRepositoryTest {
             when(candidatureJpaRepository.save(any(CandidatureEntity.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
-            Candidature candidature = new CandidaturePriseDeContact(
-                    3L, "Nouveau nom", "https://nouveau.example", TypeEntreprise.EDITEUR,
-                    StatutPriseDeContact.ACCEPTE, LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidaturePriseDeContact.builder()
+                    .id(3L).nomEntreprise("Nouveau nom").urlEntreprise("https://nouveau.example")
+                    .typeEntreprise(TypeEntreprise.EDITEUR).statut(StatutPriseDeContact.ACCEPTE)
+                    .dateCandidature(LocalDateTime.now()).evenements(List.of()).documents(List.of()).build();
 
             repository.sauvegarder(candidature);
 
@@ -218,15 +224,16 @@ class JpaCandidatureRepositoryTest {
             when(candidatureJpaRepository.save(any(CandidatureEntity.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
-            Candidature candidature = new CandidaturePriseDeContact(
-                    null, "Acme SAS", null, TypeEntreprise.CABINET_RECRUTEMENT,
-                    StatutPriseDeContact.ETABLI, LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidaturePriseDeContact.builder()
+                    .nomEntreprise("Acme SAS").typeEntreprise(TypeEntreprise.CABINET_RECRUTEMENT)
+                    .statut(StatutPriseDeContact.ETABLI).dateCandidature(LocalDateTime.now())
+                    .evenements(List.of()).documents(List.of()).build();
 
             Candidature resultat = repository.sauvegarder(candidature);
 
             assertThat(resultat).isInstanceOf(CandidaturePriseDeContact.class);
-            assertThat(((CandidaturePriseDeContact) resultat).nomEntreprise()).isEqualTo("Acme SAS");
-            assertThat(((CandidaturePriseDeContact) resultat).statut()).isEqualTo(StatutPriseDeContact.ETABLI);
+            assertThat(((CandidaturePriseDeContact) resultat).getNomEntreprise()).isEqualTo("Acme SAS");
+            assertThat(((CandidaturePriseDeContact) resultat).getStatut()).isEqualTo(StatutPriseDeContact.ETABLI);
             ArgumentCaptor<CandidatureEntity> captor = ArgumentCaptor.captor();
             verify(candidatureJpaRepository).save(captor.capture());
             assertThat(captor.getValue().getType()).isEqualTo(TypeCandidature.PRISE_DE_CONTACT);
@@ -241,8 +248,9 @@ class JpaCandidatureRepositoryTest {
             CandidatureEntity entiteExistante = nouvelleCandidatureEntity(1L);
             when(candidatureJpaRepository.findById(1L)).thenReturn(Optional.of(entiteExistante));
 
-            Candidature candidature = new CandidatureOffre(
-                    1L, OFFRE, StatutCandidatureOffre.ACCEPTE, LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidatureOffre.builder()
+                    .id(1L).offre(OFFRE).statut(StatutCandidatureOffre.ACCEPTE).dateCandidature(LocalDateTime.now())
+                    .evenements(List.of()).documents(List.of()).build();
 
             Candidature resultat = repository.mettreAJourStatut(candidature);
 
@@ -259,9 +267,10 @@ class JpaCandidatureRepositoryTest {
             org.springframework.test.util.ReflectionTestUtils.setField(entiteExistante, "id", 2L);
             when(candidatureJpaRepository.findById(2L)).thenReturn(Optional.of(entiteExistante));
 
-            Candidature candidature = new CandidatureSpontanee(
-                    2L, "Acme SAS", "https://acme.example", TypeEntreprise.ESN,
-                    StatutCandidatureSpontanee.REFUSE, LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidatureSpontanee.builder()
+                    .id(2L).nomEntreprise("Acme SAS").urlEntreprise("https://acme.example")
+                    .typeEntreprise(TypeEntreprise.ESN).statut(StatutCandidatureSpontanee.REFUSE)
+                    .dateCandidature(LocalDateTime.now()).evenements(List.of()).documents(List.of()).build();
 
             repository.mettreAJourStatut(candidature);
 
@@ -276,9 +285,10 @@ class JpaCandidatureRepositoryTest {
             org.springframework.test.util.ReflectionTestUtils.setField(entiteExistante, "id", 3L);
             when(candidatureJpaRepository.findById(3L)).thenReturn(Optional.of(entiteExistante));
 
-            Candidature candidature = new CandidaturePriseDeContact(
-                    3L, "Acme SAS", null, TypeEntreprise.CABINET_RECRUTEMENT,
-                    StatutPriseDeContact.REFUSE, LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidaturePriseDeContact.builder()
+                    .id(3L).nomEntreprise("Acme SAS").typeEntreprise(TypeEntreprise.CABINET_RECRUTEMENT)
+                    .statut(StatutPriseDeContact.REFUSE).dateCandidature(LocalDateTime.now())
+                    .evenements(List.of()).documents(List.of()).build();
 
             repository.mettreAJourStatut(candidature);
 
@@ -291,8 +301,9 @@ class JpaCandidatureRepositoryTest {
         void leve_une_exception_si_la_candidature_est_introuvable() {
             when(candidatureJpaRepository.findById(99L)).thenReturn(Optional.empty());
 
-            Candidature candidature = new CandidatureOffre(
-                    99L, OFFRE, StatutCandidatureOffre.ACCEPTE, LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidatureOffre.builder()
+                    .id(99L).offre(OFFRE).statut(StatutCandidatureOffre.ACCEPTE).dateCandidature(LocalDateTime.now())
+                    .evenements(List.of()).documents(List.of()).build();
 
             assertThatThrownBy(() -> repository.mettreAJourStatut(candidature))
                     .isInstanceOf(IllegalStateException.class);
@@ -315,9 +326,9 @@ class JpaCandidatureRepositoryTest {
             Optional<Candidature> resultat = repository.trouverParId(1L);
 
             assertThat(resultat).isPresent();
-            assertThat(resultat.get().evenements()).hasSize(1);
-            assertThat(resultat.get().evenements().get(0).getType()).isEqualTo(TypeEvenement.ENTRETIEN);
-            assertThat(((CandidatureOffre) resultat.get()).statut()).isEqualTo(StatutCandidatureOffre.POSTULE);
+            assertThat(resultat.get().getEvenements()).hasSize(1);
+            assertThat(resultat.get().getEvenements().get(0).getType()).isEqualTo(TypeEvenement.ENTRETIEN);
+            assertThat(((CandidatureOffre) resultat.get()).getStatut()).isEqualTo(StatutCandidatureOffre.POSTULE);
         }
 
         @Test
@@ -334,7 +345,7 @@ class JpaCandidatureRepositoryTest {
 
             assertThat(resultat).isPresent();
             assertThat(resultat.get()).isInstanceOf(CandidatureSpontanee.class);
-            assertThat(((CandidatureSpontanee) resultat.get()).nomEntreprise()).isEqualTo("Acme SAS");
+            assertThat(((CandidatureSpontanee) resultat.get()).getNomEntreprise()).isEqualTo("Acme SAS");
         }
 
         @Test
@@ -357,8 +368,8 @@ class JpaCandidatureRepositoryTest {
             Optional<Candidature> resultat = repository.trouverParOffreIdExterne("123");
 
             assertThat(resultat).isPresent();
-            assertThat(resultat.get().id()).isEqualTo(1L);
-            assertThat(((CandidatureOffre) resultat.get()).offre().getIdExterne()).isEqualTo("123");
+            assertThat(resultat.get().getId()).isEqualTo(1L);
+            assertThat(((CandidatureOffre) resultat.get()).getOffre().getIdExterne()).isEqualTo("123");
         }
 
         @Test
@@ -450,12 +461,13 @@ class JpaCandidatureRepositoryTest {
             when(documentCandidatureJpaRepository.save(any(DocumentCandidatureEntity.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
-            DocumentCandidature document = new DocumentTexte(null, "Notes", "Contenu", LocalDateTime.now());
+            DocumentCandidature document = DocumentTexte.builder()
+                    .libelle("Notes").contenuTexte("Contenu").dateAjout(LocalDateTime.now()).build();
 
             DocumentCandidature resultat = repository.ajouterDocument(1L, document);
 
             assertThat(resultat).isInstanceOf(DocumentTexte.class);
-            assertThat(((DocumentTexte) resultat).contenuTexte()).isEqualTo("Contenu");
+            assertThat(((DocumentTexte) resultat).getContenuTexte()).isEqualTo("Contenu");
             verify(cvJpaRepository, org.mockito.Mockito.never()).findByNomUnique(any());
         }
 
@@ -469,13 +481,14 @@ class JpaCandidatureRepositoryTest {
             when(documentCandidatureJpaRepository.save(any(DocumentCandidatureEntity.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
-            DocumentCandidature document = new DocumentCv(null, "cv.pdf", "abc.pdf", 12_345L, LocalDateTime.now());
+            DocumentCandidature document = DocumentCv.builder()
+                    .libelle("cv.pdf").cvNomUnique("abc.pdf").tailleOctets(12_345L).dateAjout(LocalDateTime.now()).build();
 
             DocumentCandidature resultat = repository.ajouterDocument(1L, document);
 
             assertThat(resultat).isInstanceOf(DocumentCv.class);
-            assertThat(((DocumentCv) resultat).cvNomUnique()).isEqualTo("abc.pdf");
-            assertThat(((DocumentCv) resultat).tailleOctets()).isEqualTo(12_345L);
+            assertThat(((DocumentCv) resultat).getCvNomUnique()).isEqualTo("abc.pdf");
+            assertThat(((DocumentCv) resultat).getTailleOctets()).isEqualTo(12_345L);
         }
     }
 }

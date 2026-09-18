@@ -52,25 +52,35 @@ class ModifierStatutCandidatureUseCaseTest {
 
         @Test
         void met_a_jour_le_statut() {
-            Candidature candidature = new CandidatureOffre(
-                    1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE,
-                    LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidatureOffre.builder()
+                    .id(1L)
+                    .offre(Offre.builder().idExterne("123").build())
+                    .statut(StatutCandidatureOffre.POSTULE)
+                    .dateCandidature(LocalDateTime.now())
+                    .evenements(List.of())
+                    .documents(List.of())
+                    .build();
             when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
             when(candidatureRepository.mettreAJourStatut(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
             Candidature resultat = useCase.executer(1L, "ACCEPTE");
 
-            assertThat(((CandidatureOffre) resultat).statut()).isEqualTo(StatutCandidatureOffre.ACCEPTE);
+            assertThat(((CandidatureOffre) resultat).getStatut()).isEqualTo(StatutCandidatureOffre.ACCEPTE);
             ArgumentCaptor<Candidature> captor = ArgumentCaptor.captor();
             verify(candidatureRepository).mettreAJourStatut(captor.capture());
-            assertThat(((CandidatureOffre) captor.getValue()).statut()).isEqualTo(StatutCandidatureOffre.ACCEPTE);
+            assertThat(((CandidatureOffre) captor.getValue()).getStatut()).isEqualTo(StatutCandidatureOffre.ACCEPTE);
         }
 
         @Test
         void leve_une_exception_quand_le_statut_est_invalide() {
-            Candidature candidature = new CandidatureOffre(
-                    1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE,
-                    LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidatureOffre.builder()
+                    .id(1L)
+                    .offre(Offre.builder().idExterne("123").build())
+                    .statut(StatutCandidatureOffre.POSTULE)
+                    .dateCandidature(LocalDateTime.now())
+                    .evenements(List.of())
+                    .documents(List.of())
+                    .build();
             when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
 
             assertThatThrownBy(() -> useCase.executer(1L, "ETABLI"))
@@ -79,9 +89,14 @@ class ModifierStatutCandidatureUseCaseTest {
 
         @Test
         void leve_une_exception_quand_le_statut_est_null() {
-            Candidature candidature = new CandidatureOffre(
-                    1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE,
-                    LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidatureOffre.builder()
+                    .id(1L)
+                    .offre(Offre.builder().idExterne("123").build())
+                    .statut(StatutCandidatureOffre.POSTULE)
+                    .dateCandidature(LocalDateTime.now())
+                    .evenements(List.of())
+                    .documents(List.of())
+                    .build();
             when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
 
             assertThatThrownBy(() -> useCase.executer(1L, null))
@@ -94,22 +109,34 @@ class ModifierStatutCandidatureUseCaseTest {
 
         @Test
         void met_a_jour_le_statut() {
-            Candidature candidature = new CandidatureSpontanee(
-                    2L, "Acme SAS", null, TypeEntreprise.ESN, StatutCandidatureSpontanee.ENVOYE,
-                    LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidatureSpontanee.builder()
+                    .id(2L)
+                    .nomEntreprise("Acme SAS")
+                    .typeEntreprise(TypeEntreprise.ESN)
+                    .statut(StatutCandidatureSpontanee.ENVOYE)
+                    .dateCandidature(LocalDateTime.now())
+                    .evenements(List.of())
+                    .documents(List.of())
+                    .build();
             when(candidatureRepository.trouverParId(2L)).thenReturn(Optional.of(candidature));
             when(candidatureRepository.mettreAJourStatut(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
             Candidature resultat = useCase.executer(2L, "RECALE");
 
-            assertThat(((CandidatureSpontanee) resultat).statut()).isEqualTo(StatutCandidatureSpontanee.RECALE);
+            assertThat(((CandidatureSpontanee) resultat).getStatut()).isEqualTo(StatutCandidatureSpontanee.RECALE);
         }
 
         @Test
         void leve_une_exception_quand_le_statut_est_invalide() {
-            Candidature candidature = new CandidatureSpontanee(
-                    2L, "Acme SAS", null, TypeEntreprise.ESN, StatutCandidatureSpontanee.ENVOYE,
-                    LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidatureSpontanee.builder()
+                    .id(2L)
+                    .nomEntreprise("Acme SAS")
+                    .typeEntreprise(TypeEntreprise.ESN)
+                    .statut(StatutCandidatureSpontanee.ENVOYE)
+                    .dateCandidature(LocalDateTime.now())
+                    .evenements(List.of())
+                    .documents(List.of())
+                    .build();
             when(candidatureRepository.trouverParId(2L)).thenReturn(Optional.of(candidature));
 
             assertThatThrownBy(() -> useCase.executer(2L, "POSTULE"))
@@ -122,22 +149,34 @@ class ModifierStatutCandidatureUseCaseTest {
 
         @Test
         void met_a_jour_le_statut() {
-            Candidature candidature = new CandidaturePriseDeContact(
-                    3L, "Acme SAS", null, TypeEntreprise.CABINET_RECRUTEMENT, StatutPriseDeContact.ETABLI,
-                    LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidaturePriseDeContact.builder()
+                    .id(3L)
+                    .nomEntreprise("Acme SAS")
+                    .typeEntreprise(TypeEntreprise.CABINET_RECRUTEMENT)
+                    .statut(StatutPriseDeContact.ETABLI)
+                    .dateCandidature(LocalDateTime.now())
+                    .evenements(List.of())
+                    .documents(List.of())
+                    .build();
             when(candidatureRepository.trouverParId(3L)).thenReturn(Optional.of(candidature));
             when(candidatureRepository.mettreAJourStatut(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
             Candidature resultat = useCase.executer(3L, "ACCEPTE");
 
-            assertThat(((CandidaturePriseDeContact) resultat).statut()).isEqualTo(StatutPriseDeContact.ACCEPTE);
+            assertThat(((CandidaturePriseDeContact) resultat).getStatut()).isEqualTo(StatutPriseDeContact.ACCEPTE);
         }
 
         @Test
         void leve_une_exception_quand_le_statut_est_invalide() {
-            Candidature candidature = new CandidaturePriseDeContact(
-                    3L, "Acme SAS", null, TypeEntreprise.CABINET_RECRUTEMENT, StatutPriseDeContact.ETABLI,
-                    LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidaturePriseDeContact.builder()
+                    .id(3L)
+                    .nomEntreprise("Acme SAS")
+                    .typeEntreprise(TypeEntreprise.CABINET_RECRUTEMENT)
+                    .statut(StatutPriseDeContact.ETABLI)
+                    .dateCandidature(LocalDateTime.now())
+                    .evenements(List.of())
+                    .documents(List.of())
+                    .build();
             when(candidatureRepository.trouverParId(3L)).thenReturn(Optional.of(candidature));
 
             assertThatThrownBy(() -> useCase.executer(3L, "ENVOYE"))

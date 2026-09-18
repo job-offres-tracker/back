@@ -46,8 +46,14 @@ class TelechargerDocumentCandidatureUseCaseTest {
 
     @Test
     void leve_une_exception_quand_le_document_est_introuvable() {
-        Candidature candidature = new CandidatureOffre(
-                1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
+        Candidature candidature = CandidatureOffre.builder()
+                .id(1L)
+                .offre(Offre.builder().idExterne("123").build())
+                .statut(StatutCandidatureOffre.POSTULE)
+                .dateCandidature(LocalDateTime.now())
+                .evenements(List.of())
+                .documents(List.of())
+                .build();
         when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
 
         assertThatThrownBy(() -> useCase.executer(1L, 10L)).isInstanceOf(IllegalArgumentException.class);
@@ -55,9 +61,16 @@ class TelechargerDocumentCandidatureUseCaseTest {
 
     @Test
     void leve_une_exception_quand_le_document_n_est_pas_un_fichier() {
-        DocumentCandidature documentTexte = new DocumentTexte(10L, "Notes", "...", LocalDateTime.now());
-        Candidature candidature = new CandidatureOffre(
-                1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of(documentTexte));
+        DocumentCandidature documentTexte = DocumentTexte.builder()
+                .id(10L).libelle("Notes").contenuTexte("...").dateAjout(LocalDateTime.now()).build();
+        Candidature candidature = CandidatureOffre.builder()
+                .id(1L)
+                .offre(Offre.builder().idExterne("123").build())
+                .statut(StatutCandidatureOffre.POSTULE)
+                .dateCandidature(LocalDateTime.now())
+                .evenements(List.of())
+                .documents(List.of(documentTexte))
+                .build();
         when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
 
         assertThatThrownBy(() -> useCase.executer(1L, 10L)).isInstanceOf(IllegalArgumentException.class);
@@ -65,16 +78,23 @@ class TelechargerDocumentCandidatureUseCaseTest {
 
     @Test
     void retourne_le_contenu_du_document_fichier() {
-        DocumentCandidature documentFichier =
-                new DocumentFichier(10L, "Lettre.pdf", "abc-123", 3, "application/pdf", LocalDateTime.now());
-        Candidature candidature = new CandidatureOffre(
-                1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of(documentFichier));
+        DocumentCandidature documentFichier = DocumentFichier.builder()
+                .id(10L).libelle("Lettre.pdf").nomStocke("abc-123").tailleOctets(3)
+                .contentType("application/pdf").dateAjout(LocalDateTime.now()).build();
+        Candidature candidature = CandidatureOffre.builder()
+                .id(1L)
+                .offre(Offre.builder().idExterne("123").build())
+                .statut(StatutCandidatureOffre.POSTULE)
+                .dateCandidature(LocalDateTime.now())
+                .evenements(List.of())
+                .documents(List.of(documentFichier))
+                .build();
         when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
         when(documentCandidatureStockagePort.lire(1L, "abc-123")).thenReturn(new byte[] {1, 2, 3});
 
         DocumentCandidatureTelecharge resultat = useCase.executer(1L, 10L);
 
-        assertThat(resultat.document().libelle()).isEqualTo("Lettre.pdf");
+        assertThat(resultat.document().getLibelle()).isEqualTo("Lettre.pdf");
         assertThat(resultat.contenu()).containsExactly(1, 2, 3);
     }
 }

@@ -26,8 +26,8 @@ public class TelechargerDocumentCandidatureUseCase {
         Candidature candidature = candidatureRepository.trouverParId(candidatureId)
                 .orElseThrow(() -> new CandidatureNonTrouveeException(candidatureId));
 
-        DocumentCandidature document = candidature.documents().stream()
-                .filter(d -> d.id().equals(documentId))
+        DocumentCandidature document = candidature.getDocuments().stream()
+                .filter(d -> d.getId().equals(documentId))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Aucun document trouvé pour l'identifiant : " + documentId));
 
@@ -35,7 +35,7 @@ public class TelechargerDocumentCandidatureUseCase {
             throw new IllegalArgumentException("Ce document n'est pas un fichier téléchargeable");
         }
 
-        byte[] contenu = documentCandidatureStockagePort.lire(candidatureId, fichier.nomStocke());
+        byte[] contenu = documentCandidatureStockagePort.lire(candidatureId, fichier.getNomStocke());
         return new DocumentCandidatureTelecharge(fichier, contenu);
     }
 }

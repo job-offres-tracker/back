@@ -103,8 +103,9 @@ class CandidatureControllerTest {
 
         @Test
         void renvoie_200_avec_la_liste_paginee() throws Exception {
-            Candidature candidature = new CandidatureOffre(
-                    1L, OFFRE, StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidatureOffre.builder()
+                    .id(1L).offre(OFFRE).statut(StatutCandidatureOffre.POSTULE).dateCandidature(LocalDateTime.now())
+                    .evenements(List.of()).documents(List.of()).build();
             when(consulterCandidaturesUseCase.executer(0, 20))
                     .thenReturn(new ResultatPagine<>(List.of(candidature), 0, 20, 1));
 
@@ -120,8 +121,9 @@ class CandidatureControllerTest {
 
         @Test
         void renvoie_200_avec_le_detail() throws Exception {
-            Candidature candidature = new CandidatureOffre(
-                    1L, OFFRE, StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidatureOffre.builder()
+                    .id(1L).offre(OFFRE).statut(StatutCandidatureOffre.POSTULE).dateCandidature(LocalDateTime.now())
+                    .evenements(List.of()).documents(List.of()).build();
             when(consulterCandidatureUseCase.executer(1L)).thenReturn(candidature);
 
             mockMvc.perform(get("/api/v1/candidatures/1"))
@@ -143,8 +145,9 @@ class CandidatureControllerTest {
 
         @Test
         void renvoie_200_avec_le_detail() throws Exception {
-            Candidature candidature = new CandidatureOffre(
-                    1L, OFFRE, StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidatureOffre.builder()
+                    .id(1L).offre(OFFRE).statut(StatutCandidatureOffre.POSTULE).dateCandidature(LocalDateTime.now())
+                    .evenements(List.of()).documents(List.of()).build();
             when(consulterCandidatureParOffreUseCase.executer("123")).thenReturn(candidature);
 
             mockMvc.perform(get("/api/v1/candidatures/par-offre/123"))
@@ -167,9 +170,10 @@ class CandidatureControllerTest {
 
         @Test
         void renvoie_201_a_la_creation() throws Exception {
-            Candidature candidature = new CandidatureSpontanee(
-                    1L, "Acme SAS", "https://acme.example", TypeEntreprise.ESN,
-                    StatutCandidatureSpontanee.ENVOYE, LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidatureSpontanee.builder()
+                    .id(1L).nomEntreprise("Acme SAS").urlEntreprise("https://acme.example")
+                    .typeEntreprise(TypeEntreprise.ESN).statut(StatutCandidatureSpontanee.ENVOYE)
+                    .dateCandidature(LocalDateTime.now()).evenements(List.of()).documents(List.of()).build();
             when(creerCandidatureUseCase.creerSpontanee(eq("Acme SAS"), any(), eq(TypeEntreprise.ESN), any(), any()))
                     .thenReturn(candidature);
 
@@ -198,9 +202,10 @@ class CandidatureControllerTest {
 
         @Test
         void renvoie_201_a_la_creation() throws Exception {
-            Candidature candidature = new CandidaturePriseDeContact(
-                    1L, "Acme SAS", null, TypeEntreprise.CABINET_RECRUTEMENT,
-                    StatutPriseDeContact.ETABLI, LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidaturePriseDeContact.builder()
+                    .id(1L).nomEntreprise("Acme SAS").typeEntreprise(TypeEntreprise.CABINET_RECRUTEMENT)
+                    .statut(StatutPriseDeContact.ETABLI).dateCandidature(LocalDateTime.now())
+                    .evenements(List.of()).documents(List.of()).build();
             when(creerCandidatureUseCase.creerPriseDeContact(
                     eq("Acme SAS"), any(), eq(TypeEntreprise.CABINET_RECRUTEMENT), any(), any()))
                     .thenReturn(candidature);
@@ -275,8 +280,9 @@ class CandidatureControllerTest {
 
         @Test
         void renvoie_200_a_la_modification_du_statut() throws Exception {
-            Candidature candidature = new CandidatureOffre(
-                    1L, OFFRE, StatutCandidatureOffre.ACCEPTE, LocalDateTime.now(), List.of(), List.of());
+            Candidature candidature = CandidatureOffre.builder()
+                    .id(1L).offre(OFFRE).statut(StatutCandidatureOffre.ACCEPTE).dateCandidature(LocalDateTime.now())
+                    .evenements(List.of()).documents(List.of()).build();
             when(modifierStatutCandidatureUseCase.executer(1L, "ACCEPTE")).thenReturn(candidature);
 
             mockMvc.perform(patch("/api/v1/candidatures/1/statut")
@@ -322,7 +328,8 @@ class CandidatureControllerTest {
 
         @Test
         void renvoie_201_a_l_attachement_d_un_cv() throws Exception {
-            DocumentCandidature document = new DocumentCv(2L, "cv.pdf", "abc.pdf", 12_345L, LocalDateTime.now());
+            DocumentCandidature document = DocumentCv.builder()
+                    .id(2L).libelle("cv.pdf").cvNomUnique("abc.pdf").tailleOctets(12_345L).dateAjout(LocalDateTime.now()).build();
             when(ajouterDocumentCvUseCase.executer(1L, "abc.pdf")).thenReturn(document);
 
             mockMvc.perform(post("/api/v1/candidatures/1/documents/cv")
@@ -339,7 +346,8 @@ class CandidatureControllerTest {
 
         @Test
         void renvoie_201_a_l_upload_d_un_fichier() throws Exception {
-            DocumentCandidature document = new DocumentFichier(3L, "Lettre", "xyz", 3, null, LocalDateTime.now());
+            DocumentCandidature document = DocumentFichier.builder()
+                    .id(3L).libelle("Lettre").nomStocke("xyz").tailleOctets(3).contentType(null).dateAjout(LocalDateTime.now()).build();
             when(ajouterDocumentFichierUseCase.executer(eq(1L), eq("Lettre"), any(), any())).thenReturn(document);
 
             MockMultipartFile fichier = new MockMultipartFile("file", "lettre.docx",
@@ -356,7 +364,8 @@ class CandidatureControllerTest {
 
         @Test
         void renvoie_201_a_l_ajout_d_un_document_texte() throws Exception {
-            DocumentCandidature document = new DocumentTexte(4L, "Notes", "Bon feeling", LocalDateTime.now());
+            DocumentCandidature document = DocumentTexte.builder()
+                    .id(4L).libelle("Notes").contenuTexte("Bon feeling").dateAjout(LocalDateTime.now()).build();
             when(ajouterDocumentTexteUseCase.executer(1L, "Notes", "Bon feeling")).thenReturn(document);
 
             mockMvc.perform(post("/api/v1/candidatures/1/documents/texte")
@@ -391,7 +400,9 @@ class CandidatureControllerTest {
 
         @Test
         void renvoie_200_avec_le_contenu_du_fichier() throws Exception {
-            DocumentFichier document = new DocumentFichier(3L, "lettre.pdf", "xyz", 3, "application/pdf", LocalDateTime.now());
+            DocumentFichier document = DocumentFichier.builder()
+                    .id(3L).libelle("lettre.pdf").nomStocke("xyz").tailleOctets(3)
+                    .contentType("application/pdf").dateAjout(LocalDateTime.now()).build();
             when(telechargerDocumentCandidatureUseCase.executer(1L, 3L))
                     .thenReturn(new DocumentCandidatureTelecharge(document, new byte[] {1, 2, 3}));
 

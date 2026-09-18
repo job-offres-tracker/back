@@ -43,15 +43,21 @@ class AjouterDocumentTexteUseCaseTest {
 
     @Test
     void ajoute_le_document_texte() {
-        Candidature candidature = new CandidatureOffre(
-                1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
+        Candidature candidature = CandidatureOffre.builder()
+                .id(1L)
+                .offre(Offre.builder().idExterne("123").build())
+                .statut(StatutCandidatureOffre.POSTULE)
+                .dateCandidature(LocalDateTime.now())
+                .evenements(List.of())
+                .documents(List.of())
+                .build();
         when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
         when(candidatureRepository.ajouterDocument(eq(1L), any())).thenAnswer(invocation -> invocation.getArgument(1));
 
         DocumentCandidature document = useCase.executer(1L, "Notes entretien", "Bon feeling général");
 
         assertThat(document).isInstanceOf(DocumentTexte.class);
-        assertThat(document.libelle()).isEqualTo("Notes entretien");
-        assertThat(((DocumentTexte) document).contenuTexte()).isEqualTo("Bon feeling général");
+        assertThat(document.getLibelle()).isEqualTo("Notes entretien");
+        assertThat(((DocumentTexte) document).getContenuTexte()).isEqualTo("Bon feeling général");
     }
 }
