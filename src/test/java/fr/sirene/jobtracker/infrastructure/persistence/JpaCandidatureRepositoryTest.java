@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -103,6 +104,7 @@ class JpaCandidatureRepositoryTest {
             when(candidatureJpaRepository.findById(1L)).thenReturn(Optional.of(entiteExistante));
             when(candidatureJpaRepository.save(any(CandidatureEntity.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
+            when(offreJpaRepository.findByIdExterne("123")).thenReturn(Optional.of(new OffreEntity("123")));
             when(offreStorageRepository.trouverParIdExterne("123")).thenReturn(Optional.of(OFFRE));
 
             Candidature candidature = new CandidatureOffre(
@@ -114,7 +116,54 @@ class JpaCandidatureRepositoryTest {
             verify(candidatureJpaRepository).save(captor.capture());
             assertThat(captor.getValue()).isSameAs(entiteExistante);
             assertThat(captor.getValue().getStatutOffre()).isEqualTo(StatutCandidatureOffre.ACCEPTE);
-            verify(offreJpaRepository, org.mockito.Mockito.never()).findByIdExterne(any());
+        }
+
+        @Test
+        void met_a_jour_l_association_a_l_offre_d_une_candidature_offre_existante() {
+            CandidatureEntity entiteExistante = nouvelleCandidatureEntity(1L);
+            OffreEntity nouvelleOffreEntity = new OffreEntity("456");
+            when(candidatureJpaRepository.findById(1L)).thenReturn(Optional.of(entiteExistante));
+            when(candidatureJpaRepository.save(any(CandidatureEntity.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+            when(offreJpaRepository.findByIdExterne("456")).thenReturn(Optional.of(nouvelleOffreEntity));
+            Offre nouvelleOffre = Offre.builder().idExterne("456").intitule("Autre poste").build();
+            when(offreStorageRepository.trouverParIdExterne("456")).thenReturn(Optional.of(nouvelleOffre));
+
+            Candidature candidature = new CandidatureOffre(
+                    1L, nouvelleOffre, StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
+
+            repository.sauvegarder(candidature);
+
+            ArgumentCaptor<CandidatureEntity> captor = ArgumentCaptor.captor();
+            verify(candidatureJpaRepository).save(captor.capture());
+            assertThat(captor.getValue().getOffre()).isSameAs(nouvelleOffreEntity);
+        }
+
+        @Test
+        void met_a_jour_tous_les_champs_d_une_candidature_spontanee_existante() {
+            CandidatureEntity entiteExistante = new CandidatureEntity(TypeCandidature.SPONTANEE);
+            entiteExistante.setNomEntreprise("Ancien nom");
+            entiteExistante.setUrlEntreprise("https://ancien.example");
+            entiteExistante.setTypeEntreprise(TypeEntreprise.ESN);
+            entiteExistante.setStatutCandidatureSpontanee(StatutCandidatureSpontanee.ENVOYE);
+            org.springframework.test.util.ReflectionTestUtils.setField(entiteExistante, "id", 2L);
+            when(candidatureJpaRepository.findById(2L)).thenReturn(Optional.of(entiteExistante));
+            when(candidatureJpaRepository.save(any(CandidatureEntity.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            Candidature candidature = new CandidatureSpontanee(
+                    2L, "Nouveau nom", "https://nouveau.example", TypeEntreprise.EDITEUR,
+                    StatutCandidatureSpontanee.ACCEPTE, LocalDateTime.now(), List.of(), List.of());
+
+            repository.sauvegarder(candidature);
+
+            ArgumentCaptor<CandidatureEntity> captor = ArgumentCaptor.captor();
+            verify(candidatureJpaRepository).save(captor.capture());
+            assertThat(captor.getValue()).isSameAs(entiteExistante);
+            assertThat(captor.getValue().getNomEntreprise()).isEqualTo("Nouveau nom");
+            assertThat(captor.getValue().getUrlEntreprise()).isEqualTo("https://nouveau.example");
+            assertThat(captor.getValue().getTypeEntreprise()).isEqualTo(TypeEntreprise.EDITEUR);
+            assertThat(captor.getValue().getStatutCandidatureSpontanee()).isEqualTo(StatutCandidatureSpontanee.ACCEPTE);
         }
 
         @Test
@@ -138,6 +187,33 @@ class JpaCandidatureRepositoryTest {
         }
 
         @Test
+        void met_a_jour_tous_les_champs_d_une_prise_de_contact_existante() {
+            CandidatureEntity entiteExistante = new CandidatureEntity(TypeCandidature.PRISE_DE_CONTACT);
+            entiteExistante.setNomEntreprise("Ancien nom");
+            entiteExistante.setUrlEntreprise("https://ancien.example");
+            entiteExistante.setTypeEntreprise(TypeEntreprise.ESN);
+            entiteExistante.setStatutPriseDeContact(StatutPriseDeContact.ETABLI);
+            org.springframework.test.util.ReflectionTestUtils.setField(entiteExistante, "id", 3L);
+            when(candidatureJpaRepository.findById(3L)).thenReturn(Optional.of(entiteExistante));
+            when(candidatureJpaRepository.save(any(CandidatureEntity.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            Candidature candidature = new CandidaturePriseDeContact(
+                    3L, "Nouveau nom", "https://nouveau.example", TypeEntreprise.EDITEUR,
+                    StatutPriseDeContact.ACCEPTE, LocalDateTime.now(), List.of(), List.of());
+
+            repository.sauvegarder(candidature);
+
+            ArgumentCaptor<CandidatureEntity> captor = ArgumentCaptor.captor();
+            verify(candidatureJpaRepository).save(captor.capture());
+            assertThat(captor.getValue()).isSameAs(entiteExistante);
+            assertThat(captor.getValue().getNomEntreprise()).isEqualTo("Nouveau nom");
+            assertThat(captor.getValue().getUrlEntreprise()).isEqualTo("https://nouveau.example");
+            assertThat(captor.getValue().getTypeEntreprise()).isEqualTo(TypeEntreprise.EDITEUR);
+            assertThat(captor.getValue().getStatutPriseDeContact()).isEqualTo(StatutPriseDeContact.ACCEPTE);
+        }
+
+        @Test
         void persiste_une_prise_de_contact_sans_offre() {
             when(candidatureJpaRepository.save(any(CandidatureEntity.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
@@ -154,6 +230,72 @@ class JpaCandidatureRepositoryTest {
             ArgumentCaptor<CandidatureEntity> captor = ArgumentCaptor.captor();
             verify(candidatureJpaRepository).save(captor.capture());
             assertThat(captor.getValue().getType()).isEqualTo(TypeCandidature.PRISE_DE_CONTACT);
+        }
+    }
+
+    @Nested
+    class MettreAJourStatut {
+
+        @Test
+        void met_a_jour_le_statut_d_une_candidature_offre_existante() {
+            CandidatureEntity entiteExistante = nouvelleCandidatureEntity(1L);
+            when(candidatureJpaRepository.findById(1L)).thenReturn(Optional.of(entiteExistante));
+
+            Candidature candidature = new CandidatureOffre(
+                    1L, OFFRE, StatutCandidatureOffre.ACCEPTE, LocalDateTime.now(), List.of(), List.of());
+
+            Candidature resultat = repository.mettreAJourStatut(candidature);
+
+            assertThat(resultat).isSameAs(candidature);
+            ArgumentCaptor<CandidatureEntity> captor = ArgumentCaptor.captor();
+            verify(candidatureJpaRepository).save(captor.capture());
+            assertThat(captor.getValue()).isSameAs(entiteExistante);
+            assertThat(captor.getValue().getStatutOffre()).isEqualTo(StatutCandidatureOffre.ACCEPTE);
+        }
+
+        @Test
+        void met_a_jour_le_statut_d_une_candidature_spontanee_existante() {
+            CandidatureEntity entiteExistante = new CandidatureEntity(TypeCandidature.SPONTANEE);
+            org.springframework.test.util.ReflectionTestUtils.setField(entiteExistante, "id", 2L);
+            when(candidatureJpaRepository.findById(2L)).thenReturn(Optional.of(entiteExistante));
+
+            Candidature candidature = new CandidatureSpontanee(
+                    2L, "Acme SAS", "https://acme.example", TypeEntreprise.ESN,
+                    StatutCandidatureSpontanee.REFUSE, LocalDateTime.now(), List.of(), List.of());
+
+            repository.mettreAJourStatut(candidature);
+
+            ArgumentCaptor<CandidatureEntity> captor = ArgumentCaptor.captor();
+            verify(candidatureJpaRepository).save(captor.capture());
+            assertThat(captor.getValue().getStatutCandidatureSpontanee()).isEqualTo(StatutCandidatureSpontanee.REFUSE);
+        }
+
+        @Test
+        void met_a_jour_le_statut_d_une_prise_de_contact_existante() {
+            CandidatureEntity entiteExistante = new CandidatureEntity(TypeCandidature.PRISE_DE_CONTACT);
+            org.springframework.test.util.ReflectionTestUtils.setField(entiteExistante, "id", 3L);
+            when(candidatureJpaRepository.findById(3L)).thenReturn(Optional.of(entiteExistante));
+
+            Candidature candidature = new CandidaturePriseDeContact(
+                    3L, "Acme SAS", null, TypeEntreprise.CABINET_RECRUTEMENT,
+                    StatutPriseDeContact.REFUSE, LocalDateTime.now(), List.of(), List.of());
+
+            repository.mettreAJourStatut(candidature);
+
+            ArgumentCaptor<CandidatureEntity> captor = ArgumentCaptor.captor();
+            verify(candidatureJpaRepository).save(captor.capture());
+            assertThat(captor.getValue().getStatutPriseDeContact()).isEqualTo(StatutPriseDeContact.REFUSE);
+        }
+
+        @Test
+        void leve_une_exception_si_la_candidature_est_introuvable() {
+            when(candidatureJpaRepository.findById(99L)).thenReturn(Optional.empty());
+
+            Candidature candidature = new CandidatureOffre(
+                    99L, OFFRE, StatutCandidatureOffre.ACCEPTE, LocalDateTime.now(), List.of(), List.of());
+
+            assertThatThrownBy(() -> repository.mettreAJourStatut(candidature))
+                    .isInstanceOf(IllegalStateException.class);
         }
     }
 

@@ -76,6 +76,17 @@ class ModifierStatutCandidatureUseCaseTest {
             assertThatThrownBy(() -> useCase.executer(1L, "ETABLI"))
                     .isInstanceOf(StatutCandidatureInvalideException.class);
         }
+
+        @Test
+        void leve_une_exception_quand_le_statut_est_null() {
+            Candidature candidature = new CandidatureOffre(
+                    1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE,
+                    LocalDateTime.now(), List.of(), List.of());
+            when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
+
+            assertThatThrownBy(() -> useCase.executer(1L, null))
+                    .isInstanceOf(StatutCandidatureInvalideException.class);
+        }
     }
 
     @Nested

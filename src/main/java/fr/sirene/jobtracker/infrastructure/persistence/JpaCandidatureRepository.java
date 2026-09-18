@@ -64,9 +64,22 @@ public class JpaCandidatureRepository implements CandidatureRepository {
                 : nouvelleEntite(candidature);
 
         switch (candidature) {
-            case CandidatureOffre co -> entity.setStatutOffre(co.statut());
-            case CandidatureSpontanee cs -> entity.setStatutCandidatureSpontanee(cs.statut());
-            case CandidaturePriseDeContact cp -> entity.setStatutPriseDeContact(cp.statut());
+            case CandidatureOffre co -> {
+                entity.setOffre(resoudreOffre(co.offre().getIdExterne()));
+                entity.setStatutOffre(co.statut());
+            }
+            case CandidatureSpontanee cs -> {
+                entity.setNomEntreprise(cs.nomEntreprise());
+                entity.setUrlEntreprise(cs.urlEntreprise());
+                entity.setTypeEntreprise(cs.typeEntreprise());
+                entity.setStatutCandidatureSpontanee(cs.statut());
+            }
+            case CandidaturePriseDeContact cp -> {
+                entity.setNomEntreprise(cp.nomEntreprise());
+                entity.setUrlEntreprise(cp.urlEntreprise());
+                entity.setTypeEntreprise(cp.typeEntreprise());
+                entity.setStatutPriseDeContact(cp.statut());
+            }
         }
         entity.setDateCandidature(candidature.dateCandidature());
         return toDomain(candidatureJpaRepository.save(entity));
@@ -89,27 +102,15 @@ public class JpaCandidatureRepository implements CandidatureRepository {
 
     private CandidatureEntity nouvelleEntite(Candidature candidature) {
         return switch (candidature) {
-            case CandidatureOffre co -> {
-                OffreEntity offreEntity = offreJpaRepository.findByIdExterne(co.offre().getIdExterne())
-                        .orElseThrow(() -> new IllegalStateException(
-                                "Offre introuvable pour l'identifiant externe : " + co.offre().getIdExterne()));
-                yield new CandidatureEntity(offreEntity);
-            }
-            case CandidatureSpontanee cs -> {
-                CandidatureEntity e = new CandidatureEntity(TypeCandidature.SPONTANEE);
-                e.setNomEntreprise(cs.nomEntreprise());
-                e.setUrlEntreprise(cs.urlEntreprise());
-                e.setTypeEntreprise(cs.typeEntreprise());
-                yield e;
-            }
-            case CandidaturePriseDeContact cp -> {
-                CandidatureEntity e = new CandidatureEntity(TypeCandidature.PRISE_DE_CONTACT);
-                e.setNomEntreprise(cp.nomEntreprise());
-                e.setUrlEntreprise(cp.urlEntreprise());
-                e.setTypeEntreprise(cp.typeEntreprise());
-                yield e;
-            }
+            case CandidatureOffre co -> new CandidatureEntity(resoudreOffre(co.offre().getIdExterne()));
+            case CandidatureSpontanee _ -> new CandidatureEntity(TypeCandidature.SPONTANEE);
+            case CandidaturePriseDeContact _ -> new CandidatureEntity(TypeCandidature.PRISE_DE_CONTACT);
         };
+    }
+
+    private OffreEntity resoudreOffre(String idExterne) {
+        return offreJpaRepository.findByIdExterne(idExterne)
+                .orElseThrow(() -> new IllegalStateException("Offre introuvable pour l'identifiant externe : " + idExterne));
     }
 
     @Override

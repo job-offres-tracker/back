@@ -46,6 +46,10 @@ public class ModifierStatutCandidatureUseCase {
     }
 
     private <E extends Enum<E>> E parseStatut(String statut, Class<E> type) {
+        if (statut == null) {
+            throw new StatutCandidatureInvalideException(
+                    "Statut manquant. Valeurs autorisées : %s".formatted(Arrays.toString(type.getEnumConstants())));
+        }
         try {
             return Enum.valueOf(type, statut);
         } catch (IllegalArgumentException e) {
