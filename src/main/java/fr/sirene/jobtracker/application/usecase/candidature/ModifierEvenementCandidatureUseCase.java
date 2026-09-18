@@ -23,7 +23,7 @@ public class ModifierEvenementCandidatureUseCase {
     public Evenement executer(Long candidatureId, Long evenementId, LocalDate date, TypeEvenement type, String description) {
         Candidature candidature = candidatureRepository.trouverParId(candidatureId)
                 .orElseThrow(() -> new CandidatureNonTrouveeException(candidatureId));
-        boolean evenementExiste = candidature.getEvenements().stream().anyMatch(e -> e.getId().equals(evenementId));
+        boolean evenementExiste = candidature.evenements().stream().anyMatch(e -> e.getId().equals(evenementId));
         if (!evenementExiste) {
             throw new EvenementNonTrouveException(candidatureId, evenementId);
         }

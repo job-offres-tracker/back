@@ -6,10 +6,12 @@ import fr.sirene.jobtracker.application.port.parametres.ParametresDocumentCandid
 import fr.sirene.jobtracker.domain.exception.CandidatureNonTrouveeException;
 import fr.sirene.jobtracker.domain.exception.TailleFichierDepasseeException;
 import fr.sirene.jobtracker.domain.model.Candidature;
+import fr.sirene.jobtracker.domain.model.CandidatureOffre;
 import fr.sirene.jobtracker.domain.model.DocumentCandidature;
 import fr.sirene.jobtracker.domain.model.DocumentFichier;
 import fr.sirene.jobtracker.domain.model.Offre;
 import fr.sirene.jobtracker.domain.model.ParametresDocumentCandidature;
+import fr.sirene.jobtracker.domain.model.StatutCandidatureOffre;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +20,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,10 +49,8 @@ class AjouterDocumentFichierUseCaseTest {
     @InjectMocks
     private AjouterDocumentFichierUseCase useCase;
 
-    private static final Candidature CANDIDATURE = Candidature.builder()
-            .id(1L)
-            .offre(Offre.builder().idExterne("123").build())
-            .build();
+    private static final Candidature CANDIDATURE = new CandidatureOffre(
+            1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
 
     @BeforeEach
     void setUp() {

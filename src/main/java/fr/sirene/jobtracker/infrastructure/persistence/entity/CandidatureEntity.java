@@ -1,8 +1,16 @@
 package fr.sirene.jobtracker.infrastructure.persistence.entity;
 
+import fr.sirene.jobtracker.domain.model.StatutCandidatureOffre;
+import fr.sirene.jobtracker.domain.model.StatutCandidatureSpontanee;
+import fr.sirene.jobtracker.domain.model.StatutPriseDeContact;
+import fr.sirene.jobtracker.domain.model.TypeCandidature;
+import fr.sirene.jobtracker.domain.model.TypeEntreprise;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -31,9 +39,36 @@ public class CandidatureEntity {
     @Setter(AccessLevel.NONE)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type_candidature", nullable = false)
+    @Setter(AccessLevel.NONE)
+    private TypeCandidature type;
+
     @ManyToOne
-    @JoinColumn(name = "offre_id", unique = true, nullable = false)
+    @JoinColumn(name = "offre_id", unique = true, nullable = true)
     private OffreEntity offre;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "statut_offre")
+    private StatutCandidatureOffre statutOffre;
+
+    @Column(name = "nom_entreprise")
+    private String nomEntreprise;
+
+    @Column(name = "url_entreprise")
+    private String urlEntreprise;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type_entreprise")
+    private TypeEntreprise typeEntreprise;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "statut_spontanee")
+    private StatutCandidatureSpontanee statutCandidatureSpontanee;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "statut_prise_de_contact")
+    private StatutPriseDeContact statutPriseDeContact;
 
     @Column(name = "date_candidature", nullable = false)
     private LocalDateTime dateCandidature;
@@ -51,5 +86,10 @@ public class CandidatureEntity {
 
     public CandidatureEntity(OffreEntity offre) {
         this.offre = offre;
+        this.type = TypeCandidature.OFFRE;
+    }
+
+    public CandidatureEntity(TypeCandidature type) {
+        this.type = type;
     }
 }

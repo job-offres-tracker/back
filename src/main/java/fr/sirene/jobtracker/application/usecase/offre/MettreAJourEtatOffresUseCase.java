@@ -15,8 +15,6 @@ import java.util.Set;
 @Service
 public class MettreAJourEtatOffresUseCase {
 
-    private static final Set<EtatOffre> ETATS_POST_CANDIDATURE =
-            EnumSet.of(EtatOffre.POSTULE, EtatOffre.ENTRETIEN, EtatOffre.ACCEPTE, EtatOffre.RECALE);
     private static final Set<EtatOffre> ETATS_CIBLE_INTERDITS = EnumSet.of(EtatOffre.NON_LU, EtatOffre.LU);
 
     private final OffreStorageRepository offreStorageRepository;
@@ -34,7 +32,7 @@ public class MettreAJourEtatOffresUseCase {
 
         if (ETATS_CIBLE_INTERDITS.contains(etat)) {
             List<String> idsInvalides = offres.stream()
-                    .filter(offre -> ETATS_POST_CANDIDATURE.contains(offre.getEtat()))
+                    .filter(offre -> offre.getEtat() == EtatOffre.POSTULE)
                     .map(Offre::getIdExterne)
                     .toList();
             if (!idsInvalides.isEmpty()) {

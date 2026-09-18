@@ -2,7 +2,9 @@ package fr.sirene.jobtracker.application.usecase.candidature;
 
 import fr.sirene.jobtracker.application.port.candidature.CandidatureRepository;
 import fr.sirene.jobtracker.domain.model.Candidature;
+import fr.sirene.jobtracker.domain.model.CandidatureOffre;
 import fr.sirene.jobtracker.domain.model.Offre;
+import fr.sirene.jobtracker.domain.model.StatutCandidatureOffre;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -34,8 +36,9 @@ class CandidatureAutoCreationServiceTest {
 
         ArgumentCaptor<Candidature> captor = ArgumentCaptor.captor();
         verify(candidatureRepository).sauvegarder(captor.capture());
-        assertThat(captor.getValue().getOffre()).isEqualTo(offre);
-        assertThat(captor.getValue().getDateCandidature()).isNotNull();
+        assertThat(((CandidatureOffre) captor.getValue()).offre()).isEqualTo(offre);
+        assertThat(((CandidatureOffre) captor.getValue()).statut()).isEqualTo(StatutCandidatureOffre.POSTULE);
+        assertThat(captor.getValue().dateCandidature()).isNotNull();
     }
 
     @Test

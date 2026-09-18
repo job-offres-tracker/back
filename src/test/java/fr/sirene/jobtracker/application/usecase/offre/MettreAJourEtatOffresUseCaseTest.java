@@ -73,8 +73,8 @@ class MettreAJourEtatOffresUseCaseTest {
     }
 
     @Test
-    void rejette_la_transition_vers_lu_quand_l_offre_est_en_entretien() {
-        Offre offre = Offre.builder().idExterne("123").etat(EtatOffre.ENTRETIEN).build();
+    void rejette_la_transition_vers_lu_quand_l_offre_est_deja_postulee() {
+        Offre offre = Offre.builder().idExterne("123").etat(EtatOffre.POSTULE).build();
         when(offreStorageRepository.trouverParIdsExternes(List.of("123"))).thenReturn(List.of(offre));
 
         assertThatThrownBy(() -> useCase.executer(List.of("123"), EtatOffre.LU))
@@ -83,7 +83,7 @@ class MettreAJourEtatOffresUseCaseTest {
 
     @Test
     void autorise_la_transition_vers_refuse_meme_apres_une_candidature() {
-        Offre offre = Offre.builder().idExterne("123").etat(EtatOffre.ENTRETIEN).build();
+        Offre offre = Offre.builder().idExterne("123").etat(EtatOffre.POSTULE).build();
         when(offreStorageRepository.trouverParIdsExternes(List.of("123"))).thenReturn(List.of(offre));
 
         useCase.executer(List.of("123"), EtatOffre.REFUSE);

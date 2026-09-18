@@ -7,10 +7,16 @@ import fr.sirene.jobtracker.application.usecase.candidature.AjouterEvenementCand
 import fr.sirene.jobtracker.application.usecase.candidature.ConsulterCandidatureParOffreUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.ConsulterCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.ConsulterCandidaturesUseCase;
+import fr.sirene.jobtracker.application.usecase.candidature.CreerCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.ModifierEvenementCandidatureUseCase;
+import fr.sirene.jobtracker.application.usecase.candidature.ModifierStatutCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.TelechargerDocumentCandidatureUseCase;
 import fr.sirene.jobtracker.domain.exception.CandidatureNonTrouveeException;
+import fr.sirene.jobtracker.domain.exception.StatutCandidatureInvalideException;
 import fr.sirene.jobtracker.domain.model.Candidature;
+import fr.sirene.jobtracker.domain.model.CandidatureOffre;
+import fr.sirene.jobtracker.domain.model.CandidaturePriseDeContact;
+import fr.sirene.jobtracker.domain.model.CandidatureSpontanee;
 import fr.sirene.jobtracker.domain.model.DocumentCandidature;
 import fr.sirene.jobtracker.domain.model.DocumentCandidatureTelecharge;
 import fr.sirene.jobtracker.domain.model.DocumentCv;
@@ -19,11 +25,18 @@ import fr.sirene.jobtracker.domain.model.DocumentTexte;
 import fr.sirene.jobtracker.domain.model.Evenement;
 import fr.sirene.jobtracker.domain.model.Offre;
 import fr.sirene.jobtracker.domain.model.ResultatPagine;
+import fr.sirene.jobtracker.domain.model.StatutCandidatureOffre;
+import fr.sirene.jobtracker.domain.model.StatutCandidatureSpontanee;
+import fr.sirene.jobtracker.domain.model.StatutPriseDeContact;
+import fr.sirene.jobtracker.domain.model.TypeEntreprise;
 import fr.sirene.jobtracker.domain.model.TypeEvenement;
 import fr.sirene.jobtracker.infrastructure.config.CorsConfig;
 import fr.sirene.jobtracker.interfaces.rest.dto.AjouterDocumentCvRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.AjouterDocumentTexteRequest;
+import fr.sirene.jobtracker.interfaces.rest.dto.CreerCandidatureSpontaneeRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.CreerEvenementRequest;
+import fr.sirene.jobtracker.interfaces.rest.dto.CreerPriseDeContactRequest;
+import fr.sirene.jobtracker.interfaces.rest.dto.ModifierStatutCandidatureRequest;
 import jakarta.inject.Inject;
 import tools.jackson.databind.ObjectMapper;
 
@@ -46,6 +59,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -66,9 +80,13 @@ class CandidatureControllerTest {
     @MockitoBean
     private ConsulterCandidatureParOffreUseCase consulterCandidatureParOffreUseCase;
     @MockitoBean
+    private CreerCandidatureUseCase creerCandidatureUseCase;
+    @MockitoBean
     private AjouterEvenementCandidatureUseCase ajouterEvenementCandidatureUseCase;
     @MockitoBean
     private ModifierEvenementCandidatureUseCase modifierEvenementCandidatureUseCase;
+    @MockitoBean
+    private ModifierStatutCandidatureUseCase modifierStatutCandidatureUseCase;
     @MockitoBean
     private AjouterDocumentCvUseCase ajouterDocumentCvUseCase;
     @MockitoBean
@@ -85,7 +103,8 @@ class CandidatureControllerTest {
 
         @Test
         void renvoie_200_avec_la_liste_paginee() throws Exception {
-            Candidature candidature = Candidature.builder().id(1L).offre(OFFRE).dateCandidature(LocalDateTime.now()).build();
+            Candidature candidature = new CandidatureOffre(
+                    1L, OFFRE, StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
             when(consulterCandidaturesUseCase.executer(0, 20))
                     .thenReturn(new ResultatPagine<>(List.of(candidature), 0, 20, 1));
 
@@ -101,7 +120,8 @@ class CandidatureControllerTest {
 
         @Test
         void renvoie_200_avec_le_detail() throws Exception {
-            Candidature candidature = Candidature.builder().id(1L).offre(OFFRE).dateCandidature(LocalDateTime.now()).build();
+            Candidature candidature = new CandidatureOffre(
+                    1L, OFFRE, StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
             when(consulterCandidatureUseCase.executer(1L)).thenReturn(candidature);
 
             mockMvc.perform(get("/api/v1/candidatures/1"))
@@ -123,7 +143,8 @@ class CandidatureControllerTest {
 
         @Test
         void renvoie_200_avec_le_detail() throws Exception {
-            Candidature candidature = Candidature.builder().id(1L).offre(OFFRE).dateCandidature(LocalDateTime.now()).build();
+            Candidature candidature = new CandidatureOffre(
+                    1L, OFFRE, StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
             when(consulterCandidatureParOffreUseCase.executer("123")).thenReturn(candidature);
 
             mockMvc.perform(get("/api/v1/candidatures/par-offre/123"))
@@ -138,6 +159,69 @@ class CandidatureControllerTest {
 
             mockMvc.perform(get("/api/v1/candidatures/par-offre/999"))
                     .andExpect(status().isNotFound());
+        }
+    }
+
+    @Nested
+    class CreerCandidatureSpontanee {
+
+        @Test
+        void renvoie_201_a_la_creation() throws Exception {
+            Candidature candidature = new CandidatureSpontanee(
+                    1L, "Acme SAS", "https://acme.example", TypeEntreprise.ESN,
+                    StatutCandidatureSpontanee.ENVOYE, LocalDateTime.now(), List.of(), List.of());
+            when(creerCandidatureUseCase.creerSpontanee(eq("Acme SAS"), any(), eq(TypeEntreprise.ESN), any(), any()))
+                    .thenReturn(candidature);
+
+            CreerCandidatureSpontaneeRequest requete =
+                    new CreerCandidatureSpontaneeRequest("Acme SAS", "https://acme.example", TypeEntreprise.ESN, null, null);
+
+            mockMvc.perform(post("/api/v1/candidatures/spontanee")
+                            .contentType("application/json")
+                            .content(objectMapper.writeValueAsString(requete)))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.nomEntreprise").value("Acme SAS"))
+                    .andExpect(jsonPath("$.type").value("SPONTANEE"));
+        }
+
+        @Test
+        void renvoie_400_quand_le_nom_de_l_entreprise_est_absent() throws Exception {
+            mockMvc.perform(post("/api/v1/candidatures/spontanee")
+                            .contentType("application/json")
+                            .content("{\"typeEntreprise\":\"ESN\"}"))
+                    .andExpect(status().isBadRequest());
+        }
+    }
+
+    @Nested
+    class CreerPriseDeContact {
+
+        @Test
+        void renvoie_201_a_la_creation() throws Exception {
+            Candidature candidature = new CandidaturePriseDeContact(
+                    1L, "Acme SAS", null, TypeEntreprise.CABINET_RECRUTEMENT,
+                    StatutPriseDeContact.ETABLI, LocalDateTime.now(), List.of(), List.of());
+            when(creerCandidatureUseCase.creerPriseDeContact(
+                    eq("Acme SAS"), any(), eq(TypeEntreprise.CABINET_RECRUTEMENT), any(), any()))
+                    .thenReturn(candidature);
+
+            CreerPriseDeContactRequest requete =
+                    new CreerPriseDeContactRequest("Acme SAS", null, TypeEntreprise.CABINET_RECRUTEMENT, null, null);
+
+            mockMvc.perform(post("/api/v1/candidatures/prise-de-contact")
+                            .contentType("application/json")
+                            .content(objectMapper.writeValueAsString(requete)))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.nomEntreprise").value("Acme SAS"))
+                    .andExpect(jsonPath("$.type").value("PRISE_DE_CONTACT"));
+        }
+
+        @Test
+        void renvoie_400_quand_le_type_d_entreprise_est_absent() throws Exception {
+            mockMvc.perform(post("/api/v1/candidatures/prise-de-contact")
+                            .contentType("application/json")
+                            .content("{\"nomEntreprise\":\"Acme SAS\"}"))
+                    .andExpect(status().isBadRequest());
         }
     }
 
@@ -183,6 +267,53 @@ class CandidatureControllerTest {
                             .contentType("application/json")
                             .content(objectMapper.writeValueAsString(requete)))
                     .andExpect(status().isOk());
+        }
+    }
+
+    @Nested
+    class ModifierStatut {
+
+        @Test
+        void renvoie_200_a_la_modification_du_statut() throws Exception {
+            Candidature candidature = new CandidatureOffre(
+                    1L, OFFRE, StatutCandidatureOffre.ACCEPTE, LocalDateTime.now(), List.of(), List.of());
+            when(modifierStatutCandidatureUseCase.executer(1L, "ACCEPTE")).thenReturn(candidature);
+
+            mockMvc.perform(patch("/api/v1/candidatures/1/statut")
+                            .contentType("application/json")
+                            .content(objectMapper.writeValueAsString(new ModifierStatutCandidatureRequest("ACCEPTE"))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.statutCandidatureOffre").value("ACCEPTE"));
+        }
+
+        @Test
+        void renvoie_400_quand_le_statut_est_invalide_pour_ce_type() throws Exception {
+            when(modifierStatutCandidatureUseCase.executer(1L, "ETABLI"))
+                    .thenThrow(new StatutCandidatureInvalideException("Statut invalide"));
+
+            mockMvc.perform(patch("/api/v1/candidatures/1/statut")
+                            .contentType("application/json")
+                            .content(objectMapper.writeValueAsString(new ModifierStatutCandidatureRequest("ETABLI"))))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void renvoie_404_quand_la_candidature_est_introuvable() throws Exception {
+            when(modifierStatutCandidatureUseCase.executer(99L, "ACCEPTE"))
+                    .thenThrow(new CandidatureNonTrouveeException(99L));
+
+            mockMvc.perform(patch("/api/v1/candidatures/99/statut")
+                            .contentType("application/json")
+                            .content(objectMapper.writeValueAsString(new ModifierStatutCandidatureRequest("ACCEPTE"))))
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        void renvoie_400_quand_le_statut_est_absent() throws Exception {
+            mockMvc.perform(patch("/api/v1/candidatures/1/statut")
+                            .contentType("application/json")
+                            .content("{}"))
+                    .andExpect(status().isBadRequest());
         }
     }
 
