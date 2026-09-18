@@ -1,6 +1,7 @@
 package fr.sirene.jobtracker.domain.model;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public final class DocumentFichier implements DocumentCandidature {
 
@@ -29,14 +30,32 @@ public final class DocumentFichier implements DocumentCandidature {
 
     public static Builder builder() { return new Builder(); }
 
-    public Builder toBuilder() {
-        return new Builder()
-                .id(this.id)
-                .libelle(this.libelle)
-                .nomStocke(this.nomStocke)
-                .tailleOctets(this.tailleOctets)
-                .contentType(this.contentType)
-                .dateAjout(this.dateAjout);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof DocumentFichier other)) {
+            return false;
+        }
+        return tailleOctets == other.tailleOctets
+                && Objects.equals(id, other.id)
+                && Objects.equals(libelle, other.libelle)
+                && Objects.equals(nomStocke, other.nomStocke)
+                && Objects.equals(contentType, other.contentType)
+                && Objects.equals(dateAjout, other.dateAjout);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, libelle, nomStocke, tailleOctets, contentType, dateAjout);
+    }
+
+    @Override
+    public String toString() {
+        return "DocumentFichier[id=" + id + ", libelle=" + libelle + ", nomStocke=" + nomStocke
+                + ", tailleOctets=" + tailleOctets + ", contentType=" + contentType
+                + ", dateAjout=" + dateAjout + "]";
     }
 
     public static final class Builder {

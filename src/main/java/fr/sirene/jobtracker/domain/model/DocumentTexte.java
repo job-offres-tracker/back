@@ -1,6 +1,7 @@
 package fr.sirene.jobtracker.domain.model;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public final class DocumentTexte implements DocumentCandidature {
 
@@ -23,12 +24,29 @@ public final class DocumentTexte implements DocumentCandidature {
 
     public static Builder builder() { return new Builder(); }
 
-    public Builder toBuilder() {
-        return new Builder()
-                .id(this.id)
-                .libelle(this.libelle)
-                .contenuTexte(this.contenuTexte)
-                .dateAjout(this.dateAjout);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof DocumentTexte other)) {
+            return false;
+        }
+        return Objects.equals(id, other.id)
+                && Objects.equals(libelle, other.libelle)
+                && Objects.equals(contenuTexte, other.contenuTexte)
+                && Objects.equals(dateAjout, other.dateAjout);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, libelle, contenuTexte, dateAjout);
+    }
+
+    @Override
+    public String toString() {
+        return "DocumentTexte[id=" + id + ", libelle=" + libelle + ", contenuTexte=" + contenuTexte
+                + ", dateAjout=" + dateAjout + "]";
     }
 
     public static final class Builder {

@@ -2,6 +2,7 @@ package fr.sirene.jobtracker.domain.model;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 public final class CandidatureOffre implements Candidature {
 
@@ -38,6 +39,34 @@ public final class CandidatureOffre implements Candidature {
                 .dateCandidature(this.dateCandidature)
                 .evenements(this.evenements)
                 .documents(this.documents);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof CandidatureOffre other)) {
+            return false;
+        }
+        return Objects.equals(id, other.id)
+                && Objects.equals(offre, other.offre)
+                && statut == other.statut
+                && Objects.equals(dateCandidature, other.dateCandidature)
+                && Objects.equals(evenements, other.evenements)
+                && Objects.equals(documents, other.documents);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, offre, statut, dateCandidature, evenements, documents);
+    }
+
+    @Override
+    public String toString() {
+        return "CandidatureOffre[id=" + id + ", offre=" + offre + ", statut=" + statut
+                + ", dateCandidature=" + dateCandidature + ", evenements=" + evenements
+                + ", documents=" + documents + "]";
     }
 
     public static final class Builder {
