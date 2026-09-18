@@ -26,7 +26,7 @@ public class ModifierStatutCandidatureUseCase {
     }
 
     @Transactional
-    public Candidature executer(Long id, String statut) {
+    public Candidature executer(long id, String statut) {
         Candidature candidature = candidatureRepository.trouverParId(id)
                 .orElseThrow(() -> new CandidatureNonTrouveeException(id));
 

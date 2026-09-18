@@ -18,7 +18,7 @@ public class AjouterEvenementCandidatureUseCase {
         this.candidatureRepository = candidatureRepository;
     }
 
-    public Evenement executer(Long candidatureId, LocalDate date, TypeEvenement type, String description) {
+    public Evenement executer(long candidatureId, LocalDate date, TypeEvenement type, String description) {
         candidatureRepository.trouverParId(candidatureId)
                 .orElseThrow(() -> new CandidatureNonTrouveeException(candidatureId));
 

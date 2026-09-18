@@ -13,7 +13,7 @@ public interface CandidatureRepository {
 
     Candidature mettreAJourStatut(Candidature candidature);
 
-    Optional<Candidature> trouverParId(Long id);
+    Optional<Candidature> trouverParId(long id);
 
     Optional<Candidature> trouverParOffreIdExterne(String idExterneOffre);
 
@@ -21,9 +21,9 @@ public interface CandidatureRepository {
 
     ResultatPagine<Candidature> lister(int page, int taille);
 
-    Evenement ajouterEvenement(Long candidatureId, Evenement evenement);
+    Evenement ajouterEvenement(long candidatureId, Evenement evenement);
 
-    Evenement modifierEvenement(Long candidatureId, Long evenementId, Evenement evenement);
+    Evenement modifierEvenement(long candidatureId, long evenementId, Evenement evenement);
 
-    DocumentCandidature ajouterDocument(Long candidatureId, DocumentCandidature document);
+    DocumentCandidature ajouterDocument(long candidatureId, DocumentCandidature document);
 }

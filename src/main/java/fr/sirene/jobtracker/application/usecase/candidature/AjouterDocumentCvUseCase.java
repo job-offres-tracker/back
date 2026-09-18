@@ -23,7 +23,7 @@ public class AjouterDocumentCvUseCase {
         this.cvRepository = cvRepository;
     }
 
-    public DocumentCandidature executer(Long candidatureId, String cvNomUnique) {
+    public DocumentCandidature executer(long candidatureId, String cvNomUnique) {
         candidatureRepository.trouverParId(candidatureId)
                 .orElseThrow(() -> new CandidatureNonTrouveeException(candidatureId));
 

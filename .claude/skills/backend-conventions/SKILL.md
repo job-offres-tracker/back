@@ -33,6 +33,7 @@ Au-delà de l'arborescence documentée dans CLAUDE.md :
 - **CORS** : `CorsConfig` couvre `/api/v1/**` pour GET/PATCH/POST/OPTIONS — ajouter la méthode HTTP si un nouvel endpoint utilise un verbe non listé.
 - **Spring Boot 4 / Jackson 3** : `ObjectMapper` vient de `tools.jackson.databind`, pas de `com.fasterxml.jackson.databind`. `@WebMvcTest` vient de `org.springframework.boot.webmvc.test.autoconfigure`. Préférer `@MockitoBean` à `@MockBean` (déprécié).
 - Pas de classe Mapper dédiée pour un mapping trivial 1:1 (voir `BanGeocodageAdapter`, `GeoApiCommuneAdapter`, `AiExtractionAdapter` — mapping inline dans l'adapter) ; réserver un Mapper séparé aux conversions non triviales avec plusieurs champs imbriqués (voir `OffreMapper` pour France Travail).
+- **Id d'entité en paramètre de méthode : `long`/`int` primitif quand l'id est obligatoire** (lookup direct, jamais `null` en entrée) — c'est le cas par défaut dans `application/usecase/**` et `application/port/**` (ex. `CandidatureRepository.trouverParId(long id)`). Rester en `Long`/`Integer` (boxed) seulement aux frontières où `null` est une valeur légitime ou imposée : builders de domaine avant persistence (id pas encore attribué), générique `JpaRepository<T, Long>`, et `@PathVariable`/DTO REST (boxed par convention Spring, gain marginal à changer).
 
 ## Tests
 

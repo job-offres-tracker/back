@@ -18,7 +18,7 @@ public class AjouterDocumentTexteUseCase {
         this.candidatureRepository = candidatureRepository;
     }
 
-    public DocumentCandidature executer(Long candidatureId, String libelle, String contenuTexte) {
+    public DocumentCandidature executer(long candidatureId, String libelle, String contenuTexte) {
         candidatureRepository.trouverParId(candidatureId)
                 .orElseThrow(() -> new CandidatureNonTrouveeException(candidatureId));
 
