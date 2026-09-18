@@ -30,7 +30,7 @@ public class AjouterDocumentFichierUseCase {
         this.parametresDocumentCandidatureRepository = parametresDocumentCandidatureRepository;
     }
 
-    public DocumentCandidature executer(Long candidatureId, String libelle, String contentType, byte[] contenu) {
+    public DocumentCandidature executer(long candidatureId, String libelle, String contentType, byte[] contenu) {
         candidatureRepository.trouverParId(candidatureId)
                 .orElseThrow(() -> new CandidatureNonTrouveeException(candidatureId));
 

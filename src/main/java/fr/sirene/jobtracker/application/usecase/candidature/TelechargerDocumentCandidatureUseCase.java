@@ -22,7 +22,7 @@ public class TelechargerDocumentCandidatureUseCase {
         this.documentCandidatureStockagePort = documentCandidatureStockagePort;
     }
 
-    public DocumentCandidatureTelecharge executer(Long candidatureId, Long documentId) {
+    public DocumentCandidatureTelecharge executer(long candidatureId, long documentId) {
         Candidature candidature = candidatureRepository.trouverParId(candidatureId)
                 .orElseThrow(() -> new CandidatureNonTrouveeException(candidatureId));
 

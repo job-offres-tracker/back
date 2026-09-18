@@ -15,7 +15,7 @@ public class ConsulterCandidatureUseCase {
         this.candidatureRepository = candidatureRepository;
     }
 
-    public Candidature executer(Long id) {
+    public Candidature executer(long id) {
         return candidatureRepository.trouverParId(id)
                 .orElseThrow(() -> new CandidatureNonTrouveeException(id));
     }

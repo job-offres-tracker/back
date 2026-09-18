@@ -29,7 +29,7 @@ public class FichierDocumentCandidatureStockageAdapter implements DocumentCandid
     }
 
     @Override
-    public void ecrire(Long candidatureId, String nomStocke, byte[] contenu) {
+    public void ecrire(long candidatureId, String nomStocke, byte[] contenu) {
         try {
             Path repertoireCandidature = repertoire.resolve(String.valueOf(candidatureId));
             Files.createDirectories(repertoireCandidature);
@@ -40,7 +40,7 @@ public class FichierDocumentCandidatureStockageAdapter implements DocumentCandid
     }
 
     @Override
-    public byte[] lire(Long candidatureId, String nomStocke) {
+    public byte[] lire(long candidatureId, String nomStocke) {
         try {
             return Files.readAllBytes(repertoire.resolve(String.valueOf(candidatureId)).resolve(nomStocke));
         } catch (IOException e) {

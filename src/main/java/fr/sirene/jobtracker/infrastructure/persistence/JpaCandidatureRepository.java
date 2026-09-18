@@ -115,7 +115,7 @@ public class JpaCandidatureRepository implements CandidatureRepository {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Candidature> trouverParId(Long id) {
+    public Optional<Candidature> trouverParId(long id) {
         return candidatureJpaRepository.findById(id).map(this::toDomain);
     }
 
@@ -140,7 +140,7 @@ public class JpaCandidatureRepository implements CandidatureRepository {
 
     @Override
     @Transactional
-    public Evenement ajouterEvenement(Long candidatureId, Evenement evenement) {
+    public Evenement ajouterEvenement(long candidatureId, Evenement evenement) {
         CandidatureEntity candidature = candidatureJpaRepository.findById(candidatureId)
                 .orElseThrow(() -> new IllegalStateException("Candidature introuvable : " + candidatureId));
         EvenementCandidatureEntity entity = new EvenementCandidatureEntity(candidature);
@@ -152,7 +152,7 @@ public class JpaCandidatureRepository implements CandidatureRepository {
 
     @Override
     @Transactional
-    public Evenement modifierEvenement(Long candidatureId, Long evenementId, Evenement evenement) {
+    public Evenement modifierEvenement(long candidatureId, long evenementId, Evenement evenement) {
         EvenementCandidatureEntity entity = evenementCandidatureJpaRepository.findById(evenementId)
                 .filter(e -> e.getCandidature().getId().equals(candidatureId))
                 .orElseThrow(() -> new IllegalStateException(
@@ -165,7 +165,7 @@ public class JpaCandidatureRepository implements CandidatureRepository {
 
     @Override
     @Transactional
-    public DocumentCandidature ajouterDocument(Long candidatureId, DocumentCandidature document) {
+    public DocumentCandidature ajouterDocument(long candidatureId, DocumentCandidature document) {
         CandidatureEntity candidature = candidatureJpaRepository.findById(candidatureId)
                 .orElseThrow(() -> new IllegalStateException("Candidature introuvable : " + candidatureId));
 
