@@ -29,8 +29,13 @@ class ConsulterCandidaturesUseCaseTest {
 
     @Test
     void delegue_la_recherche_paginee_au_repository() {
-        Candidature candidature = new CandidatureOffre(
-                null, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
+        Candidature candidature = CandidatureOffre.builder()
+                .offre(Offre.builder().idExterne("123").build())
+                .statut(StatutCandidatureOffre.POSTULE)
+                .dateCandidature(LocalDateTime.now())
+                .evenements(List.of())
+                .documents(List.of())
+                .build();
         ResultatPagine<Candidature> resultat = new ResultatPagine<>(List.of(candidature), 0, 20, 1);
         when(candidatureRepository.lister(0, 20)).thenReturn(resultat);
 

@@ -41,12 +41,12 @@ public record DocumentCandidatureResponse(
     public static DocumentCandidatureResponse fromDomain(DocumentCandidature document) {
         return switch (document) {
             case DocumentCv cv -> new DocumentCandidatureResponse(
-                    cv.id(), TypeDocument.CV, cv.libelle(), cv.cvNomUnique(), cv.tailleOctets(), null, null, cv.dateAjout());
+                    cv.getId(), TypeDocument.CV, cv.getLibelle(), cv.getCvNomUnique(), cv.getTailleOctets(), null, null, cv.getDateAjout());
             case DocumentFichier fichier -> new DocumentCandidatureResponse(
-                    fichier.id(), TypeDocument.FICHIER, fichier.libelle(), null, fichier.tailleOctets(),
-                    fichier.contentType(), null, fichier.dateAjout());
+                    fichier.getId(), TypeDocument.FICHIER, fichier.getLibelle(), null, fichier.getTailleOctets(),
+                    fichier.getContentType(), null, fichier.getDateAjout());
             case DocumentTexte texte -> new DocumentCandidatureResponse(
-                    texte.id(), TypeDocument.TEXTE, texte.libelle(), null, null, null, texte.contenuTexte(), texte.dateAjout());
+                    texte.getId(), TypeDocument.TEXTE, texte.getLibelle(), null, null, null, texte.getContenuTexte(), texte.getDateAjout());
         };
     }
 }

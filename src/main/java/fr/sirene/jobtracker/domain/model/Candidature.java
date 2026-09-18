@@ -5,11 +5,11 @@ import java.util.List;
 
 public sealed interface Candidature permits CandidatureOffre, CandidatureSpontanee, CandidaturePriseDeContact {
 
-    Long id();
+    Long getId();
 
-    LocalDateTime dateCandidature();
+    LocalDateTime getDateCandidature();
 
-    List<Evenement> evenements();
+    List<Evenement> getEvenements();
 
-    List<DocumentCandidature> documents();
+    List<DocumentCandidature> getDocuments();
 }

@@ -22,7 +22,11 @@ public class AjouterDocumentTexteUseCase {
         candidatureRepository.trouverParId(candidatureId)
                 .orElseThrow(() -> new CandidatureNonTrouveeException(candidatureId));
 
-        DocumentCandidature document = new DocumentTexte(null, libelle, contenuTexte, LocalDateTime.now());
+        DocumentCandidature document = DocumentTexte.builder()
+                .libelle(libelle)
+                .contenuTexte(contenuTexte)
+                .dateAjout(LocalDateTime.now())
+                .build();
 
         return candidatureRepository.ajouterDocument(candidatureId, document);
     }

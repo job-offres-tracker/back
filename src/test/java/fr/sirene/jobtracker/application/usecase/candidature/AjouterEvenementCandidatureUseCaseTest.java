@@ -44,8 +44,14 @@ class AjouterEvenementCandidatureUseCaseTest {
 
     @Test
     void ajoute_l_evenement_a_la_candidature() {
-        Candidature candidature = new CandidatureOffre(
-                1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
+        Candidature candidature = CandidatureOffre.builder()
+                .id(1L)
+                .offre(Offre.builder().idExterne("123").build())
+                .statut(StatutCandidatureOffre.POSTULE)
+                .dateCandidature(LocalDateTime.now())
+                .evenements(List.of())
+                .documents(List.of())
+                .build();
         when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
         LocalDate date = LocalDate.of(2026, 8, 1);
         when(candidatureRepository.ajouterEvenement(org.mockito.ArgumentMatchers.eq(1L), org.mockito.ArgumentMatchers.any()))

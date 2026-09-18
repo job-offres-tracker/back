@@ -42,11 +42,11 @@ class CreerCandidatureUseCaseTest {
 
             assertThat(candidature).isInstanceOf(CandidatureSpontanee.class);
             CandidatureSpontanee spontanee = (CandidatureSpontanee) candidature;
-            assertThat(spontanee.nomEntreprise()).isEqualTo("Acme SAS");
-            assertThat(spontanee.urlEntreprise()).isEqualTo("https://acme.example");
-            assertThat(spontanee.typeEntreprise()).isEqualTo(TypeEntreprise.ESN);
-            assertThat(spontanee.statut()).isEqualTo(StatutCandidatureSpontanee.ENVOYE);
-            assertThat(spontanee.dateCandidature()).isNotNull();
+            assertThat(spontanee.getNomEntreprise()).isEqualTo("Acme SAS");
+            assertThat(spontanee.getUrlEntreprise()).isEqualTo("https://acme.example");
+            assertThat(spontanee.getTypeEntreprise()).isEqualTo(TypeEntreprise.ESN);
+            assertThat(spontanee.getStatut()).isEqualTo(StatutCandidatureSpontanee.ENVOYE);
+            assertThat(spontanee.getDateCandidature()).isNotNull();
         }
 
         @Test
@@ -58,8 +58,8 @@ class CreerCandidatureUseCaseTest {
                     "Acme SAS", null, TypeEntreprise.EDITEUR, StatutCandidatureSpontanee.ACCEPTE, date);
 
             CandidatureSpontanee spontanee = (CandidatureSpontanee) candidature;
-            assertThat(spontanee.statut()).isEqualTo(StatutCandidatureSpontanee.ACCEPTE);
-            assertThat(spontanee.dateCandidature()).isEqualTo(date);
+            assertThat(spontanee.getStatut()).isEqualTo(StatutCandidatureSpontanee.ACCEPTE);
+            assertThat(spontanee.getDateCandidature()).isEqualTo(date);
 
             ArgumentCaptor<Candidature> captor = ArgumentCaptor.captor();
             verify(candidatureRepository).sauvegarder(captor.capture());
@@ -79,10 +79,10 @@ class CreerCandidatureUseCaseTest {
 
             assertThat(candidature).isInstanceOf(CandidaturePriseDeContact.class);
             CandidaturePriseDeContact priseDeContact = (CandidaturePriseDeContact) candidature;
-            assertThat(priseDeContact.nomEntreprise()).isEqualTo("Acme SAS");
-            assertThat(priseDeContact.typeEntreprise()).isEqualTo(TypeEntreprise.CABINET_RECRUTEMENT);
-            assertThat(priseDeContact.statut()).isEqualTo(StatutPriseDeContact.ETABLI);
-            assertThat(priseDeContact.dateCandidature()).isNotNull();
+            assertThat(priseDeContact.getNomEntreprise()).isEqualTo("Acme SAS");
+            assertThat(priseDeContact.getTypeEntreprise()).isEqualTo(TypeEntreprise.CABINET_RECRUTEMENT);
+            assertThat(priseDeContact.getStatut()).isEqualTo(StatutPriseDeContact.ETABLI);
+            assertThat(priseDeContact.getDateCandidature()).isNotNull();
         }
 
         @Test
@@ -94,8 +94,8 @@ class CreerCandidatureUseCaseTest {
                     "Acme SAS", "https://acme.example", TypeEntreprise.ESN, StatutPriseDeContact.REFUSE, date);
 
             CandidaturePriseDeContact priseDeContact = (CandidaturePriseDeContact) candidature;
-            assertThat(priseDeContact.statut()).isEqualTo(StatutPriseDeContact.REFUSE);
-            assertThat(priseDeContact.dateCandidature()).isEqualTo(date);
+            assertThat(priseDeContact.getStatut()).isEqualTo(StatutPriseDeContact.REFUSE);
+            assertThat(priseDeContact.getDateCandidature()).isEqualTo(date);
         }
     }
 }

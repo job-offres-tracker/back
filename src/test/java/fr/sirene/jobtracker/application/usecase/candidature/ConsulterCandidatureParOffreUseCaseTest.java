@@ -31,8 +31,14 @@ class ConsulterCandidatureParOffreUseCaseTest {
 
     @Test
     void retourne_la_candidature_correspondant_a_l_offre() {
-        Candidature candidature = new CandidatureOffre(
-                1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(), List.of(), List.of());
+        Candidature candidature = CandidatureOffre.builder()
+                .id(1L)
+                .offre(Offre.builder().idExterne("123").build())
+                .statut(StatutCandidatureOffre.POSTULE)
+                .dateCandidature(LocalDateTime.now())
+                .evenements(List.of())
+                .documents(List.of())
+                .build();
         when(candidatureRepository.trouverParOffreIdExterne("123")).thenReturn(Optional.of(candidature));
 
         Candidature obtenue = useCase.executer("123");

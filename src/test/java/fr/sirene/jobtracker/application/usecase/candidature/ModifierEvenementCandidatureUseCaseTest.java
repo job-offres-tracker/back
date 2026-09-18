@@ -43,10 +43,14 @@ class ModifierEvenementCandidatureUseCaseTest {
 
     @Test
     void leve_une_exception_quand_l_evenement_n_appartient_pas_a_la_candidature() {
-        Candidature candidature = new CandidatureOffre(
-                1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(),
-                List.of(Evenement.builder().id(99L).date(LocalDate.now()).type(TypeEvenement.MAIL).build()),
-                List.of());
+        Candidature candidature = CandidatureOffre.builder()
+                .id(1L)
+                .offre(Offre.builder().idExterne("123").build())
+                .statut(StatutCandidatureOffre.POSTULE)
+                .dateCandidature(LocalDateTime.now())
+                .evenements(List.of(Evenement.builder().id(99L).date(LocalDate.now()).type(TypeEvenement.MAIL).build()))
+                .documents(List.of())
+                .build();
         when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
 
         assertThatThrownBy(() -> useCase.executer(1L, 10L, LocalDate.now(), TypeEvenement.MAIL, null))
@@ -55,10 +59,14 @@ class ModifierEvenementCandidatureUseCaseTest {
 
     @Test
     void modifie_l_evenement_existant() {
-        Candidature candidature = new CandidatureOffre(
-                1L, Offre.builder().idExterne("123").build(), StatutCandidatureOffre.POSTULE, LocalDateTime.now(),
-                List.of(Evenement.builder().id(10L).date(LocalDate.now()).type(TypeEvenement.MAIL).build()),
-                List.of());
+        Candidature candidature = CandidatureOffre.builder()
+                .id(1L)
+                .offre(Offre.builder().idExterne("123").build())
+                .statut(StatutCandidatureOffre.POSTULE)
+                .dateCandidature(LocalDateTime.now())
+                .evenements(List.of(Evenement.builder().id(10L).date(LocalDate.now()).type(TypeEvenement.MAIL).build()))
+                .documents(List.of())
+                .build();
         when(candidatureRepository.trouverParId(1L)).thenReturn(Optional.of(candidature));
         LocalDate nouvelleDate = LocalDate.of(2026, 8, 15);
         when(candidatureRepository.modifierEvenement(org.mockito.ArgumentMatchers.eq(1L), org.mockito.ArgumentMatchers.eq(10L), org.mockito.ArgumentMatchers.any()))

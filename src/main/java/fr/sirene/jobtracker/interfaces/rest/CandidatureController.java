@@ -315,10 +315,10 @@ public class CandidatureController {
     public ResponseEntity<byte[]> telechargerDocument(@PathVariable Long id, @PathVariable Long documentId) {
         DocumentCandidatureTelecharge resultat = telechargerDocumentCandidatureUseCase.executer(id, documentId);
         ContentDisposition contentDisposition = ContentDisposition.attachment()
-                .filename(resultat.document().libelle(), StandardCharsets.UTF_8)
+                .filename(resultat.document().getLibelle(), StandardCharsets.UTF_8)
                 .build();
-        MediaType typeContenu = resultat.document().contentType() != null
-                ? MediaType.parseMediaType(resultat.document().contentType())
+        MediaType typeContenu = resultat.document().getContentType() != null
+                ? MediaType.parseMediaType(resultat.document().getContentType())
                 : MediaType.APPLICATION_OCTET_STREAM;
         return ResponseEntity.ok()
                 .contentType(typeContenu)

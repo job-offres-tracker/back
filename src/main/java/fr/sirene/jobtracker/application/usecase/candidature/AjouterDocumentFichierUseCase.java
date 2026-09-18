@@ -43,8 +43,13 @@ public class AjouterDocumentFichierUseCase {
         String nomStocke = UUID.randomUUID().toString();
         documentCandidatureStockagePort.ecrire(candidatureId, nomStocke, contenu);
 
-        DocumentCandidature document =
-                new DocumentFichier(null, libelle, nomStocke, contenu.length, contentType, LocalDateTime.now());
+        DocumentCandidature document = DocumentFichier.builder()
+                .libelle(libelle)
+                .nomStocke(nomStocke)
+                .tailleOctets(contenu.length)
+                .contentType(contentType)
+                .dateAjout(LocalDateTime.now())
+                .build();
 
         return candidatureRepository.ajouterDocument(candidatureId, document);
     }

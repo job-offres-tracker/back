@@ -53,15 +53,15 @@ public record CandidatureListItemResponse(
     public static CandidatureListItemResponse fromDomain(Candidature candidature) {
         return switch (candidature) {
             case CandidatureOffre co -> new CandidatureListItemResponse(
-                    co.id(), TypeCandidature.OFFRE, co.offre().getIdExterne(), co.offre().getIntitule(),
-                    co.offre().getEtat(), co.offre().getEntreprise(), co.offre().getLieu(), co.statut(), null, null,
-                    co.dateCandidature());
+                    co.getId(), TypeCandidature.OFFRE, co.getOffre().getIdExterne(), co.getOffre().getIntitule(),
+                    co.getOffre().getEtat(), co.getOffre().getEntreprise(), co.getOffre().getLieu(), co.getStatut(), null, null,
+                    co.getDateCandidature());
             case CandidatureSpontanee cs -> new CandidatureListItemResponse(
-                    cs.id(), TypeCandidature.SPONTANEE, null, null, null, cs.nomEntreprise(), null, null,
-                    cs.statut(), null, cs.dateCandidature());
+                    cs.getId(), TypeCandidature.SPONTANEE, null, null, null, cs.getNomEntreprise(), null, null,
+                    cs.getStatut(), null, cs.getDateCandidature());
             case CandidaturePriseDeContact cp -> new CandidatureListItemResponse(
-                    cp.id(), TypeCandidature.PRISE_DE_CONTACT, null, null, null, cp.nomEntreprise(), null, null,
-                    null, cp.statut(), cp.dateCandidature());
+                    cp.getId(), TypeCandidature.PRISE_DE_CONTACT, null, null, null, cp.getNomEntreprise(), null, null,
+                    null, cp.getStatut(), cp.getDateCandidature());
         };
     }
 }
