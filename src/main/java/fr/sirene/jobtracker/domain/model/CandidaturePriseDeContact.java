@@ -10,6 +10,8 @@ public final class CandidaturePriseDeContact implements Candidature {
     private final String nomEntreprise;
     private final String urlEntreprise;
     private final TypeEntreprise typeEntreprise;
+    private final String poste;
+    private final String client;
     private final StatutPriseDeContact statut;
     private final LocalDateTime dateCandidature;
     private final List<Evenement> evenements;
@@ -20,6 +22,8 @@ public final class CandidaturePriseDeContact implements Candidature {
         this.nomEntreprise = builder.nomEntreprise;
         this.urlEntreprise = builder.urlEntreprise;
         this.typeEntreprise = builder.typeEntreprise;
+        this.poste = builder.poste;
+        this.client = builder.client;
         this.statut = builder.statut;
         this.dateCandidature = builder.dateCandidature;
         this.evenements = builder.evenements;
@@ -30,6 +34,8 @@ public final class CandidaturePriseDeContact implements Candidature {
     public String getNomEntreprise() { return nomEntreprise; }
     public String getUrlEntreprise() { return urlEntreprise; }
     public TypeEntreprise getTypeEntreprise() { return typeEntreprise; }
+    public String getPoste() { return poste; }
+    public String getClient() { return client; }
     public StatutPriseDeContact getStatut() { return statut; }
     public LocalDateTime getDateCandidature() { return dateCandidature; }
     public List<Evenement> getEvenements() { return evenements; }
@@ -43,6 +49,8 @@ public final class CandidaturePriseDeContact implements Candidature {
                 .nomEntreprise(this.nomEntreprise)
                 .urlEntreprise(this.urlEntreprise)
                 .typeEntreprise(this.typeEntreprise)
+                .poste(this.poste)
+                .client(this.client)
                 .statut(this.statut)
                 .dateCandidature(this.dateCandidature)
                 .evenements(this.evenements)
@@ -61,6 +69,8 @@ public final class CandidaturePriseDeContact implements Candidature {
                 && Objects.equals(nomEntreprise, other.nomEntreprise)
                 && Objects.equals(urlEntreprise, other.urlEntreprise)
                 && typeEntreprise == other.typeEntreprise
+                && Objects.equals(poste, other.poste)
+                && Objects.equals(client, other.client)
                 && statut == other.statut
                 && Objects.equals(dateCandidature, other.dateCandidature)
                 && Objects.equals(evenements, other.evenements)
@@ -69,7 +79,7 @@ public final class CandidaturePriseDeContact implements Candidature {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, nomEntreprise, urlEntreprise, typeEntreprise, statut,
+        return Objects.hash(id, nomEntreprise, urlEntreprise, typeEntreprise, poste, client, statut,
                 dateCandidature, evenements, documents);
     }
 
@@ -77,6 +87,7 @@ public final class CandidaturePriseDeContact implements Candidature {
     public String toString() {
         return "CandidaturePriseDeContact[id=" + id + ", nomEntreprise=" + nomEntreprise
                 + ", urlEntreprise=" + urlEntreprise + ", typeEntreprise=" + typeEntreprise
+                + ", poste=" + poste + ", client=" + client
                 + ", statut=" + statut + ", dateCandidature=" + dateCandidature
                 + ", evenements=" + evenements + ", documents=" + documents + "]";
     }
@@ -86,6 +97,8 @@ public final class CandidaturePriseDeContact implements Candidature {
         private String nomEntreprise;
         private String urlEntreprise;
         private TypeEntreprise typeEntreprise;
+        private String poste;
+        private String client;
         private StatutPriseDeContact statut;
         private LocalDateTime dateCandidature;
         private List<Evenement> evenements;
@@ -95,12 +108,18 @@ public final class CandidaturePriseDeContact implements Candidature {
         public Builder nomEntreprise(String nomEntreprise) { this.nomEntreprise = nomEntreprise; return this; }
         public Builder urlEntreprise(String urlEntreprise) { this.urlEntreprise = urlEntreprise; return this; }
         public Builder typeEntreprise(TypeEntreprise typeEntreprise) { this.typeEntreprise = typeEntreprise; return this; }
+        public Builder poste(String poste) { this.poste = poste; return this; }
+        public Builder client(String client) { this.client = client; return this; }
         public Builder statut(StatutPriseDeContact statut) { this.statut = statut; return this; }
         public Builder dateCandidature(LocalDateTime dateCandidature) { this.dateCandidature = dateCandidature; return this; }
         public Builder evenements(List<Evenement> evenements) { this.evenements = evenements; return this; }
         public Builder documents(List<DocumentCandidature> documents) { this.documents = documents; return this; }
 
         public CandidaturePriseDeContact build() {
+            if (client != null && typeEntreprise != TypeEntreprise.ESN && typeEntreprise != TypeEntreprise.CABINET_RECRUTEMENT) {
+                throw new IllegalArgumentException(
+                        "Le client n'a de sens que pour une entreprise de type ESN ou cabinet de recrutement");
+            }
             return new CandidaturePriseDeContact(this);
         }
     }

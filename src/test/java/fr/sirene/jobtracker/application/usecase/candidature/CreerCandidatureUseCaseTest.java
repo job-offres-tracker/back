@@ -75,7 +75,7 @@ class CreerCandidatureUseCaseTest {
             when(candidatureRepository.sauvegarder(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
             Candidature candidature = useCase.creerPriseDeContact(
-                    "Acme SAS", null, TypeEntreprise.CABINET_RECRUTEMENT, null, null);
+                    "Acme SAS", null, TypeEntreprise.CABINET_RECRUTEMENT, null, null, null, null);
 
             assertThat(candidature).isInstanceOf(CandidaturePriseDeContact.class);
             CandidaturePriseDeContact priseDeContact = (CandidaturePriseDeContact) candidature;
@@ -91,11 +91,23 @@ class CreerCandidatureUseCaseTest {
             LocalDateTime date = LocalDateTime.of(2026, 1, 1, 10, 0);
 
             Candidature candidature = useCase.creerPriseDeContact(
-                    "Acme SAS", "https://acme.example", TypeEntreprise.ESN, StatutPriseDeContact.REFUSE, date);
+                    "Acme SAS", "https://acme.example", TypeEntreprise.ESN, null, null, StatutPriseDeContact.REFUSE, date);
 
             CandidaturePriseDeContact priseDeContact = (CandidaturePriseDeContact) candidature;
             assertThat(priseDeContact.getStatut()).isEqualTo(StatutPriseDeContact.REFUSE);
             assertThat(priseDeContact.getDateCandidature()).isEqualTo(date);
+        }
+
+        @Test
+        void conserve_le_poste_et_le_client() {
+            when(candidatureRepository.sauvegarder(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+            Candidature candidature = useCase.creerPriseDeContact(
+                    "Acme SAS", null, TypeEntreprise.ESN, "Lead Developer", "Société Générale", null, null);
+
+            CandidaturePriseDeContact priseDeContact = (CandidaturePriseDeContact) candidature;
+            assertThat(priseDeContact.getPoste()).isEqualTo("Lead Developer");
+            assertThat(priseDeContact.getClient()).isEqualTo("Société Générale");
         }
     }
 }

@@ -62,6 +62,12 @@ public class CandidatureEntity {
     @Column(name = "type_entreprise")
     private TypeEntreprise typeEntreprise;
 
+    @Column(name = "poste")
+    private String poste;
+
+    @Column(name = "client")
+    private String client;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "statut_spontanee")
     private StatutCandidatureSpontanee statutCandidatureSpontanee;

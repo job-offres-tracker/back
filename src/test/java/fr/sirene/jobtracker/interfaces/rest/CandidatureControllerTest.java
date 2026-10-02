@@ -9,6 +9,7 @@ import fr.sirene.jobtracker.application.usecase.candidature.ConsulterCandidature
 import fr.sirene.jobtracker.application.usecase.candidature.ConsulterCandidaturesUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.CreerCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.ModifierEvenementCandidatureUseCase;
+import fr.sirene.jobtracker.application.usecase.candidature.ModifierPriseDeContactUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.ModifierStatutCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.TelechargerDocumentCandidatureUseCase;
 import fr.sirene.jobtracker.domain.exception.CandidatureNonTrouveeException;
@@ -36,6 +37,7 @@ import fr.sirene.jobtracker.interfaces.rest.dto.AjouterDocumentTexteRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.CreerCandidatureSpontaneeRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.CreerEvenementRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.CreerPriseDeContactRequest;
+import fr.sirene.jobtracker.interfaces.rest.dto.ModifierPriseDeContactRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.ModifierStatutCandidatureRequest;
 import jakarta.inject.Inject;
 import tools.jackson.databind.ObjectMapper;
@@ -87,6 +89,8 @@ class CandidatureControllerTest {
     private ModifierEvenementCandidatureUseCase modifierEvenementCandidatureUseCase;
     @MockitoBean
     private ModifierStatutCandidatureUseCase modifierStatutCandidatureUseCase;
+    @MockitoBean
+    private ModifierPriseDeContactUseCase modifierPriseDeContactUseCase;
     @MockitoBean
     private AjouterDocumentCvUseCase ajouterDocumentCvUseCase;
     @MockitoBean
@@ -204,21 +208,24 @@ class CandidatureControllerTest {
         void renvoie_201_a_la_creation() throws Exception {
             Candidature candidature = CandidaturePriseDeContact.builder()
                     .id(1L).nomEntreprise("Acme SAS").typeEntreprise(TypeEntreprise.CABINET_RECRUTEMENT)
+                    .poste("Lead Developer").client("Société Générale")
                     .statut(StatutPriseDeContact.ETABLI).dateCandidature(LocalDateTime.now())
                     .evenements(List.of()).documents(List.of()).build();
             when(creerCandidatureUseCase.creerPriseDeContact(
-                    eq("Acme SAS"), any(), eq(TypeEntreprise.CABINET_RECRUTEMENT), any(), any()))
+                    eq("Acme SAS"), any(), eq(TypeEntreprise.CABINET_RECRUTEMENT), any(), any(), any(), any()))
                     .thenReturn(candidature);
 
-            CreerPriseDeContactRequest requete =
-                    new CreerPriseDeContactRequest("Acme SAS", null, TypeEntreprise.CABINET_RECRUTEMENT, null, null);
+            CreerPriseDeContactRequest requete = new CreerPriseDeContactRequest(
+                    "Acme SAS", null, TypeEntreprise.CABINET_RECRUTEMENT, "Lead Developer", "Société Générale", null, null);
 
             mockMvc.perform(post("/api/v1/candidatures/prise-de-contact")
                             .contentType("application/json")
                             .content(objectMapper.writeValueAsString(requete)))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.nomEntreprise").value("Acme SAS"))
-                    .andExpect(jsonPath("$.type").value("PRISE_DE_CONTACT"));
+                    .andExpect(jsonPath("$.type").value("PRISE_DE_CONTACT"))
+                    .andExpect(jsonPath("$.poste").value("Lead Developer"))
+                    .andExpect(jsonPath("$.client").value("Société Générale"));
         }
 
         @Test
@@ -227,6 +234,73 @@ class CandidatureControllerTest {
                             .contentType("application/json")
                             .content("{\"nomEntreprise\":\"Acme SAS\"}"))
                     .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void renvoie_400_quand_le_client_est_fourni_pour_un_editeur() throws Exception {
+            when(creerCandidatureUseCase.creerPriseDeContact(
+                    eq("Acme SAS"), any(), eq(TypeEntreprise.EDITEUR), any(), any(), any(), any()))
+                    .thenThrow(new IllegalArgumentException(
+                            "Le client n'a de sens que pour une entreprise de type ESN ou cabinet de recrutement"));
+
+            CreerPriseDeContactRequest requete = new CreerPriseDeContactRequest(
+                    "Acme SAS", null, TypeEntreprise.EDITEUR, "Lead Developer", "Société Générale", null, null);
+
+            mockMvc.perform(post("/api/v1/candidatures/prise-de-contact")
+                            .contentType("application/json")
+                            .content(objectMapper.writeValueAsString(requete)))
+                    .andExpect(status().isBadRequest());
+        }
+    }
+
+    @Nested
+    class ModifierPriseDeContact {
+
+        @Test
+        void renvoie_200_a_la_modification() throws Exception {
+            Candidature candidature = CandidaturePriseDeContact.builder()
+                    .id(1L).nomEntreprise("Acme SAS").urlEntreprise("https://acme.example")
+                    .typeEntreprise(TypeEntreprise.ESN).poste("Lead Developer").client("Société Générale")
+                    .statut(StatutPriseDeContact.ETABLI).dateCandidature(LocalDateTime.now())
+                    .evenements(List.of()).documents(List.of()).build();
+            when(modifierPriseDeContactUseCase.executer(1L, "https://acme.example", "Lead Developer", "Société Générale"))
+                    .thenReturn(candidature);
+
+            ModifierPriseDeContactRequest requete =
+                    new ModifierPriseDeContactRequest("https://acme.example", "Lead Developer", "Société Générale");
+
+            mockMvc.perform(patch("/api/v1/candidatures/1/prise-de-contact")
+                            .contentType("application/json")
+                            .content(objectMapper.writeValueAsString(requete)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.poste").value("Lead Developer"))
+                    .andExpect(jsonPath("$.client").value("Société Générale"));
+        }
+
+        @Test
+        void renvoie_400_quand_la_candidature_n_est_pas_une_prise_de_contact() throws Exception {
+            when(modifierPriseDeContactUseCase.executer(1L, null, "Lead Developer", null))
+                    .thenThrow(new IllegalArgumentException("La candidature 1 n'est pas une prise de contact"));
+
+            ModifierPriseDeContactRequest requete = new ModifierPriseDeContactRequest(null, "Lead Developer", null);
+
+            mockMvc.perform(patch("/api/v1/candidatures/1/prise-de-contact")
+                            .contentType("application/json")
+                            .content(objectMapper.writeValueAsString(requete)))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void renvoie_404_quand_la_candidature_est_introuvable() throws Exception {
+            when(modifierPriseDeContactUseCase.executer(99L, null, "Lead Developer", null))
+                    .thenThrow(new CandidatureNonTrouveeException(99L));
+
+            ModifierPriseDeContactRequest requete = new ModifierPriseDeContactRequest(null, "Lead Developer", null);
+
+            mockMvc.perform(patch("/api/v1/candidatures/99/prise-de-contact")
+                            .contentType("application/json")
+                            .content(objectMapper.writeValueAsString(requete)))
+                    .andExpect(status().isNotFound());
         }
     }
 

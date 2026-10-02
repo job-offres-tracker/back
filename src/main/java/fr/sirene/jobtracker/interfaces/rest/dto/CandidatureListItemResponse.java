@@ -38,6 +38,12 @@ public record CandidatureListItemResponse(
         @Schema(description = "Lieu de travail (uniquement pour le type OFFRE)")
         Lieu lieu,
 
+        @Schema(description = "Poste visé par la prise de contact (uniquement pour le type PRISE_DE_CONTACT)")
+        String poste,
+
+        @Schema(description = "Client final pour lequel le poste est à pourvoir (uniquement pour le type PRISE_DE_CONTACT)")
+        String client,
+
         @Schema(description = "Statut de la candidature liée à une offre (uniquement pour le type OFFRE)")
         StatutCandidatureOffre statutCandidatureOffre,
 
@@ -54,14 +60,14 @@ public record CandidatureListItemResponse(
         return switch (candidature) {
             case CandidatureOffre co -> new CandidatureListItemResponse(
                     co.getId(), TypeCandidature.OFFRE, co.getOffre().getIdExterne(), co.getOffre().getIntitule(),
-                    co.getOffre().getEtat(), co.getOffre().getEntreprise(), co.getOffre().getLieu(), co.getStatut(), null, null,
-                    co.getDateCandidature());
+                    co.getOffre().getEtat(), co.getOffre().getEntreprise(), co.getOffre().getLieu(), null, null,
+                    co.getStatut(), null, null, co.getDateCandidature());
             case CandidatureSpontanee cs -> new CandidatureListItemResponse(
-                    cs.getId(), TypeCandidature.SPONTANEE, null, null, null, cs.getNomEntreprise(), null, null,
-                    cs.getStatut(), null, cs.getDateCandidature());
+                    cs.getId(), TypeCandidature.SPONTANEE, null, null, null, cs.getNomEntreprise(), null, null, null,
+                    null, cs.getStatut(), null, cs.getDateCandidature());
             case CandidaturePriseDeContact cp -> new CandidatureListItemResponse(
-                    cp.getId(), TypeCandidature.PRISE_DE_CONTACT, null, null, null, cp.getNomEntreprise(), null, null,
-                    null, cp.getStatut(), cp.getDateCandidature());
+                    cp.getId(), TypeCandidature.PRISE_DE_CONTACT, null, null, null, cp.getNomEntreprise(), null,
+                    cp.getPoste(), cp.getClient(), null, null, cp.getStatut(), cp.getDateCandidature());
         };
     }
 }

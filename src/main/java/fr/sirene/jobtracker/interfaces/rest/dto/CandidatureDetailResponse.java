@@ -41,6 +41,12 @@ public record CandidatureDetailResponse(
         @Schema(description = "Type de l'entreprise (uniquement pour SPONTANEE/PRISE_DE_CONTACT)")
         TypeEntreprise typeEntreprise,
 
+        @Schema(description = "Poste visé par la prise de contact (uniquement pour le type PRISE_DE_CONTACT)")
+        String poste,
+
+        @Schema(description = "Client final pour lequel le poste est à pourvoir (uniquement pour le type PRISE_DE_CONTACT)")
+        String client,
+
         @Schema(description = "Statut de la candidature spontanée (uniquement pour le type SPONTANEE)")
         StatutCandidatureSpontanee statutCandidatureSpontanee,
 
@@ -59,13 +65,14 @@ public record CandidatureDetailResponse(
         return switch (candidature) {
             case CandidatureOffre co -> new CandidatureDetailResponse(
                     co.getId(), TypeCandidature.OFFRE, co.getDateCandidature(), OffreResponse.fromDomain(co.getOffre()), co.getStatut(),
-                    null, null, null, null, null, evenements, documents);
+                    null, null, null, null, null, null, null, evenements, documents);
             case CandidatureSpontanee cs -> new CandidatureDetailResponse(
                     cs.getId(), TypeCandidature.SPONTANEE, cs.getDateCandidature(), null, null,
-                    cs.getNomEntreprise(), cs.getUrlEntreprise(), cs.getTypeEntreprise(), cs.getStatut(), null, evenements, documents);
+                    cs.getNomEntreprise(), cs.getUrlEntreprise(), cs.getTypeEntreprise(), null, null, cs.getStatut(), null, evenements, documents);
             case CandidaturePriseDeContact cp -> new CandidatureDetailResponse(
                     cp.getId(), TypeCandidature.PRISE_DE_CONTACT, cp.getDateCandidature(), null, null,
-                    cp.getNomEntreprise(), cp.getUrlEntreprise(), cp.getTypeEntreprise(), null, cp.getStatut(), evenements, documents);
+                    cp.getNomEntreprise(), cp.getUrlEntreprise(), cp.getTypeEntreprise(), cp.getPoste(), cp.getClient(),
+                    null, cp.getStatut(), evenements, documents);
         };
     }
 }

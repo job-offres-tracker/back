@@ -238,6 +238,27 @@ class JpaCandidatureRepositoryTest {
             verify(candidatureJpaRepository).save(captor.capture());
             assertThat(captor.getValue().getType()).isEqualTo(TypeCandidature.PRISE_DE_CONTACT);
         }
+
+        @Test
+        void persiste_le_poste_et_le_client_d_une_prise_de_contact() {
+            when(candidatureJpaRepository.save(any(CandidatureEntity.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            Candidature candidature = CandidaturePriseDeContact.builder()
+                    .nomEntreprise("Acme SAS").typeEntreprise(TypeEntreprise.ESN)
+                    .poste("Lead Developer").client("Société Générale")
+                    .statut(StatutPriseDeContact.ETABLI).dateCandidature(LocalDateTime.now())
+                    .evenements(List.of()).documents(List.of()).build();
+
+            Candidature resultat = repository.sauvegarder(candidature);
+
+            assertThat(((CandidaturePriseDeContact) resultat).getPoste()).isEqualTo("Lead Developer");
+            assertThat(((CandidaturePriseDeContact) resultat).getClient()).isEqualTo("Société Générale");
+            ArgumentCaptor<CandidatureEntity> captor = ArgumentCaptor.captor();
+            verify(candidatureJpaRepository).save(captor.capture());
+            assertThat(captor.getValue().getPoste()).isEqualTo("Lead Developer");
+            assertThat(captor.getValue().getClient()).isEqualTo("Société Générale");
+        }
     }
 
     @Nested

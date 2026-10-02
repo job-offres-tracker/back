@@ -9,6 +9,7 @@ import fr.sirene.jobtracker.application.usecase.candidature.ConsulterCandidature
 import fr.sirene.jobtracker.application.usecase.candidature.ConsulterCandidaturesUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.CreerCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.ModifierEvenementCandidatureUseCase;
+import fr.sirene.jobtracker.application.usecase.candidature.ModifierPriseDeContactUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.ModifierStatutCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.TelechargerDocumentCandidatureUseCase;
 import fr.sirene.jobtracker.domain.model.Candidature;
@@ -25,6 +26,7 @@ import fr.sirene.jobtracker.interfaces.rest.dto.CreerEvenementRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.CreerPriseDeContactRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.DocumentCandidatureResponse;
 import fr.sirene.jobtracker.interfaces.rest.dto.EvenementResponse;
+import fr.sirene.jobtracker.interfaces.rest.dto.ModifierPriseDeContactRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.ModifierStatutCandidatureRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.PagedResponse;
 
@@ -77,6 +79,7 @@ public class CandidatureController {
     private final AjouterEvenementCandidatureUseCase ajouterEvenementCandidatureUseCase;
     private final ModifierEvenementCandidatureUseCase modifierEvenementCandidatureUseCase;
     private final ModifierStatutCandidatureUseCase modifierStatutCandidatureUseCase;
+    private final ModifierPriseDeContactUseCase modifierPriseDeContactUseCase;
     private final AjouterDocumentCvUseCase ajouterDocumentCvUseCase;
     private final AjouterDocumentFichierUseCase ajouterDocumentFichierUseCase;
     private final AjouterDocumentTexteUseCase ajouterDocumentTexteUseCase;
@@ -90,6 +93,7 @@ public class CandidatureController {
             AjouterEvenementCandidatureUseCase ajouterEvenementCandidatureUseCase,
             ModifierEvenementCandidatureUseCase modifierEvenementCandidatureUseCase,
             ModifierStatutCandidatureUseCase modifierStatutCandidatureUseCase,
+            ModifierPriseDeContactUseCase modifierPriseDeContactUseCase,
             AjouterDocumentCvUseCase ajouterDocumentCvUseCase,
             AjouterDocumentFichierUseCase ajouterDocumentFichierUseCase,
             AjouterDocumentTexteUseCase ajouterDocumentTexteUseCase,
@@ -101,6 +105,7 @@ public class CandidatureController {
         this.ajouterEvenementCandidatureUseCase = ajouterEvenementCandidatureUseCase;
         this.modifierEvenementCandidatureUseCase = modifierEvenementCandidatureUseCase;
         this.modifierStatutCandidatureUseCase = modifierStatutCandidatureUseCase;
+        this.modifierPriseDeContactUseCase = modifierPriseDeContactUseCase;
         this.ajouterDocumentCvUseCase = ajouterDocumentCvUseCase;
         this.ajouterDocumentFichierUseCase = ajouterDocumentFichierUseCase;
         this.ajouterDocumentTexteUseCase = ajouterDocumentTexteUseCase;
@@ -191,8 +196,29 @@ public class CandidatureController {
             @Valid @RequestBody CreerPriseDeContactRequest requete) {
         Candidature candidature = creerCandidatureUseCase.creerPriseDeContact(
                 requete.nomEntreprise(), requete.urlEntreprise(), requete.typeEntreprise(),
-                requete.statut(), requete.dateCandidature());
+                requete.poste(), requete.client(), requete.statut(), requete.dateCandidature());
         return ResponseEntity.status(HttpStatus.CREATED).body(CandidatureDetailResponse.fromDomain(candidature));
+    }
+
+    @Operation(
+            summary = "Modifier une prise de contact",
+            description = "Met à jour l'URL du site, le poste visé et le client final d'une prise de contact "
+                    + "(le client n'a de sens que pour une entreprise de type ESN ou cabinet de recrutement).")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Prise de contact modifiée"),
+            @ApiResponse(responseCode = "400", description = "Requête invalide ou candidature n'étant pas une prise de contact",
+                    content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
+                            schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "404", description = "Candidature introuvable",
+                    content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
+                            schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    @PatchMapping("/{id}/prise-de-contact")
+    public ResponseEntity<CandidatureDetailResponse> modifierPriseDeContact(
+            @PathVariable Long id, @RequestBody ModifierPriseDeContactRequest requete) {
+        Candidature candidature = modifierPriseDeContactUseCase.executer(
+                id, requete.urlEntreprise(), requete.poste(), requete.client());
+        return ResponseEntity.ok(CandidatureDetailResponse.fromDomain(candidature));
     }
 
     @Operation(
