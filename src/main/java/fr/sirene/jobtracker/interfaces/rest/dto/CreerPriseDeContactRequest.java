@@ -23,6 +23,13 @@ public record CreerPriseDeContactRequest(
         @NotNull(message = "Le type de l'entreprise est obligatoire")
         TypeEntreprise typeEntreprise,
 
+        @Schema(description = "Poste visé par la prise de contact")
+        String poste,
+
+        @Schema(description = "Client final pour lequel le poste est à pourvoir "
+                + "(uniquement pertinent si l'entreprise est une ESN ou un cabinet de recrutement)")
+        String client,
+
         @Schema(description = "Statut initial ; \"ETABLI\" par défaut si absent")
         StatutPriseDeContact statut,
 

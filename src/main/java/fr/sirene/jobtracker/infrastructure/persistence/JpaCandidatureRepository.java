@@ -78,6 +78,8 @@ public class JpaCandidatureRepository implements CandidatureRepository {
                 entity.setNomEntreprise(cp.getNomEntreprise());
                 entity.setUrlEntreprise(cp.getUrlEntreprise());
                 entity.setTypeEntreprise(cp.getTypeEntreprise());
+                entity.setPoste(cp.getPoste());
+                entity.setClient(cp.getClient());
                 entity.setStatutPriseDeContact(cp.getStatut());
             }
         }
@@ -227,6 +229,8 @@ public class JpaCandidatureRepository implements CandidatureRepository {
                     .nomEntreprise(entity.getNomEntreprise())
                     .urlEntreprise(entity.getUrlEntreprise())
                     .typeEntreprise(entity.getTypeEntreprise())
+                    .poste(entity.getPoste())
+                    .client(entity.getClient())
                     .statut(entity.getStatutPriseDeContact())
                     .dateCandidature(entity.getDateCandidature())
                     .evenements(evenements)

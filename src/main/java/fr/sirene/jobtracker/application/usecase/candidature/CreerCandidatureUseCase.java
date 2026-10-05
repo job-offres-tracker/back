@@ -39,11 +39,14 @@ public class CreerCandidatureUseCase {
 
     public Candidature creerPriseDeContact(
             String nomEntreprise, String urlEntreprise, TypeEntreprise typeEntreprise,
+            String poste, String client,
             StatutPriseDeContact statut, LocalDateTime dateCandidature) {
         Candidature candidature = CandidaturePriseDeContact.builder()
                 .nomEntreprise(nomEntreprise)
                 .urlEntreprise(urlEntreprise)
                 .typeEntreprise(typeEntreprise)
+                .poste(poste)
+                .client(client)
                 .statut(statut != null ? statut : StatutPriseDeContact.ETABLI)
                 .dateCandidature(dateCandidature != null ? dateCandidature : LocalDateTime.now())
                 .evenements(List.of())
