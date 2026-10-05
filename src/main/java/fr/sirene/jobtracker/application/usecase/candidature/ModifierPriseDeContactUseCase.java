@@ -3,6 +3,7 @@ package fr.sirene.jobtracker.application.usecase.candidature;
 import fr.sirene.jobtracker.application.port.candidature.CandidatureRepository;
 import fr.sirene.jobtracker.domain.exception.CandidatureNonTrouveeException;
 import fr.sirene.jobtracker.domain.model.Candidature;
+import fr.sirene.jobtracker.domain.model.ChampModifie;
 import fr.sirene.jobtracker.domain.model.CandidaturePriseDeContact;
 
 import org.springframework.stereotype.Service;
@@ -18,7 +19,8 @@ public class ModifierPriseDeContactUseCase {
     }
 
     @Transactional
-    public Candidature executer(long id, String urlEntreprise, String poste, String client) {
+    public Candidature executer(long id, ChampModifie<String> urlEntreprise, ChampModifie<String> poste,
+                                ChampModifie<String> client) {
         Candidature candidature = candidatureRepository.trouverParId(id)
                 .orElseThrow(() -> new CandidatureNonTrouveeException(id));
 
@@ -28,9 +30,9 @@ public class ModifierPriseDeContactUseCase {
         }
 
         Candidature miseAJour = cp.toBuilder()
-                .urlEntreprise(urlEntreprise)
-                .poste(poste)
-                .client(client)
+                .urlEntreprise(urlEntreprise.appliquerA(cp.getUrlEntreprise()))
+                .poste(poste.appliquerA(cp.getPoste()))
+                .client(client.appliquerA(cp.getClient()))
                 .build();
 
         return candidatureRepository.sauvegarder(miseAJour);

@@ -217,7 +217,7 @@ public class CandidatureController {
     public ResponseEntity<CandidatureDetailResponse> modifierPriseDeContact(
             @PathVariable Long id, @RequestBody ModifierPriseDeContactRequest requete) {
         Candidature candidature = modifierPriseDeContactUseCase.executer(
-                id, requete.urlEntreprise(), requete.poste(), requete.client());
+                id, requete.getUrlEntreprise(), requete.getPoste(), requete.getClient());
         return ResponseEntity.ok(CandidatureDetailResponse.fromDomain(candidature));
     }
 

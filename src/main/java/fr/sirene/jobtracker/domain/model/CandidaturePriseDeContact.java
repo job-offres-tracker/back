@@ -116,6 +116,9 @@ public final class CandidaturePriseDeContact implements Candidature {
         public Builder documents(List<DocumentCandidature> documents) { this.documents = documents; return this; }
 
         public CandidaturePriseDeContact build() {
+            if (client != null && client.isBlank()) {
+                client = null;
+            }
             if (client != null && typeEntreprise != TypeEntreprise.ESN && typeEntreprise != TypeEntreprise.CABINET_RECRUTEMENT) {
                 throw new IllegalArgumentException(
                         "Le client n'a de sens que pour une entreprise de type ESN ou cabinet de recrutement");

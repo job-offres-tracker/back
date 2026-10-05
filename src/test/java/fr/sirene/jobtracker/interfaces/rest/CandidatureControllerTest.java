@@ -9,6 +9,7 @@ import fr.sirene.jobtracker.application.usecase.candidature.ConsulterCandidature
 import fr.sirene.jobtracker.application.usecase.candidature.ConsulterCandidaturesUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.CreerCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.ModifierEvenementCandidatureUseCase;
+import fr.sirene.jobtracker.domain.model.ChampModifie;
 import fr.sirene.jobtracker.application.usecase.candidature.ModifierPriseDeContactUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.ModifierStatutCandidatureUseCase;
 import fr.sirene.jobtracker.application.usecase.candidature.TelechargerDocumentCandidatureUseCase;
@@ -37,7 +38,6 @@ import fr.sirene.jobtracker.interfaces.rest.dto.AjouterDocumentTexteRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.CreerCandidatureSpontaneeRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.CreerEvenementRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.CreerPriseDeContactRequest;
-import fr.sirene.jobtracker.interfaces.rest.dto.ModifierPriseDeContactRequest;
 import fr.sirene.jobtracker.interfaces.rest.dto.ModifierStatutCandidatureRequest;
 import jakarta.inject.Inject;
 import tools.jackson.databind.ObjectMapper;
@@ -58,6 +58,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -263,43 +264,81 @@ class CandidatureControllerTest {
                     .typeEntreprise(TypeEntreprise.ESN).poste("Lead Developer").client("Société Générale")
                     .statut(StatutPriseDeContact.ETABLI).dateCandidature(LocalDateTime.now())
                     .evenements(List.of()).documents(List.of()).build();
-            when(modifierPriseDeContactUseCase.executer(1L, "https://acme.example", "Lead Developer", "Société Générale"))
+            when(modifierPriseDeContactUseCase.executer(1L, ChampModifie.de("https://acme.example"),
+                    ChampModifie.de("Lead Developer"), ChampModifie.de("Société Générale")))
                     .thenReturn(candidature);
-
-            ModifierPriseDeContactRequest requete =
-                    new ModifierPriseDeContactRequest("https://acme.example", "Lead Developer", "Société Générale");
 
             mockMvc.perform(patch("/api/v1/candidatures/1/prise-de-contact")
                             .contentType("application/json")
-                            .content(objectMapper.writeValueAsString(requete)))
+                            .content("""
+                                    {"urlEntreprise":"https://acme.example","poste":"Lead Developer","client":"Société Générale"}
+                                    """))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.poste").value("Lead Developer"))
                     .andExpect(jsonPath("$.client").value("Société Générale"));
         }
 
         @Test
-        void renvoie_400_quand_la_candidature_n_est_pas_une_prise_de_contact() throws Exception {
-            when(modifierPriseDeContactUseCase.executer(1L, null, "Lead Developer", null))
-                    .thenThrow(new IllegalArgumentException("La candidature 1 n'est pas une prise de contact"));
-
-            ModifierPriseDeContactRequest requete = new ModifierPriseDeContactRequest(null, "Lead Developer", null);
+        void transmet_comme_absents_les_champs_omis_du_corps() throws Exception {
+            Candidature candidature = CandidaturePriseDeContact.builder()
+                    .id(1L).nomEntreprise("Acme SAS").urlEntreprise("https://acme.example")
+                    .typeEntreprise(TypeEntreprise.ESN).poste("Lead Developer").client("Société Générale")
+                    .statut(StatutPriseDeContact.ETABLI).dateCandidature(LocalDateTime.now())
+                    .evenements(List.of()).documents(List.of()).build();
+            when(modifierPriseDeContactUseCase.executer(1L, ChampModifie.absent(),
+                    ChampModifie.de("Lead Developer"), ChampModifie.absent()))
+                    .thenReturn(candidature);
 
             mockMvc.perform(patch("/api/v1/candidatures/1/prise-de-contact")
                             .contentType("application/json")
-                            .content(objectMapper.writeValueAsString(requete)))
+                            .content("{\"poste\":\"Lead Developer\"}"))
+                    .andExpect(status().isOk());
+
+            verify(modifierPriseDeContactUseCase).executer(1L, ChampModifie.absent(),
+                    ChampModifie.de("Lead Developer"), ChampModifie.absent());
+        }
+
+        @Test
+        void transmet_comme_a_effacer_un_champ_explicitement_a_null() throws Exception {
+            Candidature candidature = CandidaturePriseDeContact.builder()
+                    .id(1L).nomEntreprise("Acme SAS").typeEntreprise(TypeEntreprise.ESN)
+                    .poste("Lead Developer").client("Société Générale")
+                    .statut(StatutPriseDeContact.ETABLI).dateCandidature(LocalDateTime.now())
+                    .evenements(List.of()).documents(List.of()).build();
+            when(modifierPriseDeContactUseCase.executer(1L, ChampModifie.de(null),
+                    ChampModifie.absent(), ChampModifie.absent()))
+                    .thenReturn(candidature);
+
+            mockMvc.perform(patch("/api/v1/candidatures/1/prise-de-contact")
+                            .contentType("application/json")
+                            .content("{\"urlEntreprise\":null}"))
+                    .andExpect(status().isOk());
+
+            verify(modifierPriseDeContactUseCase).executer(1L, ChampModifie.de(null),
+                    ChampModifie.absent(), ChampModifie.absent());
+        }
+
+        @Test
+        void renvoie_400_quand_la_candidature_n_est_pas_une_prise_de_contact() throws Exception {
+            when(modifierPriseDeContactUseCase.executer(1L, ChampModifie.absent(),
+                    ChampModifie.de("Lead Developer"), ChampModifie.absent()))
+                    .thenThrow(new IllegalArgumentException("La candidature 1 n'est pas une prise de contact"));
+
+            mockMvc.perform(patch("/api/v1/candidatures/1/prise-de-contact")
+                            .contentType("application/json")
+                            .content("{\"poste\":\"Lead Developer\"}"))
                     .andExpect(status().isBadRequest());
         }
 
         @Test
         void renvoie_404_quand_la_candidature_est_introuvable() throws Exception {
-            when(modifierPriseDeContactUseCase.executer(99L, null, "Lead Developer", null))
+            when(modifierPriseDeContactUseCase.executer(99L, ChampModifie.absent(),
+                    ChampModifie.de("Lead Developer"), ChampModifie.absent()))
                     .thenThrow(new CandidatureNonTrouveeException(99L));
-
-            ModifierPriseDeContactRequest requete = new ModifierPriseDeContactRequest(null, "Lead Developer", null);
 
             mockMvc.perform(patch("/api/v1/candidatures/99/prise-de-contact")
                             .contentType("application/json")
-                            .content(objectMapper.writeValueAsString(requete)))
+                            .content("{\"poste\":\"Lead Developer\"}"))
                     .andExpect(status().isNotFound());
         }
     }
